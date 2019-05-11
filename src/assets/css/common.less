@@ -1,0 +1,94 @@
+@black:#474747;
+@gray:#808080;
+@graymore:#B4B4B4;
+@block:#ffffff;
+@titleHeight:52px;
+@fontSmall:12px;
+@fontMiddle:14px;
+@fontBig:16px;
+@fontTitle:20px;
+@blue: #669AFF;
+@lightBlue:#4967FE;
+@red:#FA6060;
+@green:#039a3c;
+body,h1,h2,h3,h4,h5,h6,p,blockquote,dl,dt,dd,ul,ol,li,pre,form,fieldset,lengend, button,input,select,textarea,th,td{margin:0;padding:0;}
+body,h1,h2,h3,h4,h5,h6,p,div,li,ul,ol,span,i,textarea,input,a,button,em,table,form{box-sizing:border-box;}
+body,button,input,select,textarea{font:12px/1 'Microsoft YaHei',sans-serif;}
+*:focus,a:focus{outline:none;}
+a,a:focus,a:hover,a:active{text-decoration:none;box-shadow:none;cursor:pointer;}
+address,caption,cite,code,dfn,em,th,var,i{font-weight:normal;font-style:normal;}
+h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal;}
+ul,ol{list-style:none;}
+legend{color:#000;}
+fieldset,img{border:none;}
+table{border-collapse:collapse;border-spacing:0;}
+textarea{resize:none}
+.hide{display:none !important;}
+.conceal{visibility:hidden;}
+.fa{text-align:center;}
+*::-webkit-input-placeholder{color:#9c9fa2;} 
+*:-moz-placeholder{color:#9c9fa2;} 
+*::-moz-placeholder{color:#9c9fa2;} 
+*:-ms-input-placeholder{color:#9c9fa2;}
+
+// 设置font-size
+*{
+  font-size: 14px;
+  font-family:MicrosoftYaHei;
+}
+
+// 元素垂直居中
+.vertical_middle{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+// 横向flex
+.flexRow{
+  display: flex;
+  flex-direction: row;
+}
+// 纵向flex
+.flexColumn{
+  display: flex;
+  flex-direction: column;
+}
+// 清浮动
+.clearfix{
+  &::after{
+    content: '';
+    width: 0;
+    height: 0;
+    display: block;
+    clear: both;
+  }
+}
+/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+::-webkit-scrollbar {
+  width: 6px;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0);
+}
+/*定义滚动条轨道 内阴影+圆角*/
+::-webkit-scrollbar-track {
+  border-radius: 4px;
+  background-color: transparent;
+}
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb {
+  height: 4px;
+  border-radius: 2px;
+  background-color: #DBDCE5;
+}
+
+// 路由动画
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s;
+}
+.fade-enter {
+  opacity: 0.6;
+}
+.fade-leave-to {
+  opacity: 0.6;
+}
