@@ -1,10 +1,3 @@
-/*
- * @Author: wupeiwen javapeiwen2010@gmail.com
- * @Date: 2018-09-18 10:51:29
- * @Last Modified by:   wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2018-09-18 10:51:29
- */
-
 <template>
   <div class="error">
     <div class="left">
@@ -25,9 +18,9 @@ export default {
     return {
       errorCode: 500,
       list: {
-        500: {des: '抱歉，服务器出错了', img: 'error500'},
-        404: {des: '抱歉，你访问的页面不存在', img: 'error404'},
-        403: {des: '抱歉，你无权访问该页面', img: 'error403'}
+        500: { des: '抱歉，服务器出错了', img: 'error500' },
+        404: { des: '抱歉，你访问的页面不存在', img: 'error404' },
+        403: { des: '抱歉，你无权访问该页面', img: 'error403' }
       }
     }
   },
@@ -48,7 +41,7 @@ export default {
   },
   methods: {
     handleButtonClick () {
-      this.$router.push({path: '/'})
+      this.$router.push({ path: '/' })
     }
   },
   created () {

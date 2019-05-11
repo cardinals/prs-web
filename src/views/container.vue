@@ -1,10 +1,3 @@
-/*
- * @Author: wupeiwen javapeiwen2010@gmail.com
- * @Date: 2018-09-18 10:05:15
- * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2018-09-18 10:51:24
- */
-
 <template>
   <!-- 外层容器，当子元素中包含 <el-header> 或 <el-footer> 时，全部子元素会垂直上下排列，否则会水平左右排列。 -->
   <div class="container" v-loading="$store.state.app.isShowLoading" :style="{'background':$route.fullPath ==='/home'?'white':'#f0f0f0','padding-bottom':$route.fullPath==='/home'?'58px':'154px'}">

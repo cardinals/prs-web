@@ -8,7 +8,7 @@
       </div>
     </div>
     <div v-if="model==='normal'" class="ul">
-        <div v-if="index<5" @click="goToDetail(item.value)" class="li" v-for="(item,index) in data" :key="index">
+        <div @click="goToDetail(item.value)" class="li" v-for="(item,index) in data.splite(0,5)" :key="index">
           <span v-if="item.name.length<=40" class="name">{{item.name|subText}}</span>
           <el-tooltip v-if="item.name.length>40" class="item" effect="dark" :content="item.name" placement="right">
             <span class="name">{{item.name|subText}}</span>
@@ -17,7 +17,7 @@
         </div>
     </div>
     <div v-if="model==='details'" class="ul details">
-        <div lock='false' class="li" v-if="index<5" v-for="(item,index) in data" :key="index" :style="{height:item.name.length > 19 ? '40px' : '20px'}">
+        <div lock='false' class="li" v-for="(item,index) in data.splite(0,5)" :key="index" :style="{height:item.name.length > 19 ? '40px' : '20px'}">
           <span v-if="item.name.length<=36" @click="showDetail($event)" class="name">{{item.name|subText}}</span>
           <el-tooltip v-if="item.name.length>36" class="item" effect="dark" :content="item.name" placement="right">
             <span @click="showDetail($event)" class="name">{{item.name|subText}}</span>

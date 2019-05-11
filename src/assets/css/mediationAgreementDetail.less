@@ -1,0 +1,264 @@
+@import './common.less';
+.mediationAD{
+  width: 100%;
+  position: relative;
+  .listContainer{
+    z-index: 1;
+  }
+  .mainContent{
+    float: left;
+    width: 834px;
+    margin:0 31px 0 0;
+    .titles{
+      background: @block;
+      position: relative;
+      padding:15px 0 35px 22px;
+      .real_title{
+        display: block;
+        margin-bottom: 8px;
+        font-size: 20px;
+        margin-right: 60px;
+      }
+      .from{
+        padding:0px 8px;
+        height: 30px;
+        color:@blue;
+        font-size: @fontMiddle;
+        background: rgba(73,103,254,0.1);
+        display: inline-block;
+        line-height: 30px;
+        .icon{
+          float: right;
+          width: 22px;
+          height: 30px;
+          margin-left: 8px;
+          background:url('../images/mediationAgreementDetail/computer.png') top 7px center no-repeat;
+        }
+      }
+      .types{
+        position: absolute;
+        top: 10px;
+        right: -11px;
+        color:#ffffff;
+        width: 75px;
+        height: 39px;
+        text-align: center;
+        line-height: 33px;
+        background: url('../images/common/type_back2.png') left 2px top 0px no-repeat;
+        font-size: @fontMiddle;
+      }
+    }
+    .contents{
+      display: block;
+      .title{
+        padding-left: 22px;
+        padding-right: 12px;
+        background: #ffffff;
+        position: relative;
+        span{
+          color:@black;
+          font-size: 18px;
+          display: inline-block;
+          padding:12px 0;
+          position: relative;
+          z-index: 1;
+          .border2{
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            height: 2px;
+            background: @blue;
+          }
+        }
+        .border{
+          position: absolute;
+          width: calc(100% - 34px);
+          left: 22px;
+          bottom: 0;
+          height: 2px;
+          background: #F2F2F2;
+        }
+      }
+      .content{
+        background: @block;
+        padding:15px 12px 35px 22px;
+        .line{
+          height: 36px;
+          line-height: 36px;
+          .label{
+            display: inline-block;
+            font-size:@fontMiddle;
+            color: @black;
+            width: 60px;
+          }
+          .img{
+            width: 36px;
+            height: 36px;
+            background: url('../images/mediationAgreementDetail/icon_analysis.png') center center no-repeat;
+            line-height: 36px;
+            float: left;
+            cursor: pointer;
+          }
+          .des{
+            margin-left: 12px;
+            font-size:@fontMiddle;
+            color:@gray;
+            &.name{
+              color: @blue;
+              cursor: pointer;
+            }
+            &.keyword{
+              color:#52C41A;
+              background: #F6FFED;
+              border:1px solid #B7EB8F;
+              border-radius: 2px;
+              padding:0 4px;
+              &:nth-of-type(2n+1){
+                background:rgba(205,222,255,0.5);
+                border-color: rgba(205,222,255,1);
+                color:@blue;
+              }
+              &:nth-of-type(3n+1){
+                background:rgba(205,172,255,0.5);
+                border-color: rgba(205,172,255,1);
+                color:#9A57FF;
+              }
+            }
+          }
+        }
+        .stage{
+          font-size: @fontMiddle;
+          color:@gray;
+          line-height: 22px;
+          letter-spacing: 1px;
+          text-indent: 2em;
+          font-weight: 400;
+          margin-bottom: 15px;
+          p{
+            font-size: 15px;
+            line-height: 30px;
+            letter-spacing: 3px;
+            text-align: justify;
+          }
+        }
+      }
+    }
+  }
+  .sideContainer{
+    float: left;
+    width: 335px;
+  }
+  .peopleDetail{
+    width:370px;
+    box-sizing: border-box;
+    padding-left: 109px;
+    position: absolute;
+    background: #ffffff;
+    border-radius:4px;
+    box-shadow:0px 3px 18px rgba(0,0,0,0.26);
+    background-repeat: no-repeat;
+    background-position: 20px 31px;
+    &.nv{
+      background-image: url('../images/mediationAgreementDetail/nv.png');
+    }
+    &.nan{
+      background-image: url('../images/mediationAgreementDetail/nan.png');
+    }
+    &.weizhi{
+      background-image: url('../images/mediationAgreementDetail/weizhi.png');
+    }
+    .red{
+      color: @red;
+    }
+    .blue{
+      color: @blue;
+    }
+    .line1{
+      margin-top: 36px;
+      font-size: 20px;
+      display: block;
+    }
+    .line2{
+      margin:14px 0 22px 0;
+      height: 19px;
+      .span{
+        color:@black;
+        font-size: @fontMiddle;
+        vertical-align: middle;
+        &:nth-child(1){
+          padding-right: 16px;
+        }
+        &:nth-child(3){
+          padding:0 16px;
+        }
+        &:nth-child(5){
+          padding-left: 16px;
+        }
+      }
+      .border{
+        display: inline-block;
+        vertical-align: middle;
+        width:1px;
+        height:13px;
+        background:rgba(228,227,227,1);
+      }
+    }
+    .line3{
+      box-sizing: border-box;
+      width: 100%;
+      padding-left: 26px;
+      padding-right: 8px;
+      margin-bottom: 14px;
+      font-size: @fontMiddle;
+      color:@gray;
+      line-height: 16px;
+      background-repeat: no-repeat;
+      background-position: left top;
+      &:nth-last-child(2){
+        background-image: url('../images/mediationAgreementDetail/types.png');
+        margin-bottom: 28px;
+      }
+      &:nth-last-child(3){
+        background-image: url('../images/mediationAgreementDetail/phone.png');
+      }
+      &:nth-last-child(4){
+        background-image: url('../images/mediationAgreementDetail/location.png');
+      }
+    }
+    .abs{
+      position: absolute;
+      right: 0;
+      top: 11px;
+      padding: 0 8px 0 12px;
+      height:30px;
+      background:rgba(102,154,255,0.1);
+      font-size: @fontMiddle;
+      color:@blue;
+      line-height: 30px;
+      border-top-left-radius: 15px;
+      border-bottom-left-radius: 15px;
+    }
+  }
+  .moneyDetail{
+    width:507px;
+    height: 321px;
+    box-sizing: border-box;
+    position: absolute;
+    background: #ffffff;
+    border-radius:4px;
+    box-shadow:0px 3px 18px rgba(0,0,0,0.26);
+    .title{
+      height: 46px;
+      display: block;
+      border-bottom: 1px solid #E4E3E3;
+      font-size: @fontBig;
+      color:@black;
+      line-height: 46px;
+      padding-left: 22px;
+    }
+    .echarts{
+      display: block;
+      height: 284px;
+    }
+  }
+}

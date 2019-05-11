@@ -3,7 +3,7 @@
     <div class="searchCondition clearfix">
       <div class="label">搜索条件:</div>
       <transition-group name="rotate">
-        <div class="buttons" v-for="(item,index) in keywordArr" :key="index">
+        <div class="buttons" v-for="(item,index) in keywordArr" :key="`button${index}`">
           <span class="span">{{item.val|cantOver}}</span>
           <span class="iconx" @click="deleteKeyword(item)">×</span>
         </div>

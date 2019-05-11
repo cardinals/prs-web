@@ -1,0 +1,152 @@
+.header{
+  width: 100%;
+  height: 70px;
+  padding:14px 0;
+  background:#FFFFFF;
+  margin-bottom: 23px;
+  .main{
+    width: 1200px;
+    height: 100%;
+    margin:auto;
+    .logo_c{
+      height: 42px;
+      float: left;
+      cursor: pointer;
+      .logo{
+        height: 42px;
+        width: 42px;
+        background: url('../images/header/pic_logo.png') center center no-repeat;
+        float: left;
+      }
+      .title{
+        float: left;
+        line-height: 42px;
+        color:#669AFF;
+        font-size:18px;
+        margin-left: 8px;
+      }
+    }
+    .search_c{
+      float: left;
+      width: 680px;
+      height: 42px;
+      margin-left: 32px;
+      border-radius: 4px;
+      background: #F6F6F6;
+      .select_c{
+        float: left;
+        height: 42px;
+        .el-input__inner{
+          width: 121px!important;
+          border: 0!important;
+          line-height: 42px!important;
+          height: 42px!important;
+          font-size:16px!important;
+          font-weight:400!important;
+          color:rgba(118,118,118,1)!important;
+          background: #F6F6F6!important;
+        }
+      }
+      .border{
+        float: left;
+        height: 26px;
+        margin:8px 0;
+        width: 1px;
+        background: #E4E3E3;
+      }
+      .search{
+        float: left;
+        height: 42px;
+        width: 480px;
+        margin-left: 12px;
+      }
+      .search_btn{
+        width: 62px;
+        height: 42px;
+        float: right;
+        background: #669AFF;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        cursor: pointer;
+        &:hover{
+          background: #3b7cfb;
+        }
+        .el-icon-search{
+          font-size: 21px!important;
+          color: #ffffff!important;
+          line-height: 42px!important;
+          text-align: center!important;
+          width: 62px!important;
+        }
+      }
+    }
+    .menu_c{
+      float: right;
+      .icon{
+        float: left;
+        margin-right:17px;
+        width:42px;
+        height:42px;
+        border-radius:50%;
+        background:url('../images/header/pic_user.png') center center no-repeat;
+      }
+      .menu{
+        float: left;
+        height:42px;
+        cursor: pointer;
+        .el-dropdown-link{
+          line-height: 42px!important;
+          font-size:16px!important;
+          font-family:MicrosoftYaHei!important;
+          font-weight:400!important;
+          color:#808080!important;
+        }
+      }
+      .menu2{
+        float: left;
+        height:42px;
+        cursor: pointer;
+        line-height: 42px;
+        font-size:16px;
+        color:#808080;
+        &:hover{
+          color:#669AFF;
+        }
+      }
+    }
+  }
+}
+// 搜索框
+.header{
+  .el-autocomplete{
+    width: 100%;
+    height: 42px;
+    .el-input__inner{
+      border:0;
+      height: 42px;
+      line-height: 42px;
+      background: #F6F6F6 !important;
+      color:black;
+      font-size: 16px;
+    }
+  }
+}
+// element-ui 下拉框跟app层级同级
+.el-select-dropdown__item{
+  &.selected{
+    font-weight: 400!important;
+    color:#669AFF!important;
+  }
+}
+.el-select-dropdown__item{
+  &.hover{
+    background: #F7F7F7!important;
+  }
+}
+.el-dropdown-menu__item{
+  color:#808080!important;
+  &:hover{
+    color:#669AFF!important;
+    background: #F7F7F7!important;
+  }
+}

@@ -25,7 +25,7 @@ const mutations = {
 }
 const actions = {
   // 判断是否登录
-  changeLoginAsync ({commit}) {
+  changeLoginAsync ({ commit }) {
     return new Promise((resolve, reject) => {
       loginStatus().then((res) => {
         if (res.code === 1) {
@@ -41,7 +41,7 @@ const actions = {
     })
   },
   // 注销
-  logoutAsync ({commit}) {
+  logoutAsync ({ commit }) {
     return new Promise((resolve, reject) => {
       logout().then((res) => {
         if (res.code === 1) {

@@ -2,7 +2,7 @@
  * @Author: wupeiwen javapeiwen2010@gmail.com
  * @Date: 2018-09-18 10:01:31
  * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2018-11-05 18:19:37
+ * @Last Modified time: 2019-05-11 09:53:51
  */
 
 <template>
@@ -70,7 +70,7 @@
 <script>
 import { mapState, mapActions, mapMutations } from 'vuex'
 import { tipsCN, tipsEN } from '@/api/api.js'
-import {Message} from 'element-ui'
+import { Message } from 'element-ui'
 export default {
   data () {
     return {
@@ -160,11 +160,11 @@ export default {
     querySearch (queryString, callback) {
       let CN = this.ifCN(queryString)
       if (CN) {
-        tipsCN({'prefix': CN}).then((res) => {
+        tipsCN({ 'prefix': CN }).then((res) => {
           callback(res.data)
         })
       } else {
-        tipsEN({'prefix': queryString}).then((res) => {
+        tipsEN({ 'prefix': queryString }).then((res) => {
           callback(res.data)
         })
       }
