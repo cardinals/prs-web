@@ -3,20 +3,20 @@
     <div class="home_c">
       <!-- logo -->
       <div class="logo"></div>
-      <!-- 类型选择 -->
-      <div class="types">
-        <span class="span" :class="{'active':searchType === 'mediateCase'}" @click="searchType = 'mediateCase'">调解案例</span>
-        <span class="span" :class="{'active':searchType === 'protocol'}" @click="searchType = 'protocol'">调解协议</span>
-        <span class="span" :class="{'active':searchType === 'judgement'}" @click="searchType = 'judgement'">裁判文书</span>
-        <span class="span" :class="{'active':searchType === 'law'}" @click="searchType = 'law'">法律法规</span>
-      </div>
-      <!-- 搜索框 -->
+      <!-- 搜索 -->
       <div class="search_c">
+        <!-- 类型选择 -->
+        <div class="types">
+          <span class="span" :class="{'active':searchType === 'people'}" @click="searchType = 'people'">搜人员</span>
+          <span class="span" :class="{'active':searchType === 'case'}" @click="searchType = 'case'">搜案例</span>
+          <span class="span" :class="{'active':searchType === 'org'}" @click="searchType = 'org'">搜机构</span>
+        </div>
+        <!-- 搜索框 -->
         <el-autocomplete
             class="inline-input"
             v-model="search"
             :fetch-suggestions="querySearch"
-            placeholder="请输入关键词"
+            placeholder="请输入人名、身份证号、电话号码等"
             @select="handleSelect"
             :trigger-on-focus="false"
             @keydown.enter.native = "goSearch"
@@ -24,79 +24,42 @@
           <template slot-scope="props">
             <div class="name">{{ props.item.text }}</div>
           </template>
-          </el-autocomplete>
+        </el-autocomplete>
+        <!-- 搜索按钮 -->
         <div @click="goSearch" class="search_btn">
-          <i class="icon el-icon-search"></i>
+          搜索
         </div>
       </div>
-      <!-- 精品案例 -->
-      <div class="number_c">
-        <div class="box">
-          <div class="img img1"></div>
-          <span class="num">{{reqCount.caseCount}}<em>篇</em></span>
-          <span class="name">精品案例</span>
-        </div>
-        <i class="border"></i>
-        <div class="box">
-          <div class="img img2"></div>
-          <span class="num">{{reqCount.judgementCount}}<em>万篇</em></span>
-          <span class="name">裁判文书</span>
-        </div>
-        <i class="border"></i>
-        <div class="box">
-          <div class="img img3"></div>
-          <span class="num">{{reqCount.protocolCount}}<em>篇</em></span>
-          <span class="name">协议书总量</span>
-        </div>
-        <i class="border"></i>
-        <div class="box">
-          <div class="img img4"></div>
-          <span class="num">{{reqCount.requestCount}}<em>次</em></span>
-          <span class="name">访问总量</span>
-        </div>
-      </div>
-      <!-- 推荐收藏 -->
-      <div class="bottom_c">
-        <div class="nav">
-          <div class="button" :class="{'active':showWhich==='recommend'}" @click="showWhich='recommend'">推荐</div>
-          <div class="button" :class="{'active':showWhich==='collection'}" @click="showWhich='collection'">收藏</div>
-        </div>
-        <div class="recommend clearfix" v-show="showWhich==='recommend'">
-          <div class="re_left">
-            <div class="title">
-              <i class="border"></i>
-              <span>热门检索</span>
-              <i class="fire"></i>
-            </div>
-            <div class="ul">
-              <div class="li" v-for="(item,index) in hotArr" :key="index">
-                <span class="sort">{{index+1}}</span>
-                <span @click="$router.push('/mediationCaseDetails/' + item.ajid)" class="content">{{item.title}}</span>
-                <i class="new" v-if="index<=2"></i>
+      <!-- 最新动态 -->
+      <div class="latestNews flexColumn">
+        <!-- 标题logo -->
+        <div class="title"></div>
+        <!-- 轮播图片 -->
+        <div class="carousel flexRow">
+          <!-- 左箭头 -->
+          <div class="moveClickBtn left" :class="{'noVisibility':firstCardIndex===0}" @click="moveLeft"></div>
+          <!-- 卡片固定窗口容器 -->
+          <div class="peopleInfoCardContainer" >
+            <!-- 卡片移动窗口容器 -->
+            <div class="moveContainer flexRow" id="moveContainer">
+              <!-- 人物信息卡片 -->
+              <div class="peopleInfoCard" v-for="(item, index) in cardContent" :key="index" style="font-size:30px;">
+                <!-- 卡片内容 -->
+                <div class="content flexColumn">
+                  <div class="photo">
+                    <div :class="{'man': item.gender === '男', 'women': item.gender === '女', 'unknown': item.gender === '未知'}"></div>
+                  </div>
+                  <div class="name" :class="{'man': item.gender === '男', 'women': item.gender === '女', 'unknown': item.gender === '未知'}">{{ item.name }}</div>
+                  <div class="type"> {{ item.peopleType }} </div>
+                </div>
+                <!-- 卡片脚部 -->
+                <div class="cardFooter">
+                  近期共有<span> {{ item.abnormalNum }} </span>项<span> {{ item.abnormalName }}</span>
+                </div>
               </div>
             </div>
           </div>
-           <div class="re_right" v-if="commonArr.length>0">
-            <div class="title">
-              <i class="border"></i>
-              <span>常见检索</span>
-            </div>
-            <div class="ul">
-              <div class="li" v-for="(item,index) in commonArr" :key="index">
-                <span class="sort">{{index+1}}</span>
-                <span class="content" @click="$router.push('/mediationCaseDetails/' + item.ajid)">{{item.title}}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="collection" v-show="showWhich==='collection'">
-          <div class="ul">
-            <div class="li" v-for="item in collectionArr" :key="item.ajid">
-              <div class="types"><span>{{item.detailType|changeType}}</span><i class="circle"></i></div>
-              <div class="content" @click="goDetail(item.detailType,item.ajid)">{{item.title}}</div>
-              <div class="btn" @click="unCollection($event,item)">取消收藏</div>
-            </div>
-          </div>
+          <div class="moveClickBtn right" :class="{'noVisibility':firstCardIndex + 5 >= cardContent.length}" @click="moveRight"></div>
         </div>
       </div>
     </div>
@@ -111,9 +74,76 @@ export default {
   name: 'home',
   data () {
     return {
+      searchType: 'people', // 搜索类型
+      cardContent: [ // 最新动态卡片内容
+        {
+          name: '胡晨竹',
+          photo: '',
+          gender: '女',
+          peopleType: '矫正人员',
+          abnormalNum: 3,
+          abnormalName: '异常关系'
+        },
+        {
+          name: '刘国兴',
+          photo: '',
+          gender: '男',
+          peopleType: '司法人员',
+          abnormalNum: 1,
+          abnormalName: '异常轨迹'
+        },
+        {
+          name: '樊琴',
+          photo: '',
+          gender: '女',
+          peopleType: '司法人员',
+          abnormalNum: 5,
+          abnormalName: '异常动态'
+        },
+        {
+          name: '李爱国',
+          photo: '',
+          gender: '男',
+          peopleType: '矫正人员',
+          abnormalNum: 8,
+          abnormalName: '异常轨迹'
+        },
+        {
+          name: '吴曦',
+          photo: '',
+          gender: '女',
+          peopleType: '矫正人员',
+          abnormalNum: 1,
+          abnormalName: '异常关系'
+        },
+        {
+          name: '孙建党',
+          photo: '',
+          gender: '男',
+          peopleType: '矫正人员',
+          abnormalNum: 3,
+          abnormalName: '异常关系'
+        },
+        {
+          name: '赵国华',
+          photo: '',
+          gender: '男',
+          peopleType: '矫正人员',
+          abnormalNum: 3,
+          abnormalName: '异常关系'
+        },
+        {
+          name: '李琴',
+          photo: '',
+          gender: '未知',
+          peopleType: '矫正人员',
+          abnormalNum: 3,
+          abnormalName: '异常关系'
+        }
+      ],
+      firstCardIndex: 0, // 卡片开始索引，用于控制箭头和卡片移动
+      search: '', // 搜索输入框内容
       showWhich: 'recommend',
-      search: '',
-      searchType: 'mediateCase',
       commonArr: [],
       hotArr: [],
       collectionArr: [],
@@ -152,6 +182,15 @@ export default {
     }
   },
   methods: {
+    moveLeft () {
+      this.firstCardIndex--
+      document.getElementById('moveContainer').transform = 'translateX(256px)'
+      document.getElementById('moveContainer').style.transform = 'translateX(-' + (256 * this.firstCardIndex) + 'px)'
+    },
+    moveRight () {
+      this.firstCardIndex++
+      document.getElementById('moveContainer').style.transform = 'translateX(-' + (256 * this.firstCardIndex) + 'px)'
+    },
     ...mapMutations({
       changeSearchVal: 'header/changeSearchVal',
       changeSearchType: 'header/changeSearchType'
@@ -332,14 +371,14 @@ export default {
 .home{
   .inline-input{
     float: left;
-    height: 65px;
-    width: calc(100% - 84px);
+    height: 73px;
+    width: calc(100% - 160px);
     border-radius:4px 0px 0px 4px;
     border:1px solid rgba(231,229,229,1);
   }
   .el-input__inner{
     font-size:18px;
-    height: 63px;
+    height: 73px;
     border:0;
     border-radius:4px 0px 0px 4px;
   }

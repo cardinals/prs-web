@@ -25,7 +25,7 @@ axios.interceptors.request.use(
   config => {
     // 打开加载遮罩
     if (!(config.url === '/SearchCase/xxx')) {
-      store.dispatch({ type: 'app/changeLoadingStatus', amount: true })
+      store.dispatch({ type: 'app/changeLoadingStatus', amount: false })
     }
     // 在http请求的header都加上token
     const token = store.state.app.token || window.localStorage.getItem('token')
