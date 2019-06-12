@@ -16,7 +16,7 @@
             class="inline-input"
             v-model="search"
             :fetch-suggestions="querySearch"
-            placeholder="请输入人名、身份证号、电话号码等"
+            :placeholder="placeholder"
             @select="handleSelect"
             :trigger-on-focus="false"
             @keydown.enter.native = "goSearch"
@@ -97,7 +97,8 @@ export default {
       ],
       firstCardIndex: 0, // 卡片开始索引，用于控制箭头和卡片移动
       search: '', // 搜索输入框内容
-      defaultMove: null
+      defaultMove: null,
+      placeholder: '请输入人名、身份证号(最少2位)、电话号码(最少3位)'
     }
   },
   computed: {
