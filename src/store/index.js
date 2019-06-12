@@ -9,13 +9,17 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import app from './modules/app'
 import header from './modules/header'
+import dynamic from './modules/dynamic'
+import home from './modules/home'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
     app,
-    header
+    header,
+    dynamic,
+    home
   },
   strict: process.env.NODE_ENV !== 'production'
 })
