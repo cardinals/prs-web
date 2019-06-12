@@ -83,6 +83,7 @@ let abnormalMap = {
   abnormalDynamic: '异常动态',
   abnormalTrail: '异常轨迹'
 }
+let aaa = null
 export default {
   name: 'home',
   components: {
