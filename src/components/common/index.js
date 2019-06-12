@@ -7,16 +7,12 @@
 
 import headerCom from '@/components/common/header'
 import footerCom from '@/components/common/footer'
-import sideBar from '@/components/common/sideBar'
-import anchorPoint from '@/components/common/anchorPoint'
 import goTop from '@/components/common/goTop'
 
 export default {
   install: function (vue) {
     vue.component('headerCom', headerCom)
     vue.component('footerCom', footerCom)
-    vue.component('sideBar', sideBar)
-    vue.component('anchorPoint', anchorPoint)
     vue.component('goTop', goTop)
   }
 }
