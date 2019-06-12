@@ -49,8 +49,8 @@
                 <!-- 卡片内容 -->
                 <div class="content flexColumn">
                   <div class="photo" @click="goPeopleInfo(item.name, item.personId)">
-                    <img :src="pictureData[item.personId]" v-if="pictureData[item.personId]">
-                    <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" v-if="!pictureData[item.personId]"></div>
+                    <!-- <img :src="pictureData[item.personId]" v-if="pictureData[item.personId]"> -->
+                    <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" v-if="true"></div>
                   </div>
                   <div class="name" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" @click="goPeopleInfo(item.name, item.personId)">{{ item.name }}</div>
                   <div class="type"> {{ item.peopleType }} </div>
@@ -65,7 +65,6 @@
               </div>
             </div>
           </div>
-           <!-- @mouseenter="stopRolling" @mouseleave="startRolling" -->
           <div class="moveClickBtn right" :class="{'noVisibility':firstCardIndex + 5 >= cardContent.length}" @click="moveRight"></div>
         </div>
       </div>
@@ -75,15 +74,16 @@
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { tipsCN, tipsEN, latestNews, getPhotoData } from '@/api/api.js'
+import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
 import { Message } from 'element-ui'
+// 脚部上下翻滚组件
 import upsideDownRoll from '../components/upsideDownRoll.vue'
+// 异常中英文名称映射
 let abnormalMap = {
   abnormalRelation: '异常关系',
   abnormalDynamic: '异常动态',
   abnormalTrail: '异常轨迹'
 }
-let aaa = null
 export default {
   name: 'home',
   components: {
@@ -106,6 +106,7 @@ export default {
     })
   },
   methods: {
+    // 改变异常动态页的通知栏状态
     ...mapActions('dynamic', {
       changeShowMsg: 'changeShowMsg'
     }),
@@ -179,8 +180,8 @@ export default {
         })
       }
     },
+    // 跳转至人物信息页
     goPeopleInfo (name, id) {
-      // window.localStorage.setItem('searchPeopleId', id)
       let routeUrl = this.$router.resolve({ path: `/detail/${id}/info` })
       window.open(routeUrl.href, '_blank')
     },
@@ -192,6 +193,7 @@ export default {
       }
       return res
     },
+    // 跳转至异常页
     goAbnormalPage (key, val) {
       let routeUrl = {
         abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic` }),
@@ -199,30 +201,6 @@ export default {
         abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath` })
       }
       window.open(routeUrl[key].href, '_blank')
-    },
-    autoRolling () {
-      console.log(this.$refs)
-      if (this.firstCardIndex === 0) {
-        this.defaultMove = this.moveRight
-      }
-      if (this.firstCardIndex + 5 === this.cardContent.length) {
-        this.defaultMove = this.moveLeft
-      }
-      if (this.defaultMove !== null) {
-        this.defaultMove()
-      }
-    },
-    timingRolling () {
-      let _this = this
-      aaa = setInterval(() => {
-        _this.autoRolling()
-      }, 2000)
-    },
-    stopRolling () {
-      clearInterval(aaa)
-    },
-    startRolling () {
-      this.timingRolling()
     }
   },
   filters: {
@@ -233,23 +211,8 @@ export default {
   },
   mounted () {
     let _this = this
-    // this.timingRolling()
-    // window.onfocus = this.timingRolling
-    // window.onblur = function () {
-    //   clearInterval(aaa)
-    // }
-    // 初始化最新动态
     this.latestNewsInit().then((res) => {
       _this.cardContent = res.data
-      // if (res.code === 1) {
-      //   _this.commonArr = res.data.datacj
-      //   _this.hotArr = res.data.datarm
-      // } else {
-      //   Message({
-      //     message: res.message,
-      //     type: 'warning'
-      //   })
-      // }
     })
     this.$nextTick(() => {
       let a = document.getElementsByClassName('home')[0].style
@@ -258,10 +221,6 @@ export default {
         a.paddingTop = document.body.clientHeight - 861 + 'px'
       }
     })
-    getPhotoData().then(res => {
-      this.pictureData = res
-    })
-    // this.autoRolling()
   }
 }
 </script>
