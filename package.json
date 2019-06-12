@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-image": "yarn build && docker build -t nginx/search-personfile:latest ./docker",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
