@@ -12,7 +12,7 @@
       <span class="span">隐私</span>
       <span class="span">条款</span>
     </div> -->
-    <div class="line2">copyright @上海市司法局大数据实验室 | 银江股份有限公司</div>
+    <div class="line2">© 2019 银江股份有限公司版权所有</div>
   </div>
 </template>
 

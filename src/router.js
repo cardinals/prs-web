@@ -6,6 +6,11 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
+      path: '/test2',
+      name: 'test2',
+      component: () => import('./views/test2.vue')
+    },
+    {
       path: '/',
       // 重定向根路径对应的模块
       redirect: '/home'
@@ -19,6 +24,39 @@ export default new Router({
       path: '/searchList/:type/:val',
       name: 'searchList',
       component: () => import('./views/searchList.vue')
+    },
+    {
+      path: '/detail/:people/',
+      name: 'detail',
+      redirect: '/detail/:people/info',
+      component: () => import('./views/peopleDetailContainer.vue'),
+      children: [
+        {
+          path: '/detail/:people/info',
+          name: 'info',
+          component: () => import('./views/peopleInfo.vue')
+        },
+        {
+          path: '/detail/:people/peoplePath',
+          name: 'peoplePath',
+          component: () => import('./views/peoplePath.vue')
+        },
+        {
+          path: '/detail/:people/dynamic',
+          name: 'dynamic',
+          component: () => import('./views/peopleDynamic.vue')
+        },
+        {
+          path: '/detail/:people/dynamic/:showNormal',
+          name: 'dynamic',
+          component: () => import('./views/peopleDynamic.vue')
+        },
+        {
+          path: '/detail/:people/relationship',
+          name: 'relationship',
+          component: () => import('./views/peopleRelationship.vue')
+        }
+      ]
     },
     {
       path: '/error/:code',

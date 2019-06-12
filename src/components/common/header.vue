@@ -9,8 +9,8 @@
   <div class="header" :style="{'margin-bottom':$route.fullPath ==='/home'?'0':'23px'}">
     <div class="main" >
       <div @click="$router.push('/home')" v-if="$route.fullPath!=='/home'" class="logo_c clearfix">
-        <i class="logo"></i>
-        <span class="title">法案智搜</span>
+        <div class="logo"></div>
+        <span class="title">全景搜索</span>
       </div>
       <div  v-if="$route.fullPath!=='/home'" class="search_c">
         <div class="select_c">
@@ -75,17 +75,14 @@ export default {
   data () {
     return {
       options: [{
-        value: 'mediateCase',
-        label: '调解案例'
+        value: 'people',
+        label: '搜人员'
       }, {
-        value: 'protocol',
-        label: '调解协议'
+        value: 'case',
+        label: '搜案例'
       }, {
-        value: 'judgement',
-        label: '裁判文书'
-      }, {
-        value: 'law',
-        label: '法律法规'
+        value: 'org',
+        label: '搜机构'
       }],
       // 登录用户名
       userName: localStorage.getItem('tattusername')
@@ -120,7 +117,8 @@ export default {
     }),
     ...mapActions({
       changeLoginAsync: 'header/changeLoginAsync',
-      logoutAsync: 'header/logoutAsync'
+      logoutAsync: 'header/logoutAsync',
+      changeSearchClick: 'header/changeSearchClick'
     }),
     // 注销或登录按钮
     goLogin (command) {
@@ -175,9 +173,11 @@ export default {
     },
     goSearch () {
       let _this = this
-      this.changeSearchVal(_this.searchVal)
-      this.changeSearchType(_this.searchType)
       if (this.searchVal !== '') {
+        this.changeSearchVal(_this.searchVal)
+        this.changeSearchType(_this.searchType)
+        this.changeSearchClick(1)
+        console.log(this.$store.state.header.searchClick)
         this.$router.push('/searchList/' + _this.searchType + '/' + _this.searchVal)
       } else {
         Message({

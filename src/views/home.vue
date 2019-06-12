@@ -8,8 +8,8 @@
         <!-- 类型选择 -->
         <div class="types">
           <span class="span" :class="{'active':searchType === 'people'}" @click="searchType = 'people'">搜人员</span>
-          <span class="span" :class="{'active':searchType === 'case'}" @click="searchType = 'case'">搜案例</span>
-          <span class="span" :class="{'active':searchType === 'org'}" @click="searchType = 'org'">搜机构</span>
+          <span class="span" :class="{'active':searchType === 'case'}" @click="searchType = 'case'" v-if="false">搜案例</span>
+          <span class="span" :class="{'active':searchType === 'org'}" @click="searchType = 'org'" v-if="false">搜机构</span>
         </div>
         <!-- 搜索框 -->
         <el-autocomplete
@@ -37,28 +37,35 @@
         <!-- 轮播图片 -->
         <div class="carousel flexRow">
           <!-- 左箭头 -->
+           <!-- @mouseenter="stopRolling" @mouseleave="startRolling" -->
           <div class="moveClickBtn left" :class="{'noVisibility':firstCardIndex===0}" @click="moveLeft"></div>
           <!-- 卡片固定窗口容器 -->
           <div class="peopleInfoCardContainer" >
             <!-- 卡片移动窗口容器 -->
-            <div class="moveContainer flexRow" id="moveContainer">
+            <div class="moveContainer flexRow" id="moveContainer" ref="test">
               <!-- 人物信息卡片 -->
-              <div class="peopleInfoCard" v-for="(item, index) in cardContent" :key="index" style="font-size:30px;">
+              <!-- @mouseenter="stopRolling" @mouseleave="startRolling" -->
+              <div class="peopleInfoCard" v-for="(item, index) in cardContent" :key="index" style="font-size:30px;" >
                 <!-- 卡片内容 -->
                 <div class="content flexColumn">
-                  <div class="photo">
-                    <div :class="{'man': item.gender === '男', 'women': item.gender === '女', 'unknown': item.gender === '未知'}"></div>
+                  <div class="photo" @click="goPeopleInfo(item.name, item.personId)">
+                    <img :src="pictureData[item.personId]" v-if="pictureData[item.personId]">
+                    <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" v-if="!pictureData[item.personId]"></div>
                   </div>
-                  <div class="name" :class="{'man': item.gender === '男', 'women': item.gender === '女', 'unknown': item.gender === '未知'}">{{ item.name }}</div>
+                  <div class="name" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" @click="goPeopleInfo(item.name, item.personId)">{{ item.name }}</div>
                   <div class="type"> {{ item.peopleType }} </div>
                 </div>
                 <!-- 卡片脚部 -->
-                <div class="cardFooter">
-                  近期共有<span> {{ item.abnormalNum }} </span>项<span> {{ item.abnormalName }}</span>
-                </div>
+                <!-- upsideDownRoll 为自定义的组件，里面的内容放置在组件的默认插槽中 -->
+                <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length - 1" :id="item.personId+''">
+                  <div class="cardFooter" v-for="(value, key) in abnormalFilter(item.abnormal)" :key="key">
+                    近期共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
+                  </div>
+                </upsideDownRoll>
               </div>
             </div>
           </div>
+           <!-- @mouseenter="stopRolling" @mouseleave="startRolling" -->
           <div class="moveClickBtn right" :class="{'noVisibility':firstCardIndex + 5 >= cardContent.length}" @click="moveRight"></div>
         </div>
       </div>
@@ -67,94 +74,30 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
-import { tipsCN, tipsEN, recommend, collectionList, collection, requestCount } from '@/api/api.js'
+import { mapState, mapMutations, mapActions } from 'vuex'
+import { tipsCN, tipsEN, latestNews, getPhotoData } from '@/api/api.js'
 import { Message } from 'element-ui'
+import upsideDownRoll from '../components/upsideDownRoll.vue'
+let abnormalMap = {
+  abnormalRelation: '异常关系',
+  abnormalDynamic: '异常动态',
+  abnormalTrail: '异常轨迹'
+}
+let aaa = null
 export default {
   name: 'home',
+  components: {
+    upsideDownRoll
+  },
   data () {
     return {
+      pictureData: {}, // 照片信息
       searchType: 'people', // 搜索类型
       cardContent: [ // 最新动态卡片内容
-        {
-          name: '胡晨竹',
-          photo: '',
-          gender: '女',
-          peopleType: '矫正人员',
-          abnormalNum: 3,
-          abnormalName: '异常关系'
-        },
-        {
-          name: '刘国兴',
-          photo: '',
-          gender: '男',
-          peopleType: '司法人员',
-          abnormalNum: 1,
-          abnormalName: '异常轨迹'
-        },
-        {
-          name: '樊琴',
-          photo: '',
-          gender: '女',
-          peopleType: '司法人员',
-          abnormalNum: 5,
-          abnormalName: '异常动态'
-        },
-        {
-          name: '李爱国',
-          photo: '',
-          gender: '男',
-          peopleType: '矫正人员',
-          abnormalNum: 8,
-          abnormalName: '异常轨迹'
-        },
-        {
-          name: '吴曦',
-          photo: '',
-          gender: '女',
-          peopleType: '矫正人员',
-          abnormalNum: 1,
-          abnormalName: '异常关系'
-        },
-        {
-          name: '孙建党',
-          photo: '',
-          gender: '男',
-          peopleType: '矫正人员',
-          abnormalNum: 3,
-          abnormalName: '异常关系'
-        },
-        {
-          name: '赵国华',
-          photo: '',
-          gender: '男',
-          peopleType: '矫正人员',
-          abnormalNum: 3,
-          abnormalName: '异常关系'
-        },
-        {
-          name: '李琴',
-          photo: '',
-          gender: '未知',
-          peopleType: '矫正人员',
-          abnormalNum: 3,
-          abnormalName: '异常关系'
-        }
       ],
       firstCardIndex: 0, // 卡片开始索引，用于控制箭头和卡片移动
       search: '', // 搜索输入框内容
-      showWhich: 'recommend',
-      commonArr: [],
-      hotArr: [],
-      collectionArr: [],
-      reqCount: {
-        caseCount: 0,
-        judgementCount: 0,
-        protocolCount: 0,
-        requestCount: 0
-      },
-      pages: 1,
-      flag: true
+      defaultMove: null
     }
   },
   computed: {
@@ -162,35 +105,22 @@ export default {
       ifLogin: state => state.ifLogin
     })
   },
-  filters: {
-    // 映射关系
-    changeType (val) {
-      let arr1 = ['mediateCase', 'protocol', 'law', 'judgement']
-      let arr2 = ['案例', '协议', '法条', '文书']
-      return arr2[arr1.indexOf(val)]
-    }
-  },
-  watch: {
-    // 监控一下header的是否登录状态,注意这里不要用箭头函数导致this指向有问题
-    ifLogin: function (to, from) {
-      let _this = this
-      if (to) {
-        this.collectionListInit(1).then((res) => {
-          _this.collectionArr = res.data.pageData
-        })
-      }
-    }
-  },
   methods: {
+    ...mapActions('dynamic', {
+      changeShowMsg: 'changeShowMsg'
+    }),
+    // 左按钮
     moveLeft () {
       this.firstCardIndex--
       document.getElementById('moveContainer').transform = 'translateX(256px)'
       document.getElementById('moveContainer').style.transform = 'translateX(-' + (256 * this.firstCardIndex) + 'px)'
     },
+    // 右按钮
     moveRight () {
       this.firstCardIndex++
       document.getElementById('moveContainer').style.transform = 'translateX(-' + (256 * this.firstCardIndex) + 'px)'
     },
+    // 改变vuex中的搜索类型和搜索内容的值
     ...mapMutations({
       changeSearchVal: 'header/changeSearchVal',
       changeSearchType: 'header/changeSearchType'
@@ -211,8 +141,12 @@ export default {
     // 搜索提示
     querySearch (queryString, callback) {
       let CN = this.ifCN(queryString)
+      if (CN === '') {
+        let noQuery = []
+        callback(noQuery)
+      }
       if (CN) {
-        tipsCN({ 'prefix': CN }).then((res) => {
+        tipsCN({ 'query': CN }).then((res) => {
           callback(res.data)
         })
       } else {
@@ -221,60 +155,15 @@ export default {
         })
       }
     },
-    // 推荐列表
-    recommendInit () {
+    // 获得最新动态的数据
+    latestNewsInit () {
       return new Promise((resolve, reject) => {
-        recommend().then((res) => {
+        latestNews().then((res) => {
           resolve(res)
         }).catch((err) => {
           reject(err)
         })
       })
-    },
-    // 收藏列表
-    collectionListInit (page) {
-      return new Promise((resolve, reject) => {
-        collectionList({ 'pagenum': page, 'pagesize': 5 }).then((res) => {
-          resolve(res)
-        }).catch((err) => {
-          reject(err)
-        })
-      })
-    },
-    // 取消收藏
-    unCollection (ev, params) {
-      collection({
-        'id': params.ajid,
-        'detailType': params.detailType,
-        'subtype': params.subtype,
-        'title': params.title
-      }).then((res) => {
-        if (res.code === 6) {
-          // 隐藏节点，防止刷新页面
-          ev.target.parentElement.style.display = 'none'
-          Message({
-            message: res.message,
-            type: 'success'
-          })
-        } else {
-          Message({
-            message: res.message,
-            type: 'warning'
-          })
-        }
-      })
-    },
-    // 收藏跳转
-    goDetail (type, id) {
-      if (type === 'mediateCase') {
-        this.$router.push('/mediationCaseDetails/' + id)
-      } else if (type === 'protocol') {
-        this.$router.push('/mediationAgreementDetail/' + id)
-      } else if (type === 'judgement') {
-        this.$router.push('/judgmentDocumentDetail/' + id)
-      } else if (type === 'law') {
-        this.$router.push('/lawsDetail/' + id)
-      }
     },
     // 跳转搜索页
     goSearch () {
@@ -289,81 +178,90 @@ export default {
           type: 'warning'
         })
       }
+    },
+    goPeopleInfo (name, id) {
+      // window.localStorage.setItem('searchPeopleId', id)
+      let routeUrl = this.$router.resolve({ path: `/detail/${id}/info` })
+      window.open(routeUrl.href, '_blank')
+    },
+    // 将返回的接口数据中的异常动态、关系、轨迹中数量为0的去除
+    abnormalFilter (arr) {
+      let res = {}
+      for (let key in arr) {
+        if (arr[key] !== 0) res[key] = arr[key]
+      }
+      return res
+    },
+    goAbnormalPage (key, val) {
+      let routeUrl = {
+        abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic` }),
+        abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship` }),
+        abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath` })
+      }
+      window.open(routeUrl[key].href, '_blank')
+    },
+    autoRolling () {
+      console.log(this.$refs)
+      if (this.firstCardIndex === 0) {
+        this.defaultMove = this.moveRight
+      }
+      if (this.firstCardIndex + 5 === this.cardContent.length) {
+        this.defaultMove = this.moveLeft
+      }
+      if (this.defaultMove !== null) {
+        this.defaultMove()
+      }
+    },
+    timingRolling () {
+      let _this = this
+      aaa = setInterval(() => {
+        _this.autoRolling()
+      }, 2000)
+    },
+    stopRolling () {
+      clearInterval(aaa)
+    },
+    startRolling () {
+      this.timingRolling()
+    }
+  },
+  filters: {
+    // 异常值名称的中英文转换
+    keyTranslation (val) {
+      return abnormalMap[val]
     }
   },
   mounted () {
     let _this = this
-    // 初始化推荐列表
-    this.recommendInit().then((res) => {
-      if (res.code === 1) {
-        _this.commonArr = res.data.datacj
-        _this.hotArr = res.data.datarm
-      } else {
-        Message({
-          message: res.message,
-          type: 'warning'
-        })
+    // this.timingRolling()
+    // window.onfocus = this.timingRolling
+    // window.onblur = function () {
+    //   clearInterval(aaa)
+    // }
+    // 初始化最新动态
+    this.latestNewsInit().then((res) => {
+      _this.cardContent = res.data
+      // if (res.code === 1) {
+      //   _this.commonArr = res.data.datacj
+      //   _this.hotArr = res.data.datarm
+      // } else {
+      //   Message({
+      //     message: res.message,
+      //     type: 'warning'
+      //   })
+      // }
+    })
+    this.$nextTick(() => {
+      let a = document.getElementsByClassName('home')[0].style
+      a.paddingTop = document.body.clientHeight - 861 + 'px'
+      window.onresize = function () {
+        a.paddingTop = document.body.clientHeight - 861 + 'px'
       }
     })
-    // 如果不是从登录页面跳转进来，初始化组件的时候就能拿到公共状态
-    // 如果从登录页面进来，则需要watch ifLogin状态的异步操作
-    // 初始化收藏列表
-    if (this.ifLogin) {
-      this.collectionListInit(_this.pages).then((res) => {
-        if (res.code === 1) {
-          _this.collectionArr = res.data.pageData
-        } else {
-          Message({
-            message: res.message,
-            type: 'warning'
-          })
-        }
-      })
-    }
-    // 初始化访问量统计
-    requestCount().then((res) => {
-      // 加个数字滚动效果
-      let index = 0
-      let data = res.data
-      let timer = setInterval(() => {
-        if (index >= 21) {
-          clearInterval(timer)
-        } else {
-          _this.reqCount = {
-            caseCount: parseInt(parseInt(data.caseCount) / 20 * index),
-            judgementCount: parseFloat(parseFloat(data.judgementCount) / 20 * index).toFixed(1),
-            protocolCount: parseInt(parseInt(data.protocolCount) / 20 * index),
-            requestCount: parseInt(parseInt(data.requestCount) / 20 * index)
-          }
-          index++
-        }
-      }, 50)
+    getPhotoData().then(res => {
+      this.pictureData = res
     })
-    // 添加滚轮事件添加收藏列表
-    window.addEventListener('mousewheel', function (ev) {
-      if ((ev.wheelDelta < 0 || ev.detail < 0) && _this.showWhich === 'collection' && _this.ifLogin && _this.flag && _this.$route.name === '首页') {
-        _this.pages += 1
-        _this.collectionListInit(_this.pages).then((res) => {
-          if (res.code === 1) {
-            if (res.data.pageData.length === 0) {
-              Message({
-                message: '没有更多收藏了',
-                type: 'warning'
-              })
-              _this.flag = false
-            }
-            res.data.pageData.forEach((item) => {
-              _this.collectionArr.push(item)
-            })
-          } else {
-            Message({
-              message: res.message,
-              type: 'warning'
-            })
-          }
-        })
-      }
-    })
+    // this.autoRolling()
   }
 }
 </script>

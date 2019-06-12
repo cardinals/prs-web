@@ -8,7 +8,15 @@ const state = {
   // 搜索框内容
   searchVal: '',
   // 搜索类型
-  searchType: 'mediateCase'
+  searchType: 'people',
+  // 搜索按钮点击次数
+  searchClick: 0
+}
+
+const getters = {
+  getSearchClick (state) {
+    return state.searchClick
+  }
 }
 
 // mutations
@@ -21,6 +29,9 @@ const mutations = {
   },
   changeSearchType (state, status) {
     state.searchType = status
+  },
+  changeSearchClick (state, num) {
+    state.searchClick += num
   }
 }
 const actions = {
@@ -52,12 +63,17 @@ const actions = {
         reject(err)
       })
     })
+  },
+  changeSearchClick (ctx, num) {
+    ctx.commit('changeSearchClick', num)
   }
 }
 
 export default {
   namespaced: true,
   state,
+  getters,
   actions,
   mutations
+
 }

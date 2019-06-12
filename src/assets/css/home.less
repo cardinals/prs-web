@@ -102,12 +102,11 @@
           overflow: hidden;
           .moveContainer {
             transition: transform 1s;
-            .peopleInfoCard {
+            .peopleInfoCard {  
               flex: 0 0 auto;
               width: 225px;
               height: 317px;
               background:rgba(255,255,255,1);
-              box-shadow:0px 14px 46px 3px rgba(29,50,68,0.23);
               border-radius:4px;
               margin-left: 31px;
               margin-top: 7px;
@@ -124,6 +123,7 @@
                   width: 100px;
                   height: 139px;
                   background:rgba(241,241,241,1);
+                  cursor: pointer;
                   // border: 1px #000 solid;
                   .man {
                     width: 100%;
@@ -137,6 +137,15 @@
                     background: url('../images/searchList1/icon_woman_default.png') ;
                     background-position: center;
                   }
+                  .unknown {
+                    width: 100%;
+                    height: 100%;
+                    background: url('../images/searchList1/icon_head_unknown.png') ;
+                    background-position: center;
+                  }
+                  &:hover {
+                    box-shadow:0px 0px 10px 2px rgba(193, 197, 199, 0.8);
+                  }
                 }
                 .name {
                   font-size:26px;
@@ -145,6 +154,10 @@
                   color: rgba(57,57,57,1);
                   margin-top: 18px;
                   text-align: center;
+                  cursor: pointer;
+                  &:hover {
+                    color:#4DA7FF
+                  }
                   &::after{
                     content: '';
                     display: inline-block;
@@ -160,7 +173,7 @@
                     background: url('../images/home1/icon_woman.png')
                   }
                   &.unknown::after {
-                    background: gray;
+                    background:url('../images/searchList1/icon_gender_unknown.png');
                   }
                 }
                 .type {
@@ -179,6 +192,10 @@
                   &:nth-child(2) {
                     color: #FFAD0F;
                     margin-left: 5px;
+                    cursor: pointer;
+                    &:hover {
+                      color: rgba(255, 171, 15, 0.5);
+                    }
                   }
                 }
                 &::after {

@@ -20,6 +20,31 @@ const baseUrl = '/SearchCase'
 //   {url: `${baseUrl}/organizationDetailsSuccessAmount`, params: params}
 // ])
 
+// 首页最新动态数据
+export const latestNews = () => get(`${baseUrl}/HomePages`)
+// 列表页树状列表测试数据
+export const getTestData = () => get('searchList1.json')
+// 列表页搜索结果数据
+export const getListData = (params) => post(`${baseUrl}/SearchResults`, params)
+// 列表页头像数据
+export const getPhotoData = () => get('searchList3.json')
+// 人物信息页左边栏数据
+export const getbasicInfo = (params) => get(`${baseUrl}/PersonLabels`, params)
+// 人物信息页数据
+export const getPeopleInfo = (params) => get(`${baseUrl}/PersonInformations`, params)
+// 测试数据
+export const getTest = () => get('test.json')
+// 人物动态页数据
+export const getDynamic = (params) => post(`${baseUrl}/PersonActivities`, params)
+// 中文提示
+export const tipsCN = (params) => get(`${baseUrl}/SuggestTips`, params)
+// 英文提示
+export const tipsEN = (params) => get(`${baseUrl}/SuggestTips`, params)
+
+// 接口
+// 搜索结果
+export const getResultList = (params) => post(`${baseUrl}/SearchResults`, params)
+
 // 获取验证码
 export const imgCheck = () => get(`${baseUrl}/user/imgCheck`, {})
 // 登录接口
@@ -32,10 +57,6 @@ export const focusType = (params) => post(`${baseUrl}/user/focusType`, params)
 export const loginStatus = () => get(`${baseUrl}/user/loginStatus`, {})
 // 注销接口
 export const logout = () => get(`${baseUrl}/user/logout`, {})
-// 中文提示
-export const tipsCN = (params) => get(`${baseUrl}/suggest/hanZi`, params)
-// 英文提示
-export const tipsEN = (params) => get(`${baseUrl}/suggest/pinYin`, params)
 // 首页访问量统计
 export const requestCount = (params) => get(`${baseUrl}/mediate/requestCount`, params)
 // 推荐列表

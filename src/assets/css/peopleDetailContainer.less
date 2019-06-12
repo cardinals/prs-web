@@ -1,0 +1,194 @@
+.peopleInfoPage {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  margin-bottom: 100px;
+  .sidebarLeft {
+    width: 340px;
+    margin-right: 16px;
+    background: rgba(232,238,251,1);
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto ;
+    .basicInfo {
+      display: flex;
+      margin: 35px 15px;
+      .photoContainer {
+        height: 140px;
+        width: 101px;
+        background: #fff;
+        .photo {
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+          &.man {
+            background: url('../images/searchList1/icon_man_default.png') center center no-repeat;
+          }
+          &.women {
+            background: url('../images/searchList1/icon_woman_default.png') center center no-repeat;
+          }
+          &.unknow {
+            background: url('../images/searchList1/icon_head_unknown.png')center center no-repeat;
+          }
+        }
+      }
+      .info {
+        margin-left: 20px;
+        .name {
+          font-size: 26px;
+          font-family: MicrosoftYaHei;
+          font-weight: bold;
+          color: rgba(57,57,57,1);
+          cursor: pointer;
+          &::after {
+            content:'';
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            vertical-align: bottom;
+            margin-left: 22px;
+          }
+          &.man {
+            &::after {
+              background: url('../images/home1/icon_man.png') center center no-repeat;
+            }
+          }
+          &.women {
+            &::after {
+              background: url('../images/home1/icon_woman.png') center center no-repeat;
+            }
+          }
+          &.unknow {
+            &::after {
+              background: url('../images/searchList1/icon_gender_unknown.png') center center no-repeat;
+            }
+          }
+        }
+        .idNumber {
+          display: block;
+          margin-top: 22px;
+          font-size: 14px;
+          &::before {
+            content: '';
+            display: inline-block;
+            width: 21px;
+            height: 15px;
+            background: url('../images/searchList1/icon_id_card.png') center center no-repeat;
+            vertical-align: bottom;
+            margin-right: 8px;
+          }
+        }
+        .tagsContainer {
+          margin-top: 11px;
+          max-width: 190px;
+          max-height: 100px;
+          overflow: hidden;
+          display: flex;
+          flex-wrap: wrap;
+          div {
+            margin-bottom: 8px;
+            margin-right: 3px;
+            flex: 0 0 auto;
+            height: 26px;
+            border-radius:4px;
+            background: rgba(205,221,255,0.6);
+            opacity:0.8;
+            border: 1px solid rgba(39,112,238,1);
+            font-size: 16px;
+            color: rgba(39,112,238,1);
+            line-height: 26px;
+            padding: 0 3px;
+            text-align: center;
+          }
+        }
+      }
+    }
+    .title {
+      height: 36px;
+      width: 100%;
+      background:linear-gradient(90deg,rgba(216,228,253,1) 0%,rgba(216,228,253,0.2) 100%);
+      font-size: 18px;
+      line-height: 36px;
+      color: rgba(57,57,57,1);
+      border-left: 10px rgba(181,204,255,1) solid;
+      padding-left: 9px;
+    }
+    .riskWarning {
+      padding: 0 45px;
+      .abnormal {
+        margin-top: 25px;
+        &:last-child {
+          margin-bottom: 25px;
+        }
+        span {
+          line-height: 54px;
+          font-size: 18px;
+          color: rgba(255,169,83,1);
+          &:first-child {
+            cursor: pointer;
+            &:hover {
+              color: rgba(255, 169, 83, 0.541);
+            }
+          }
+          &:last-child {
+            color: rgba(172,172,172,1);
+            font-family: ArialMT;
+            font-size: 20px;
+            margin-left: 17px;
+          }
+        }
+        &::before {
+          content: '';
+          display: inline-block;
+          width: 54px;
+          height: 54px;
+          vertical-align: middle;
+          margin-right: 34px;
+        }
+        &.abnormalDynamic::before {
+          background: url('../images/peopleInfo/icon_dynamic_blue.png') center center no-repeat;
+        }
+        &.abnormalTrail::before {
+          background: url('../images/peopleInfo/icon_abnormal_dynamics_blue.png') center center no-repeat;
+        }
+        &.abnormalRelation::before {
+          background: url('../images/peopleInfo/icon_relationship_blue.png') center center no-repeat;
+        }
+    }
+
+    }
+    .tags {
+      padding: 24px;
+      .el-tag {
+        margin-right: 20px;
+        margin-bottom: 18px;
+      }
+    }
+  }
+  .sidebarRight {
+    flex: 1;
+    .hearderMenu {
+      border: 1px solid rgba(235,238,243,1);
+      background: rgba(255, 255, 255, 1);
+      padding: 0 23px;
+      span {
+        display: inline-block;
+        font-size: 18px;
+        color: rgba(172,172,172,1);
+        line-height: 57px;
+        margin-right: 70px;
+        cursor: pointer;
+        padding: 0 5px;
+        &:hover {
+          color: rgba(39,112,238,1);
+          border-bottom: 2px rgba(39,112,238,1) solid;
+        }
+        &.checked {
+          color: rgba(39,112,238,1);
+          border-bottom: 2px rgba(39,112,238,1) solid;
+        }
+      }
+      
+    }
+  }
+}
