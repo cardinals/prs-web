@@ -1,202 +1,134 @@
 <template>
   <div class="searchList">
+    <!-- 搜索条件标签栏 -->
     <div class="searchCondition clearfix">
       <div class="label">搜索条件:</div>
       <transition-group name="rotate">
-        <div class="buttons" v-for="(item,index) in keywordArr" :key="`button${index}`">
-          <span class="span">{{item.val|cantOver}}</span>
-          <span class="iconx" @click="deleteKeyword(item)">×</span>
+        <div class="buttons" v-for="(value, index) in keywordArr" :key="`button${index}`">
+          <span :class="value.type" class="typeIcon"></span>
+          <span class="span">{{value.name|cantOver}}</span>
+          <span class="iconx" @click="deleteKeyword(value)">×</span>
         </div>
       </transition-group>
       <div @click="resetAll" class="reset" v-if="keywordArr.length!==0">重置条件</div>
     </div>
+
     <!-- 相关搜索暂时不要 -->
-    <div v-if="false" class="searchCondition">
-      <div class="label">相关搜索:</div>
-      <div class="span2">婚姻家庭</div>
-      <div class="span2">公积金住房</div>
-      <div class="span2">住房赡养</div>
+    <div v-if="true" class="searchCondition">
+      <span class="label">相关搜索</span>
+      <span class="searchTags" v-for="(item, index) in treeData1.aboutSearch" :key="index" @click="goAboutSearch(item)">
+        {{item}}
+      </span>
     </div>
     <div class="treeList clearfix">
       <!-- 案件分类 和 关键词 -->
       <div class="tree">
-        <div class="classify">
-          <div class="titles">
-            <div class="img"></div>
-            <span>案件分类</span>
-          </div>
-          <el-tree
-           class="main"
-           :data="treeData"
-           :props="defaultProps"
-           @node-click="handleNodeClick"
-           highlight-current
-           :expand-on-click-node="false"
-          ></el-tree>
-        </div>
-        <div class="keyword">
-          <div class="titles">
-            <div class="img"></div>
-            <span>关键词</span>
-          </div>
-          <div class="main">
-            <div @click="addKeyword(item)" class="once" v-for="(item,index) in keywordAggs" :key="index">
-              <i class="circle"></i>
-              <span class="">{{item.name + '(' + item.value + ')'}}</span>
+        <el-collapse v-model="treeOpenDefault">
+          <el-collapse-item v-for="(value, key) in treeData1.tree" :key="key" class="classify"  :name="key" >
+            <template slot="title">
+              <div class="titles" :class="{'expand': treeStatus[key], 'noData': value.length === 0}" @click="treeStatus[key] = !treeStatus[key]">
+                <div class="img" :class="key"></div>
+                <div class="text">{{key|treeFilter}}</div>
+                <div class="titleIcon"></div>
+              </div>
+            </template>
+            <div>
+              <el-tree ref="zhangTest"
+              class="main"
+              :data="value"
+              :props="defaultProps"
+              @node-click="((val1)=>{
+                handleNodeClick(val1, key)
+                })"
+              highlight-current
+              :empty-text="''"
+              :icon-class="iconChange()"
+              :expand-on-click-node="false"
+              >
+                <template slot-scope="scope">
+                  <span :title='scope.node.label'>{{ scope.node.label|labelFilter }}</span>
+                </template>
+              </el-tree>
             </div>
-            <div class="no-data" v-if="keywordAggs.length===0">暂无数据</div>
-          </div>
-        </div>
+          </el-collapse-item>
+        </el-collapse>
       </div>
       <!-- 右边列表 -->
       <div class="list">
         <div class="others">
           <div class="label">排序:</div>
-          <div class="sort" :class="{'active':sortFlag==='score'}">
-            <span @click="sortFlag='score'">按相关度</span>
-            <i class="el-icon-download"></i>
+          <div class="sort active">
+            <span @click="sortChange">按相关度</span>
+            <i class="el-icon-download" v-if="sortFlag === 'desc'"></i>
+            <i class="el-icon-upload2" v-if="sortFlag === 'asc'"></i>
           </div>
-          <div class="sort" :class="{'active':sortFlag==='date'}">
-            <span @click="sortFlag='date'">按时间</span>
-            <i class="el-icon-download"></i>
-          </div>
-          <div class="echarts">
-            <div class="img"></div>
-            <span>类案分析</span>
-          </div>
-          <div class="num">共{{pageTotal}}篇</div>
+          <div class="num" v-if='listData !== null'>共找到 <span style="color:#2770EE">{{listData.resultNum}}</span> {{resultNumUnit}}</div>
         </div>
-        <div class="once" v-for="(item,index) in renderList" :key="index">
-          <div class="main">
-            <div class="titles">
-              <span @click="openUrl('mediationCaseDetails',item.dissensionId)" v-if="searchType==='mediateCase'" v-html="keywords(item.title)"></span>
-              <span @click="openUrl('mediationAgreementDetail',item.protocolId)" v-if="searchType==='protocol'" v-html="keywords(item.title)"></span>
-              <span @click="openUrl('judgmentDocumentDetail',item.caseId)" v-if="searchType==='judgement'" v-html="keywords(item.title)"></span>
-              <span @click="openUrl('lawsDetail',item.number)" v-if="searchType==='law'" abc="law" v-html="keywords(item.lawItem)"></span>
-            </div>
-            <div class="infos clearfix">
-              <span class="span">{{item.class}}</span>
-              <i class="border"></i>
-              <span v-if="searchType==='mediateCase'" class="span">{{item.refereeDept|changeNull}}</span>
-              <span v-if="searchType==='protocol'" class="span">{{item.refereeDept|changeNull}}</span>
-              <span v-if="searchType==='judgement'" class="span">{{item.courtName|changeNull}}</span>
-              <span v-if="searchType==='law'" class="span">{{item.publisher|changeNull}}</span>
-              <i class="border"></i>
-              <span v-if="searchType==='mediateCase'" class="span">{{item.transactDate|changeNull}}</span>
-              <span v-if="searchType==='protocol'" class="span">{{item.dateaccepted|changeNull}}</span>
-              <span v-if="searchType==='judgement'" class="span">{{item.trialDate|changeNull}}</span>
-              <span v-if="searchType==='law'" class="span">{{item.enforceDate|changeNull}}</span>
-            </div>
-            <div class="details" v-if="searchType==='mediateCase'">
-              <div class="line1">【案件详情】</div>
-              <div class="line2" v-html="keywords(item.mediateCircs)"></div>
-            </div>
-            <div class="details" v-if="searchType==='protocol'">
-              <div class="line1">【简要情况】</div>
-              <div class="line2" v-html="keywords(item.dealdispute)"></div>
-            </div>
-            <div class="details" v-if="searchType==='judgement'">
-              <div class="line1">【判决理由】</div>
-              <div class="line2" v-html="keywords(item.caseContent)"></div>
-            </div>
-            <div class="details" v-if="searchType==='law'">
-              <div class="line2" v-html="keywords(item.content)"></div>
-            </div>
-            <div class="types" v-if="searchType==='mediateCase'">调解案例</div>
-            <div class="types types2" v-if="searchType==='protocol'">调解协议书</div>
-            <div class="types types3" v-if="searchType==='judgement'">裁判文书</div>
-             <div class="types types4" v-if="searchType==='law'">法律法规</div>
-          </div>
-          <!-- 案件详情适配 -->
-          <div class="otherInfo clearfix" v-if="searchType==='mediateCase'">
-            <div class="buttons" @click="showDom($event,'law',item.dissensionId)" :class="{'active':state==='law'&& dissensionId === item.dissensionId}">适用法条推荐</div>
-            <div class="buttons" @click="showDom($event,'judgement',item.dissensionId)" :class="{'active':state==='judgement'&& dissensionId === item.dissensionId}">类案裁判文书</div>
-            <div class="buttons" @click="showDom($event,'protocol',item.dissensionId)" :class="{'active':state==='protocol'&& dissensionId === item.dissensionId}">类案调解协议</div>
-          </div>
-          <div class="hide_c" :ref="item.dissensionId" v-if="searchType==='mediateCase'">
-            <div class="hideBlock" :class="{'delt1':state==='law'&& dissensionId === item.dissensionId,'delt2':state==='judgement'&& dissensionId === item.dissensionId,'delt3':state==='protocol'&& dissensionId === item.dissensionId,'active':state}">
-              <!-- 法条 -->
-              <div v-show="state==='law'" v-for="(item,index) in law" :key="index" class="once_h">
-                <div class="title1" @click="openUrl('lawsDetail',item.number)"><div class="rect"></div>{{item.lawItem}}</div>
-                <div class="contents" v-html="keywords(item.content)"></div>
+        <div v-if ="listData !== null">
+        <div class="resultList" v-for="(item,index) in listData.pageContent" :key="index" >
+          <div class="card">
+            <div class="peopleInfo">
+              <div class="photo" @click="toDetail(item.personId)">
+                <!-- 预留以后有照片的情况 -->
+                <!-- <div :class="{'man': imagetest(item) === '' && item.gender === '男性', 'women': imagetest(item) === '' && item.gender === '女性', 'unknow': imagetest(item) === '' && item.gender === '未知'}" v-if="imagetest(item) === ''"></div>
+                <img :src="imagetest(item)" v-if="imagetest(item) !== ''"> -->
+
+                <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}" v-if="true"></div>
               </div>
-              <!-- 裁判文书 -->
-              <div v-show="state==='judgement'" v-for="item in judgement" :key="item.caseId" class="once_h">
-                <div class="title1"  @click="openUrl('judgmentDocumentDetail',item.caseId)"><div class="rect"></div>{{item.title}}</div>
-                <div class="title2">【判决理由】</div>
-                <div class="contents" v-html="keywords(item.trialReason)"></div>
-              </div>
-              <!-- 类案协议 -->
-              <div v-show="state==='protocol'" v-for="item in protocol" :key="item.protocolId" class="once_h">
-                <div class="title1" @click="openUrl('mediationAgreementDetail',item.protocolId)"><div class="rect"></div>{{item.title}}</div>
-                <div class="title2">【案件详情】</div>
-                <div class="contents" v-html="keywords(item.dealdispute)"></div>
+              <div class="info">
+                <div class="line1">
+                  <span class="name" @click="toDetail(item.personId)"> {{ item.name }}</span>
+                  <div class="img" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}"></div>
+                  <div class="tags">
+                    <div class="tag" v-for="(item,index) in item.tags" :key="index"> {{item.name}} </div>
+                  </div>
+                </div>
+                <div class="line2">
+                  <div></div>
+                  <span :style="item.idNumber === '' ? 'color:#989A9F' : ''">{{item.idNumber|idNodata}}</span>
+                </div>
+                <div class="line3">
+                  <span :style="item.birthday === '' ? 'color:#989A9F' : ''">{{item.birthday|nodata}}</span>
+                  <span>/</span>
+                  <span :style="item.birthPlace === '' ? 'color:#989A9F' : ''">{{item.birthPlace|nodata}}</span>
+                  <span>/</span>
+                  <span :style="item.mobile === '' ? 'color:#989A9F' : ''">{{item.mobile|nodata}}</span>
+                </div>
+                <div class="line4">
+                  {{item.homeAddress|nodata}}
+                </div>
               </div>
             </div>
-          </div>
-          <!-- 调解协议适配 -->
-          <div class="otherInfo clearfix"  v-if="searchType==='protocol'">
-            <div class="buttons" @click="showDom($event,'law',item.protocolId)" :class="{'active':state==='law'&& dissensionId === item.protocolId}">适用法条推荐</div>
-            <div class="buttons" @click="showDom($event,'judgement',item.protocolId)" :class="{'active':state==='judgement'&& dissensionId === item.protocolId}">类案裁判文书</div>
-            <div class="buttons" @click="showDom($event,'mediateCase',item.protocolId)" :class="{'active':state==='mediateCase'&& dissensionId === item.protocolId}">相似调解案例</div>
-          </div>
-          <div class="hide_c" :ref="item.protocolId" v-if="searchType==='protocol'">
-            <div class="hideBlock" :class="{'delt1':state==='law'&& dissensionId === item.protocolId,'delt2':state==='judgement'&& dissensionId === item.protocolId,'delt3':state==='mediateCase'&& dissensionId === item.protocolId,'active':state}">
-              <!-- 法条 -->
-              <div v-show="state==='law'" v-for="(item,index) in law" :key="index" class="once_h">
-                <div class="title1" @click="openUrl('lawsDetail',item.number)"><div class="rect"></div>{{item.lawItem}}</div>
-                <div class="contents" v-html="keywords(item.content)"></div>
+            <div class="abnormal" v-if="item.abnormalDynamic !== 0 || item.abnormalTrail !== 0 || item.abnormalRelation !== 0">
+              <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId)">
+                <div class="img trend"></div>
+                <span>异常动态:</span>
+                <span>{{item.abnormalDynamic}} 项</span>
               </div>
-              <!-- 裁判文书 -->
-              <div v-show="state==='judgement'" v-for="item in judgement" :key="item.caseId" class="once_h">
-                <div class="title1"   @click="openUrl('judgmentDocumentDetail',item.caseId)"><div class="rect"></div>{{item.title}}</div>
-                <div class="title2">【判决理由】</div>
-                <div class="contents" v-html="keywords(item.trialReason)"></div>
+              <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId)">
+                <div class="img path"></div>
+                <span>异常轨迹:</span>
+                <span>{{item.abnormalTrail}}项</span>
               </div>
-              <!-- 相似调解案例 -->
-              <div v-show="state==='mediateCase'" v-for="item in mediateCase" :key="item.dissensionId" class="once_h">
-                <div class="title1" @click="openUrl('mediationCaseDetails',item.dissensionId)"><div class="rect"></div>{{item.title}}</div>
-                <div class="title2">【案件详情】</div>
-                <div class="contents" v-html="keywords(item.mediateCircs)"></div>
+              <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId)">
+                <div class="img relationship"></div>
+                <span>异常关系:</span>
+                <span>{{item.abnormalRelation}}项</span>
               </div>
             </div>
-          </div>
-          <!-- 裁判文书适配 -->
-          <div class="otherInfo clearfix" v-if="searchType==='judgement'">
-            <div class="buttons" @click="showDom($event,'law',item.caseId)" :class="{'active':state==='law'&& dissensionId === item.caseId}">适用法条推荐</div>
-            <div class="buttons" @click="showDom($event,'judgement',item.caseId)" :class="{'active':state==='judgement'&& dissensionId === item.caseId}">类案裁判文书</div>
-          </div>
-          <div class="hide_c" :ref="item.caseId" v-if="searchType==='judgement'">
-            <div class="hideBlock" :class="{'delt1':state==='law'&& dissensionId === item.caseId,'delt2':state==='judgement'&& dissensionId === item.caseId,'delt3':state==='mediateCase'&& dissensionId === item.caseId,'active':state}">
-              <!-- 法条 -->
-              <div v-show="state==='law'" v-for="(item,index) in law" :key="index" class="once_h">
-                <div class="title1" @click="openUrl('lawsDetail',item.number)"><div class="rect"></div>{{item.lawItem}}</div>
-                <div class="contents" v-html="keywords(item.content)"></div>
-              </div>
-              <!-- 裁判文书 -->
-              <div v-show="state==='judgement'" v-for="item in judgement" :key="item.caseId" class="once_h">
-                <div class="title1"  @click="openUrl('judgmentDocumentDetail',item.caseId)"><div class="rect"></div>{{item.title}}</div>
-                <div class="title2">【判决理由】</div>
-                <div class="contents" v-html="keywords(item.trialReason)"></div>
-              </div>
-            </div>
-          </div>
-          <!-- 法律条文适配 -->
-          <div class="law_keyword clearfix" v-if="searchType==='law'&&item.keyword!==''">
-            <span class="keyword" v-for="(keyword,index) in arrToString(item.keyword).slice(0,3)" :key="index">{{keyword}}</span>
           </div>
         </div>
-        <div class="nodataImg" v-if="renderList.length===0">根据搜索条件未匹配到相应结果</div>
-        <div v-if="renderList.length!==0" class="page">
+        </div>
+
+        <div class="nodataImg" v-if="listData === null">根据搜索条件未匹配到相应结果</div>
+        <div v-if="listData !==null " class="page">
           <el-pagination
-            background
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :page-sizes="[5,10,20]"
-            :page-size="pageSize"
-            :current-page ="currentPage"
-            layout="sizes, prev, pager, next, jumper"
-            :total="pageTotal">
+            layout="prev, pager, next"
+            :total="listData.resultNum"
+            :page-size="5"
+            :current-page="currentPage"
+            @current-change="currentChange"
+            >
           </el-pagination>
         </div>
       </div>
@@ -205,22 +137,71 @@
 </template>
 
 <script>
-import { searchList, recommendList, log } from '@/api/api.js'
-import { mapState } from 'vuex'
+import { searchList, recommendList, log, getListData, getPhotoData } from '@/api/api.js'
 import { Message } from 'element-ui'
+import { mapGetters } from 'vuex'
+const treeTitleMap = {
+  gender: '性别',
+  age: '年龄分布',
+  birthPlace: '籍贯',
+  homeAddress: '居住地',
+  tags: '标签'
+}
+let apiParams = {
+  'age': '',
+  'hujidizhi': '',
+  'juzhudi': '',
+  'label': [],
+  'order': 'desc',
+  'pagecapacity': 5,
+  'pagenumber': 1,
+  'query': '',
+  'xingbie': '',
+  'querytype': ''
+}
+const paramsMap = {
+  age: (val) => { apiParams['age'] = val.name },
+  birthPlace: (val) => { apiParams['hujidizhi'] = val.nameid },
+  homeAddress: (val) => { apiParams['juzhudi'] = val.nameid },
+  tags: (val) => {
+    if (apiParams['label'].indexOf(val.name) < 0) apiParams['label'].push(val.name)
+  },
+  gender: (val) => { apiParams['xingbie'] = val.nameid }
+}
+const delParamsMap = {
+  age: (val) => { apiParams['age'] = '' },
+  birthPlace: (val) => { apiParams['hujidizhi'] = '' },
+  homeAddress: (val) => { apiParams['juzhudi'] = '' },
+  gender: (val) => { apiParams['xingbie'] = '' },
+  tags: (val) => { apiParams['label'].splice(apiParams['label'].indexOf(val), 1) }
+}
 export default {
   data () {
     return {
+      treeOpenDefault: ['gender', 'age', 'birthPlace', 'homeAddress', 'tags'],
+      keywordArr: [],
+      pictureData: {},
+      treeData1: [], // 树状结构数据
+      treeStatus: {
+        gender: true,
+        age: true,
+        birthPlace: true,
+        homeAddress: true,
+        tags: true
+      },
       state: '',
       treeData: [],
+      listData: [],
+
       defaultProps: {
-        children: 'children',
-        label: 'name'
+        children: 'cities',
+        label: 'name',
+        title: 'nameShort'
       },
       caseType: '',
       caseTypeId: '',
       keyword: [],
-      sortFlag: 'score',
+      sortFlag: 'desc',
       keywordAggs: [],
       pageTotal: 0,
       pageSize: 5,
@@ -234,54 +215,84 @@ export default {
       mediateCase: [],
       prevDom: '', // 记录旧的dom节点
       timeout: '', // 设置输入延迟
-      keyRex: []
+      keyRex: [],
+      tree: []
     }
   },
   computed: {
-    ...mapState('header', {
-      searchVal: state => state.searchVal,
-      searchType: state => state.searchType
-    }),
-    keywordArr () {
-      let arr = []
-      if (this.searchVal !== '') {
-        arr.push({
-          type: 'searchVal',
-          val: this.searchVal
-        })
-      } else {
-        // 如果searchVal为空，清空所有搜索条件
-        this.resetAll()
-      }
-      if (this.caseType !== '') {
-        arr.push({
-          type: 'caseType',
-          val: '案件分类:' + this.caseType,
-          name: this.caseType
-        })
-      }
-      if (this.keyword.length !== 0) {
-        this.keyword.map((item) => {
-          arr.push({
-            type: 'keyword',
-            val: '关键词:' + item,
-            name: item
-          })
-        })
-      }
-      return arr
+    ...mapGetters({ getSearchClick: 'header/getSearchClick' }),
+    searchVal () {
+      return this.$route.params.val
+    },
+    searchType () {
+      console.log('searchType changed')
+      return this.$route.params.type
+    },
+    resultNumUnit () {
+      if (this.$route.params.type === 'people') return '位相关人员'
+      if (this.$route.params.type === 'case') return '件相关案件'
+      if (this.$route.params.type === 'org') return '个相关机构'
+      return null
     }
+    // keywordArr () {
+    //   let arr = []
+    //   if (this.searchVal !== '') {
+    //     arr.push({
+    //       type: 'searchVal',
+    //       val: this.searchVal
+    //     })
+    //   } else {
+    //     // 如果searchVal为空，清空所有搜索条件
+    //     this.resetAll()
+    //   }
+    //   if (this.caseType !== '') {
+    //     arr.push({
+    //       type: 'caseType',
+    //       val: '案件分类:' + this.caseType,
+    //       name: this.caseType
+    //     })
+    //   }
+    //   if (this.keyword.length !== 0) {
+    //     this.keyword.map((item) => {
+    //       arr.push({
+    //         type: 'keyword',
+    //         val: '关键词:' + item,
+    //         name: item
+    //       })
+    //     })
+    //   }
+    //   return arr
+    // }
   },
   watch: {
+    getSearchClick () {
+      if (this.keywordArr.length === 0) {
+        this.keywordArr.push({
+          type: 'searchVal',
+          name: this.$route.params.val
+        })
+        apiParams.pagenumber = 1
+        this.searchListInit1()
+      }
+    },
     // 监控跟搜索有关的参数
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
       this.searchListInit()
     },
     searchVal: function (newVal, oldVal) {
+      console.log('searchVal changed')
+      // this.searchListInit1()
       if (oldVal !== '' && oldVal !== newVal) {
         // this.$router.push('/searchList/' + this.searchType + '/' + newVal)
         // this.$store.commit('header/changeSearchVal', newVal)
+        this.keywordArr = []
+        this.keywordArr.push({
+          type: 'searchVal',
+          name: this.$route.params.val
+        })
+        apiParams.pagenumber = 1
+        this.searchListInit1()
         this.caseType = ''
         this.caseTypeId = ''
         this.keyword = []
@@ -292,10 +303,10 @@ export default {
         this.keyword = []
       }
     },
-    sortFlag: function (newVal, oldVal) {
-      this.currentPage = 1
-      this.searchListInit()
-    },
+    // sortFlag: function (newVal, oldVal) {
+    //   this.currentPage = 1
+    //   this.searchListInit()
+    // },
     searchType: function (newVal, oldVal) {
       this.currentPage = 1
       if (oldVal !== newVal) {
@@ -305,15 +316,44 @@ export default {
     }
   },
   filters: {
+    labelFilter (val) {
+      if (val.length > 10) {
+        return val.substring(0, 10) + '...'
+      } else {
+        return val
+      }
+    },
     changeNull (val) {
       return !val ? '暂无信息' : val
     },
     // 限定字数不能超过10
     cantOver (val) {
       return val.length > 11 ? val.slice(0, 10) + '...' : val
+    },
+    treeFilter (val) {
+      return treeTitleMap[val]
+    },
+    idNodata (val) {
+      return val === '' ? '暂无' : val.substring(0, 6) + '********' + val.substring(14, 18)
+    },
+    nodata (val) {
+      return val === '' ? '暂无' : val
     }
   },
   methods: {
+    toDetail (val) {
+      let routeUrl = this.$router.resolve({
+        path: '/detail/' + val
+      })
+      window.open(routeUrl.href, '_blank')
+      // this.$router.push('/detail/' + val)
+    },
+    iconChange (isOpen) {
+      return 'el-icon-plus'
+    },
+    imagetest (item) {
+      return this.pictureData[item.personId]
+    },
     // 展示列表的下拉框
     showDom (ev, val, id) {
       let _this = this
@@ -384,9 +424,14 @@ export default {
       this.commitLog()
     },
     // 树形插件点击事件
-    handleNodeClick (data) {
-      this.caseType = data.realName
-      this.caseTypeId = data.id
+    handleNodeClick () {
+      apiParams.pagenumber = 1
+      paramsMap[arguments[1]](arguments[0])
+      this.addKeyword(arguments[1], arguments[0].name)
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
     },
     // 搜索接口&&初始化搜索列表
     async searchListInit () {
@@ -479,32 +524,91 @@ export default {
       }
     },
     // 添加关键词
-    addKeyword (val) {
-      if (val.value !== 0 && this.keyword.indexOf(val.name) === -1) {
-        this.keyword.push(val.name)
-      } else if (this.keyword.indexOf(val.name) !== -1) {
-        this.showMessage('请不要重复选取关键词', 'warning')
-      } else if (val.value === 0) {
-        this.showMessage('找不到该关键词的搜索结果', 'warning')
+    addKeyword (type, name) {
+      if (this.indexOfKeywordArr(type, name) < 0) {
+        this.keywordArr.push({
+          type: type,
+          name: name
+        })
       }
+    },
+    indexOfKeywordArr (type, name) {
+      for (let i = 0; i < this.keywordArr.length; i++) {
+        if (this.keywordArr[i].name === name && this.keywordArr[i].type === type) {
+          return i
+        }
+      }
+      return -1
     },
     // 删除关键词
     deleteKeyword (val) {
       if (val.type === 'searchVal') {
         this.$store.commit('header/changeSearchVal', '')
-      } else if (val.type === 'caseType') {
-        this.caseType = ''
-        this.caseTypeId = ''
-      } else if (val.type === 'keyword') {
-        this.keyword.splice(this.keyword.indexOf(val.name), 1)
+        this.keywordArr = []
+        apiParams = apiParams = {
+          'age': '',
+          'hujidizhi': '',
+          'juzhudi': '',
+          'label': [],
+          'order': 'desc',
+          'pagecapacity': 5,
+          'pagenumber': 1,
+          'query': '',
+          'xingbie': '',
+          'querytype': ''
+        }
+      } else {
+        this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
+        delParamsMap[val.type](val.name)
+        apiParams.pagenumber = 1
       }
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
+      // this.$forceUpdate()
     },
     // 清空所有条件
     resetAll () {
-      this.$store.commit('header/changeSearchVal', '')
-      this.caseType = ''
-      this.caseTypeId = ''
-      this.keyword = []
+      this.keywordArr.splice(1, this.keywordArr.length - 1)
+      apiParams = {
+        'age': '',
+        'hujidizhi': '',
+        'juzhudi': '',
+        'label': [],
+        'order': 'desc',
+        'pagecapacity': 5,
+        'pagenumber': 1,
+        'query': this.$route.params.val,
+        'xingbie': '',
+        'querytype': this.$route.params.type
+      }
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
+    },
+    goAboutSearch (val) {
+      this.$store.commit('header/changeSearchVal', val)
+      this.$router.push('/searchList/people/' + val)
+      apiParams = {
+        'age': '',
+        'hujidizhi': '',
+        'juzhudi': '',
+        'label': [],
+        'order': 'desc',
+        'pagecapacity': 5,
+        'pagenumber': 1,
+        'query': this.$route.params.val,
+        'xingbie': '',
+        'querytype': this.$route.params.type
+      }
+      this.keywordArr[0].name = val
+      this.$forceUpdate()
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
     },
     // 处理字符串变数组
     arrToString (val) {
@@ -520,13 +624,59 @@ export default {
         type: type || 'warning',
         duration: duration || 2000
       })
+    },
+    currentChange (val) {
+      apiParams['pagenumber'] = val
+      this.currentPage = val
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
+    },
+    goAbnormalPage (key, val) {
+      let routeUrl = {
+        abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic` }),
+        abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship` }),
+        abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath` })
+      }
+      window.open(routeUrl[key].href, '_blank')
+    },
+    sortChange () {
+      this.currentPage = 1
+      if (this.sortFlag === 'desc') {
+        this.sortFlag = 'asc'
+      } else if (this.sortFlag === 'asc') {
+        this.sortFlag = 'desc'
+      }
+      apiParams.pagenumber = 1
+      apiParams.order = this.sortFlag
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
+    },
+    searchListInit1 () {
+      apiParams['query'] = this.$route.params.val
+      apiParams['querytype'] = this.$route.params.type
+      getListData(apiParams).then(res => {
+        this.treeData1 = res.data.result_tree || {}
+        this.listData = res.data.result_list || null
+      })
     }
   },
   mounted () {
     // 优化刷新网页的时候状态丢失
+    this.keywordArr.push({
+      type: 'searchVal',
+      name: this.$route.params.val
+    })
     this.$store.commit('header/changeSearchType', this.$route.params.type)
     this.$store.commit('header/changeSearchVal', this.$route.params.val)
-    this.searchListInit()
+    // this.searchListInit()
+    this.searchListInit1()
+    getPhotoData().then(res => {
+      this.pictureData = res
+    })
   }
 }
 </script>
@@ -549,19 +699,20 @@ export default {
   }
 
   // element-ui
-  .el-pager{
-    .number{
-      background-color: #ffffff!important;
-    }
-    .active{
-      background-color: #669AFF!important;
-    }
-  }
-  .el-pagination button{
-    background-color:#ffffff!important;
-  }
   .el-tree-node__expand-icon{
     color:#808080;
+  }
+  .el-collapse-item__arrow {
+    &::before {
+      content: "";
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: 4px transparent solid;
+      border-left-color:#808080;
+      border-left-width: 6px;
+      margin-left: 5px;
+    }
   }
   .el-tree-node__expand-icon.is-leaf{
     // width: 4px;
@@ -573,20 +724,57 @@ export default {
     border-radius: 50%;
     background: #808080;
   }
+  .el-collapse-item__wrap {
+    padding-left: 50px;
+  }
   .el-tree-node__content{
     &:hover{
       .el-tree-node__expand-icon{
-        color:#669AFF;
+        color:#2770EE;
+        background: rgba(241,245,255,1);
       }
       .el-tree-node__expand-icon.is-leaf{
         background: #669AFF;
       }
       color:#669AFF;
-      background: rgb(240,240,240)
+      background: rgba(241,245,255,1)
     }
   }
+
+  // 展开前的小加号
+  .el-tree-node__expand-icon:not(.is-leaf) {
+    position: relative;
+    width: 20px;
+    height: 22px;
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 10px;
+      height: 2px;
+      background:rgba(128,128,128,1);
+      top: 10px;
+    }
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 2px;
+      height: 10px;
+      background:rgba(128,128,128,1);
+      left: 10px;
+    }
+    &.expanded {
+      transform: none;
+      &::after {
+        content: "";
+        height: 0;
+      }
+    }
+  }
+
   .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
-    background: rgb(240,240,240);
+    background: rgba(241,245,255,1);
     color:#669AFF;
     .el-tree-node__expand-icon.is-leaf{
       background: #669AFF;
@@ -597,6 +785,36 @@ export default {
   }
   .el-pagination.is-background .el-pager li:not(.disabled).active{
     background: #669AFF;
+  }
+  .el-tree__empty-block {
+    min-height: 0;
+  }
+  .el-collapse-item__header {
+    background:rgba(246,246,246,1);
+    &.is-active {
+      background:rgba(246,246,246,1);
+    }
+  }
+  .el-collapse-item__wrap {
+    border: none;
+    .el-collapse-item__content{
+      padding: 0;
+    }
+  }
+  .el-pagination {
+
+    button {
+      background: transparent !important;
+    }
+    .el-pager {
+      background: transparent !important;
+      .number {
+        background: transparent !important;
+      }
+      .more {
+        background: transparent !important;
+      }
+    }
   }
 </style>
 

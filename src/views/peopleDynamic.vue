@@ -1,0 +1,319 @@
+<template>
+  <div class="dynamic">
+    <div class="msg" v-if="showMsg && dynamicNum !== '0'">
+      <div class="icon"></div>
+      <div class="text" >
+        {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常动态</span>风险预警
+      </div>
+      <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
+      <div class="del" @click="changeShowMsg(false)"></div>
+    </div>
+    <div class="type">
+      <div class="activeType" ref="activeType">
+        <div class="name">
+          活动类型:
+        </div>
+        <div class="noData" v-if="allData.huodonglx.length === 0">
+          暂无活动
+        </div>
+        <div class="items" ref="items1">
+          <span v-for="(item, index) in allData.huodonglx" :key="index" :class="{'checked':index === activeChecked}" @click="huodonglxChange(index, item.name)">
+            {{item.name}}({{item.value}})
+          </span>
+        </div>
+        <div class="openRetract" @click="openActiveType" v-if="allData.huodonglx.length > 4">
+          <span v-if="!isOpen_active">展开</span>
+          <span v-if="isOpen_active">收起</span>
+          <i class="el-icon-arrow-down" :class="{'rotate': isOpen_active}"></i>
+        </div>
+      </div>
+      <div class="dangerType" >
+        <div class="name">
+          风险类型:
+        </div>
+        <div class="noData" v-if="allData.fengxianlx.length === 0">
+          暂无风险
+        </div>
+        <span class="filter" v-if="dangerChecked >= 0" @click="filterControl(-1)">取消过滤</span>
+        <div class="items" ref="items" >
+          <div class="container" ref="dangerType" >
+            <span v-for="(item, index) in allData.fengxianlx" :key="index" :class="{'checked':index === dangerChecked}" @click="filterControl(index, item.name)">
+              {{item.name}}({{item.value}})
+            </span>
+          </div>
+        </div>
+        <div class="openRetract" @click="openDangerType" v-if="allData.fengxianlx.length > 4">
+          <span v-if="!isOpen_danger">展开</span>
+          <span v-if="isOpen_danger">收起</span>
+          <i class="el-icon-arrow-down" :class="{'rotate': isOpen_danger}"></i>
+        </div>
+      </div>
+    </div>
+    <div class="peopleDynamic">
+      <div class="title">
+        <span class="name">人员动态</span>
+        <div class="dataSelect">
+          <span :class="{'checked': dataDefault === 'all'}" @click="dataChange('all')">全部</span>
+          <span :class="{'checked': dataDefault === 'today'}" @click="dataChange('today')">今日</span>
+          <span :class="{'checked': dataDefault === 'week'}" @click="dataChange('week')">本周</span>
+          <span :class="{'checked': dataDefault === 'month'}" @click="dataChange('month')">本月</span>
+          <span :class="{'checked': dataDefault === 'year'}" @click="dataChange('year')">今年</span>
+        </div>
+        <div class="dataPicker">
+          <el-date-picker
+            v-model="dataPicked"
+            format="yyyy/M/d"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="yyyy-MM-dd"
+            @change="dataChanged">
+          </el-date-picker>
+        </div>
+      </div>
+      <div class="content">
+        <div class="resultTable">
+          <el-table :data="allData.activitylist" :cell-style="dangerColor">
+            <el-table-column prop="shijian" label="时间"/>
+            <el-table-column prop="leixing" label="类型"/>
+            <el-table-column prop="miaoshu" label="描述" width="285" />
+            <el-table-column prop="fengxianyj" label="风险预警"  />
+          </el-table>
+        </div>
+        <div class="page" v-if="allData.resultNum > 8">
+          <el-pagination
+            layout="prev, pager, next"
+            :page-size="8"
+            :total="allData.resultNum">
+          </el-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import { getDynamic } from '@/api/api.js'
+import { mapActions } from 'vuex'
+let apiParams = {}
+let getDay = day => {
+  let today = new Date()
+  let targetdayMilliseconds = today.getTime() + 1000 * 60 * 60 * 24 * day
+  today.setTime(targetdayMilliseconds)
+  return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+}
+export default {
+  name: 'dynamic',
+  data () {
+    return {
+      isOpen_active: false, // 活动类型是否展开
+      isOpen_danger: false, // 风险类型是否展开
+      allData: {},
+      activeChecked: 0,
+      dangerChecked: -1,
+      dataDefault: 'year',
+      dataPicked: [],
+      dateMap: {
+        all: () => {
+          apiParams.timestart = 'all'
+          this.dataPicked = []
+          this.dataPicked.push(new Date().getFullYear() - 100 + '/1/1')
+          this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate())
+        },
+        today: () => {
+          apiParams.timestart = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          this.dataPicked = []
+          this.dataPicked.push(apiParams.timestart)
+          this.dataPicked.push(apiParams.timeend)
+        },
+        week: () => {
+          apiParams.timestart = getDay(-new Date().getDay() + 1)
+          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          this.dataPicked = []
+          this.dataPicked.push(apiParams.timestart)
+          this.dataPicked.push(apiParams.timeend)
+        },
+        month: () => {
+          // apiParams.timestart = getDay(-30)
+          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01'
+          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          this.dataPicked = []
+          this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01')
+          this.dataPicked.push(apiParams.timeend)
+        },
+        year: () => {
+          apiParams.timestart = new Date().getFullYear() + '-01-01'
+          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          this.dataPicked = []
+          this.dataPicked.push(apiParams.timestart)
+          this.dataPicked.push(apiParams.timeend)
+        }
+      }
+    }
+  },
+  computed: {
+    // 是否展示最上方的消息提示
+    showMsg () {
+      return this.$store.state.dynamic.showMsg
+    },
+    dynamicNum () {
+      return this.$store.state.dynamic.dynamicNum
+    },
+    peopleName () {
+      return this.$store.state.dynamic.peopleName
+    },
+    fengxianlx () {
+      return this.allData.fengxianlx
+    }
+  },
+  methods: {
+    ...mapActions('dynamic', {
+      changeShowMsg: 'changeShowMsg',
+      changeHeight: 'changeHeight'
+    }),
+    // 活动类型展开与收起
+    openActiveType () {
+      this.isOpen_active = !this.isOpen_active
+      if (this.isOpen_active) {
+        this.$refs.activeType.style.height = this.$refs.items1.scrollHeight + 'px'
+      } else {
+        this.$refs.activeType.style.height = '62px'
+      }
+    },
+    // 风险类型展开与收起
+    openDangerType () {
+      this.isOpen_danger = !this.isOpen_danger
+      if (this.isOpen_danger) {
+        this.$refs.items.style.height = this.$refs.dangerType.scrollHeight + 'px'
+      } else {
+        this.$refs.items.style.height = '62px'
+      }
+    },
+    filterControl (val, type) {
+      this.dangerChecked = val
+      if (val === -1) {
+        apiParams.flag = '1'
+        apiParams.fengxianlx = ''
+      } else if (val === 0) {
+        apiParams.fengxianlx = 'unnormal'
+      } else {
+        apiParams.fengxianlx = type
+      }
+      console.log('zhang' + apiParams)
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+      })
+      if (this.isOpen_danger) {
+        let _this = this
+        if (val >= 0) {
+          this.changeHeight(this.$refs.dangerType.clientHeight)
+          this.$nextTick(() => {
+            _this.$refs.items.style.height = _this.$refs.dangerType.clientHeight + 'px'
+          })
+        } else {
+          this.$nextTick(() => {
+            _this.$refs.items.style.height = _this.$store.state.dynamic.dangerContentHeight + 'px'
+          })
+        }
+      }
+    },
+    dangerColor ({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 3 && this.allData.activitylist[rowIndex].fengxianyj !== '正常') {
+        return 'color: rgba(255,169,83,1)'
+      }
+    },
+    dataChange (val) {
+      this.dataDefault = val
+      this.dateMap[val]()
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+      })
+    },
+    onlyDanger () {
+      apiParams.flag = '2'
+      this.dataDefault = 'all'
+      apiParams.timestart = 'all'
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+        if (this.allData.fengxianlx.length !== 0) {
+          this.dangerChecked = 0
+        }
+      })
+    },
+    huodonglxChange (index, type) {
+      this.activeChecked = index
+      if (index === 0) {
+        apiParams.huodonglx = ''
+      } else {
+        apiParams.huodonglx = type
+      }
+      console.log(apiParams)
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+      })
+    },
+    dataChanged (val) {
+      this.dataDefault = 'hahaha'
+      apiParams.timestart = val[0]
+      apiParams.timeend = val[1]
+
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+      })
+    }
+  },
+  watch: {
+    fengxianlx (newVal, oldVal) {
+      if (oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
+        this.filterControl(-1)
+      }
+    }
+  },
+  mounted () {
+    let nowTime = new Date()
+    this.dataPicked.push(nowTime.getFullYear() + '/01/01')
+    this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
+    apiParams.g_id = this.$route.params.people
+    apiParams.timestart = nowTime.getFullYear() + '-01-01'
+    apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
+    apiParams.pagecapacity = 8
+    apiParams.pagenumber = 1
+    apiParams.flag = '1'
+    apiParams.huodonglx = ''
+    apiParams.fengxianlx = ''
+    getDynamic(apiParams).then(res => {
+      this.allData = res.data
+    })
+  }
+}
+</script>
+
+<style scoped lang="less">
+@import '~@/assets/css/peopleDynamic.less';
+</style>
+<style lang="less">
+.el-date-editor .el-range-separator {
+  width: 10%;
+}
+.el-date-editor.el-input__inner {
+  width: 250px !important;
+  height: 28px;
+  .el-input__icon, .el-range-separator {
+    line-height: 20px;
+  }
+}
+
+.el-table__header-wrapper {
+  .has-gutter {
+    tr, th{
+      background: rgba(245,245,245,1);
+      .cell {
+        color:rgba(57,57,57,1);
+        font-size:16px;
+      }
+    }
+  }
+}
+
+</style>
