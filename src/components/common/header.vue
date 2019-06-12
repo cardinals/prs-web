@@ -1,10 +1,3 @@
-/*
- * @Author: wupeiwen javapeiwen2010@gmail.com
- * @Date: 2018-09-18 10:01:31
- * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2019-05-11 09:53:51
- */
-
 <template>
   <div class="header" :style="{'margin-bottom':$route.fullPath ==='/home'?'0':'23px'}">
     <div class="main" >
@@ -14,12 +7,13 @@
       </div>
       <div  v-if="$route.fullPath!=='/home'" class="search_c">
         <div class="select_c">
-           <el-select v-model="searchType" placeholder="请选择" @change="selectType">
+           <el-select v-model="searchType" placeholder="请选择">
             <el-option
               v-for="item in options"
               :key="item.value"
               :label="item.label"
               :value="item.value"
+              :disabled="item.disabled"
             >
             </el-option>
           </el-select>
@@ -30,7 +24,7 @@
             class="inline-input"
             v-model="searchVal"
             :fetch-suggestions="querySearch"
-            placeholder="请输入关键词"
+            :placeholder="placeholder"
             @select="handleSelect"
             @keydown.enter.native = "goSearch"
             :trigger-on-focus="false"
@@ -61,7 +55,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <div v-if="!ifLogin" class="menu2" @click="goLogin(false)">登录</div>
+        <div v-if="!ifLogin" class="menu2">登录</div>
       </div>
     </div>
   </div>
@@ -76,14 +70,18 @@ export default {
     return {
       options: [{
         value: 'people',
-        label: '搜人员'
+        label: '搜人员',
+        disabled: false
       }, {
         value: 'case',
-        label: '搜案例'
+        label: '搜案例',
+        disabled: true
       }, {
         value: 'org',
-        label: '搜机构'
+        label: '搜机构',
+        disabled: true
       }],
+      placeholder: '请输入人名、身份证号(最少2位)、电话号码(最少3位)',
       // 登录用户名
       userName: localStorage.getItem('tattusername')
     }
@@ -92,15 +90,14 @@ export default {
     ...mapState('header', {
       ifLogin: state => state.ifLogin
     }),
-    // vue最近更新了版本，要求必须在计算属性里加上setter，否则报错。
     searchType: {
       get: function () {
         return this.$store.state.header.searchType
       },
       set: function (newVal) {
+        this.changeSearchType(newVal)
       }
     },
-    // 重写set方法
     searchVal: {
       get: function () {
         return this.$store.state.header.searchVal
@@ -116,32 +113,8 @@ export default {
       changeSearchType: 'header/changeSearchType'
     }),
     ...mapActions({
-      changeLoginAsync: 'header/changeLoginAsync',
-      logoutAsync: 'header/logoutAsync',
       changeSearchClick: 'header/changeSearchClick'
     }),
-    // 注销或登录按钮
-    goLogin (command) {
-      let _this = this
-      if (command) {
-        _this.logoutAsync().then((res) => {
-          if (res.code === 1) {
-            Message({
-              message: res.message,
-              type: 'success'
-            })
-            _this.$router.push('/login')
-          } else {
-            Message({
-              message: res.message,
-              type: 'warning'
-            })
-          }
-        })
-      } else {
-        _this.$router.push('/login')
-      }
-    },
     // 获取汉字
     ifCN (v) {
       if (v === '' || (/^\s*$/gi).test(v)) return ''
@@ -157,8 +130,12 @@ export default {
     // 搜索提示
     querySearch (queryString, callback) {
       let CN = this.ifCN(queryString)
+      if (CN === '') {
+        let noQuery = []
+        callback(noQuery)
+      }
       if (CN) {
-        tipsCN({ 'prefix': CN }).then((res) => {
+        tipsCN({ 'query': CN }).then((res) => {
           callback(res.data)
         })
       } else {
@@ -167,10 +144,7 @@ export default {
         })
       }
     },
-    // 选择类型
-    selectType (val) {
-      this.changeSearchType(val)
-    },
+    // 去搜索结果页
     goSearch () {
       let _this = this
       if (this.searchVal !== '') {
@@ -188,7 +162,6 @@ export default {
     }
   },
   mounted () {
-    this.changeLoginAsync()
   }
 }
 </script>
