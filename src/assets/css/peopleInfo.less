@@ -1,0 +1,92 @@
+@import './common.less';
+
+.info {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+  .title {
+    border-bottom: 2px solid rgba(237,237,237,1);
+    padding: 0 25px;
+    span {
+      line-height: 60px;
+      color: rgba(39,112,238,1);
+      font-size: 18px;
+    }
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 18px;
+      background: rgba(39,112,238,1);
+      border-radius: 2px;
+      vertical-align: text-top;
+      margin-right: 8px;
+    }
+  }
+  .box {
+    background: rgba(255,255,255,1);
+    margin-bottom: 16px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+    .content {
+      padding: 23px 25px;
+      display: flex;
+      flex-direction: column;
+      .tableTitle {
+        color: #4D4B4B;
+        padding-bottom: 10px;
+        padding-top: 30px;
+        &:first-child {
+          padding-top: 0;
+        }
+        &::before  {
+          content: '';
+          display: inline-block;
+          border-top: 5.5px transparent solid;
+          border-bottom: 5.5px transparent solid;
+          border-left: 9px rgba(138,137,137,1) solid;
+          margin-right: 5px;
+        }
+      }
+      .row {
+        display: flex;
+        width: 100%;
+        border-top: 1px rgba(229,229,229,1) solid; 
+        &:last-child {
+          border-bottom: 1px rgba(229,229,229,1) solid; 
+        }
+        .col {
+          flex: 1;
+          height: 34px;
+          line-height: 14px;
+          display: flex;
+          align-items: center;
+          color: #4D4B4B;
+          &:last-child {
+            border-right: 1px rgba(229,229,229,1) solid;
+          }
+          .tabTitle {
+            color: #666666;
+            display: inline-block;
+            width: 85px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(245,245,245,1);
+            padding-left: 5px;
+            border-left: 1px rgba(229,229,229,1) solid;
+            border-right: 1px rgba(229,229,229,1) solid;
+          }
+          .value {
+            padding-left: 10px; 
+            &.noData {
+              color: rgba(172,172,172,1);
+            }
+          }
+        }
+      }
+    }
+  }
+}
