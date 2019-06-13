@@ -90,7 +90,8 @@
           <el-pagination
             layout="prev, pager, next"
             :page-size="8"
-            :total="allData.resultNum">
+            :total="allData.resultNum"
+            @current-change="currentChange">
           </el-pagination>
         </div>
       </div>
@@ -107,7 +108,9 @@ let getDay = day => {
   let today = new Date()
   let targetdayMilliseconds = today.getTime() + 1000 * 60 * 60 * 24 * day
   today.setTime(targetdayMilliseconds)
-  return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+  let mm = (today.getMonth() + 1) >= 10 ? (today.getMonth() + 1) : '0' + (today.getMonth() + 1)
+  let dd = today.getDate() >= 10 ? today.getDate() : '0' + today.getDate()
+  return today.getFullYear() + '-' + mm + '-' + dd
 }
 export default {
   name: 'dynamic',
@@ -120,6 +123,7 @@ export default {
       dangerChecked: -1, // 风险类型选择
       dataDefault: 'year', // 默认日期选择
       dataPicked: [], // 日期选择器绑定数值
+      currentPage: 1,
 
       // 选择不同的日期选项，日期选择器发生相应的变化
       dateMap: {
@@ -130,30 +134,41 @@ export default {
           this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate())
         },
         today: () => {
-          apiParams.timestart = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          let year = new Date().getFullYear()
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
+          apiParams.timestart = year + '-' + month + '-' + day
+          apiParams.timeend = year + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(apiParams.timestart)
           this.dataPicked.push(apiParams.timeend)
         },
         week: () => {
+          let year = new Date().getFullYear()
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
           apiParams.timestart = getDay(-new Date().getDay() + 1)
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timeend = year + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(apiParams.timestart)
           this.dataPicked.push(apiParams.timeend)
         },
         month: () => {
+          let year = new Date().getFullYear()
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
           // apiParams.timestart = getDay(-30)
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01'
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timestart = year + '-' + month + '-01'
+          apiParams.timeend = year + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01')
           this.dataPicked.push(apiParams.timeend)
         },
         year: () => {
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
           apiParams.timestart = new Date().getFullYear() + '-01-01'
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timeend = new Date().getFullYear() + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(apiParams.timestart)
           this.dataPicked.push(apiParams.timeend)
@@ -206,13 +221,13 @@ export default {
         apiParams.flag = '1'
         apiParams.fengxianlx = ''
       } else if (val === 0) {
+        apiParams.flag = '2'
         apiParams.fengxianlx = 'unnormal'
       } else {
+        apiParams.flag = '2'
         apiParams.fengxianlx = type
       }
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      this.getDynamic()
       if (this.isOpen_danger) {
         let _this = this
         if (val >= 0) {
@@ -232,6 +247,12 @@ export default {
       if (columnIndex === 3 && this.allData.activitylist[rowIndex].fengxianyj !== '正常') {
         return 'color: rgba(255,169,83,1)'
       }
+    },
+    //  日期选项改变之后重新请求数据
+    dataChange (val) {
+      this.dataDefault = val
+      this.dateMap[val]()
+      this.getDynamic()
     },
     // 仅显示异常
     onlyDanger () {
@@ -253,15 +274,23 @@ export default {
       } else {
         apiParams.huodonglx = type
       }
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      this.getDynamic()
     },
-    //  日期选项改变之后重新请求数据
+    // 日期选择器日期改变之后的相关操作
     dataChanged (val) {
       this.dataDefault = 'hahaha'
       apiParams.timestart = val[0]
       apiParams.timeend = val[1]
+      this.getDynamic()
+    },
+    getDynamic () {
+      apiParams.pagenumber = 1
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+      })
+    },
+    currentChange (val) {
+      apiParams.pagenumber = val
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
@@ -286,9 +315,7 @@ export default {
     apiParams.flag = '1'
     apiParams.huodonglx = ''
     apiParams.fengxianlx = ''
-    getDynamic(apiParams).then(res => {
-      this.allData = res.data
-    })
+    this.getDynamic()
   }
 }
 </script>
