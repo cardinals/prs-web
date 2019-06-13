@@ -48,7 +48,7 @@ export default {
     // padding-bottom: 154px;
     box-sizing: border-box;
     &.homePage {
-      background: url('../assets/images/home1/pic_bg.png');
+      background: url('../assets/images/home/pic_bg.png');
     }
     .body{
       width:1200px;
