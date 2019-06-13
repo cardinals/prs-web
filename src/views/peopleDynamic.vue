@@ -1,5 +1,6 @@
 <template>
   <div class="dynamic">
+    <!-- 异常信息通知 -->
     <div class="msg" v-if="showMsg && dynamicNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
@@ -8,7 +9,9 @@
       <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
       <div class="del" @click="changeShowMsg(false)"></div>
     </div>
+    <!-- 活动及风险类型 -->
     <div class="type">
+      <!-- 活动类型 -->
       <div class="activeType" ref="activeType">
         <div class="name">
           活动类型:
@@ -27,6 +30,7 @@
           <i class="el-icon-arrow-down" :class="{'rotate': isOpen_active}"></i>
         </div>
       </div>
+      <!-- 风险类型 -->
       <div class="dangerType" >
         <div class="name">
           风险类型:
@@ -49,6 +53,7 @@
         </div>
       </div>
     </div>
+    <!-- 人员动态内容展示 -->
     <div class="peopleDynamic">
       <div class="title">
         <span class="name">人员动态</span>
@@ -95,7 +100,9 @@
 <script>
 import { getDynamic } from '@/api/api.js'
 import { mapActions } from 'vuex'
+// api参数
 let apiParams = {}
+// 获得基于今日往前若干天或往后若干天的日期
 let getDay = day => {
   let today = new Date()
   let targetdayMilliseconds = today.getTime() + 1000 * 60 * 60 * 24 * day
@@ -108,11 +115,13 @@ export default {
     return {
       isOpen_active: false, // 活动类型是否展开
       isOpen_danger: false, // 风险类型是否展开
-      allData: {},
-      activeChecked: 0,
-      dangerChecked: -1,
-      dataDefault: 'year',
-      dataPicked: [],
+      allData: {}, // 页面数据
+      activeChecked: 0, // 活动类型选择
+      dangerChecked: -1, // 风险类型选择
+      dataDefault: 'year', // 默认日期选择
+      dataPicked: [], // 日期选择器绑定数值
+
+      // 选择不同的日期选项，日期选择器发生相应的变化
       dateMap: {
         all: () => {
           apiParams.timestart = 'all'
@@ -190,6 +199,7 @@ export default {
         this.$refs.items.style.height = '62px'
       }
     },
+    // 取消过滤相关操作
     filterControl (val, type) {
       this.dangerChecked = val
       if (val === -1) {
@@ -200,7 +210,6 @@ export default {
       } else {
         apiParams.fengxianlx = type
       }
-      console.log('zhang' + apiParams)
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
@@ -218,18 +227,13 @@ export default {
         }
       }
     },
+    // 底部表格中若是信息为异常信息则改变相应区域的颜色
     dangerColor ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 3 && this.allData.activitylist[rowIndex].fengxianyj !== '正常') {
         return 'color: rgba(255,169,83,1)'
       }
     },
-    dataChange (val) {
-      this.dataDefault = val
-      this.dateMap[val]()
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
-    },
+    // 仅显示异常
     onlyDanger () {
       apiParams.flag = '2'
       this.dataDefault = 'all'
@@ -241,6 +245,7 @@ export default {
         }
       })
     },
+    // 活动类型改变相关操作
     huodonglxChange (index, type) {
       this.activeChecked = index
       if (index === 0) {
@@ -248,16 +253,15 @@ export default {
       } else {
         apiParams.huodonglx = type
       }
-      console.log(apiParams)
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
     },
+    //  日期选项改变之后重新请求数据
     dataChanged (val) {
       this.dataDefault = 'hahaha'
       apiParams.timestart = val[0]
       apiParams.timeend = val[1]
-
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
