@@ -113,7 +113,8 @@ export default {
       changeSearchType: 'header/changeSearchType'
     }),
     ...mapActions({
-      changeSearchClick: 'header/changeSearchClick'
+      changeSearchClick: 'header/changeSearchClick',
+      changeSelectClick: 'header/changeSelectClick'
     }),
     // 获取汉字
     ifCN (v) {
@@ -125,6 +126,7 @@ export default {
     },
     // 选择下拉列表搜索条件
     handleSelect (select) {
+      this.changeSelectClick()
       this.changeSearchVal(select.text)
     },
     // 搜索提示
@@ -147,17 +149,21 @@ export default {
     // 去搜索结果页
     goSearch () {
       let _this = this
-      if (this.searchVal !== '') {
-        this.changeSearchVal(_this.searchVal)
-        this.changeSearchType(_this.searchType)
-        this.changeSearchClick(1)
-        console.log(this.$store.state.header.searchClick)
-        this.$router.push('/searchList/' + _this.searchType + '/' + _this.searchVal)
-      } else {
+      if (this.searchVal === '') {
         Message({
           message: '请输入搜索信息',
           type: 'warning'
         })
+      } else if (/^[0-9]+$/.test(this.searchVal) && this.searchVal.length < 2) {
+        Message({
+          message: '数字查询时，请最少输入两位及以上的数字',
+          type: 'warning'
+        })
+      } else {
+        this.changeSearchVal(_this.searchVal)
+        this.changeSearchType(_this.searchType)
+        this.changeSearchClick(1)
+        this.$router.push('/searchList/' + _this.searchType + '/' + _this.searchVal)
       }
     }
   },
