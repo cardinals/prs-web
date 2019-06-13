@@ -13,27 +13,28 @@
       <div @click="resetAll" class="reset" v-if="keywordArr.length!==0">重置条件</div>
     </div>
 
-    <!-- 相关搜索暂时不要 -->
+    <!-- 相关搜索 -->
     <div v-if="true" class="searchCondition">
       <span class="label">相关搜索</span>
-      <span class="searchTags" v-for="(item, index) in treeData1.aboutSearch" :key="index" @click="goAboutSearch(item)">
+      <span class="searchTags" v-for="(item, index) in treeData.aboutSearch" :key="index" @click="goAboutSearch(item)">
         {{item}}
       </span>
     </div>
+    <!-- 内容区域 -->
     <div class="treeList clearfix">
-      <!-- 案件分类 和 关键词 -->
+      <!-- 性别、年龄分布、籍贯、居住地、标签 -->
       <div class="tree">
         <el-collapse v-model="treeOpenDefault">
-          <el-collapse-item v-for="(value, key) in treeData1.tree" :key="key" class="classify"  :name="key" >
+          <el-collapse-item v-for="(value, key) in treeData.tree" :key="key" class="classify"  :name="key" >
             <template slot="title">
-              <div class="titles" :class="{'expand': treeStatus[key], 'noData': value.length === 0}" @click="treeStatus[key] = !treeStatus[key]">
+              <div class="titles" >
                 <div class="img" :class="key"></div>
                 <div class="text">{{key|treeFilter}}</div>
                 <div class="titleIcon"></div>
               </div>
             </template>
             <div>
-              <el-tree ref="zhangTest"
+              <el-tree
               class="main"
               :data="value"
               :props="defaultProps"
@@ -65,62 +66,58 @@
           <div class="num" v-if='listData !== null'>共找到 <span style="color:#2770EE">{{listData.resultNum}}</span> {{resultNumUnit}}</div>
         </div>
         <div v-if ="listData !== null">
-        <div class="resultList" v-for="(item,index) in listData.pageContent" :key="index" >
-          <div class="card">
-            <div class="peopleInfo">
-              <div class="photo" @click="toDetail(item.personId)">
-                <!-- 预留以后有照片的情况 -->
-                <!-- <div :class="{'man': imagetest(item) === '' && item.gender === '男性', 'women': imagetest(item) === '' && item.gender === '女性', 'unknow': imagetest(item) === '' && item.gender === '未知'}" v-if="imagetest(item) === ''"></div>
-                <img :src="imagetest(item)" v-if="imagetest(item) !== ''"> -->
-
-                <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}" v-if="true"></div>
-              </div>
-              <div class="info">
-                <div class="line1">
-                  <span class="name" @click="toDetail(item.personId)"> {{ item.name }}</span>
-                  <div class="img" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}"></div>
-                  <div class="tags">
-                    <div class="tag" v-for="(item,index) in item.tags" :key="index"> {{item.name}} </div>
+          <div class="resultList" v-for="(item,index) in listData.pageContent" :key="index" >
+            <div class="card">
+              <div class="peopleInfo">
+                <div class="photo" @click="toDetail(item.personId)">
+                  <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}" v-if="true"></div>
+                </div>
+                <div class="info">
+                  <div class="line1">
+                    <span class="name" @click="toDetail(item.personId)"> {{ item.name }}</span>
+                    <div class="img" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}"></div>
+                    <div class="tags">
+                      <div class="tag" v-for="(item,index) in item.tags" :key="index"> {{item.name}} </div>
+                    </div>
+                  </div>
+                  <div class="line2">
+                    <div></div>
+                    <span :style="item.idNumber === '' ? 'color:#989A9F' : ''">{{item.idNumber|idNodata}}</span>
+                  </div>
+                  <div class="line3">
+                    <span :style="item.birthday === '' ? 'color:#989A9F' : ''">{{item.birthday|nodata}}</span>
+                    <span>/</span>
+                    <span :style="item.birthPlace === '' ? 'color:#989A9F' : ''">{{item.birthPlace|nodata}}</span>
+                    <span>/</span>
+                    <span :style="item.mobile === '' ? 'color:#989A9F' : ''">{{item.mobile|nodata}}</span>
+                  </div>
+                  <div class="line4">
+                    {{item.homeAddress|nodata}}
                   </div>
                 </div>
-                <div class="line2">
-                  <div></div>
-                  <span :style="item.idNumber === '' ? 'color:#989A9F' : ''">{{item.idNumber|idNodata}}</span>
-                </div>
-                <div class="line3">
-                  <span :style="item.birthday === '' ? 'color:#989A9F' : ''">{{item.birthday|nodata}}</span>
-                  <span>/</span>
-                  <span :style="item.birthPlace === '' ? 'color:#989A9F' : ''">{{item.birthPlace|nodata}}</span>
-                  <span>/</span>
-                  <span :style="item.mobile === '' ? 'color:#989A9F' : ''">{{item.mobile|nodata}}</span>
-                </div>
-                <div class="line4">
-                  {{item.homeAddress|nodata}}
-                </div>
               </div>
-            </div>
-            <div class="abnormal" v-if="item.abnormalDynamic !== 0 || item.abnormalTrail !== 0 || item.abnormalRelation !== 0">
-              <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId)">
-                <div class="img trend"></div>
-                <span>异常动态:</span>
-                <span>{{item.abnormalDynamic}} 项</span>
-              </div>
-              <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId)">
-                <div class="img path"></div>
-                <span>异常轨迹:</span>
-                <span>{{item.abnormalTrail}}项</span>
-              </div>
-              <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId)">
-                <div class="img relationship"></div>
-                <span>异常关系:</span>
-                <span>{{item.abnormalRelation}}项</span>
+              <div class="abnormal" v-if="item.abnormalDynamic !== 0 || item.abnormalTrail !== 0 || item.abnormalRelation !== 0">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId)">
+                  <div class="img trend"></div>
+                  <span>异常动态:</span>
+                  <span>{{item.abnormalDynamic}} 项</span>
+                </div>
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId)">
+                  <div class="img path"></div>
+                  <span>异常轨迹:</span>
+                  <span>{{item.abnormalTrail}}项</span>
+                </div>
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId)">
+                  <div class="img relationship"></div>
+                  <span>异常关系:</span>
+                  <span>{{item.abnormalRelation}}项</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        </div>
-
         <div class="nodataImg" v-if="listData === null">根据搜索条件未匹配到相应结果</div>
+        <!-- 分页标签 -->
         <div v-if="listData !==null " class="page">
           <el-pagination
             layout="prev, pager, next"
@@ -137,9 +134,10 @@
 </template>
 
 <script>
-import { searchList, recommendList, log, getListData, getPhotoData } from '@/api/api.js'
-import { Message } from 'element-ui'
+import { getListData } from '@/api/api.js'
 import { mapGetters } from 'vuex'
+
+// 树状列表名称映射
 const treeTitleMap = {
   gender: '性别',
   age: '年龄分布',
@@ -147,6 +145,8 @@ const treeTitleMap = {
   homeAddress: '居住地',
   tags: '标签'
 }
+
+// 接口请求参数
 let apiParams = {
   'age': '',
   'hujidizhi': '',
@@ -159,6 +159,8 @@ let apiParams = {
   'xingbie': '',
   'querytype': ''
 }
+
+// 点击树状节点对应的api参数修改方式映射
 const paramsMap = {
   age: (val) => { apiParams['age'] = val.name },
   birthPlace: (val) => { apiParams['hujidizhi'] = val.nameid },
@@ -168,6 +170,8 @@ const paramsMap = {
   },
   gender: (val) => { apiParams['xingbie'] = val.nameid }
 }
+
+// 删除搜索条件对应的api参数修改方式映射
 const delParamsMap = {
   age: (val) => { apiParams['age'] = '' },
   birthPlace: (val) => { apiParams['hujidizhi'] = '' },
@@ -178,93 +182,47 @@ const delParamsMap = {
 export default {
   data () {
     return {
-      treeOpenDefault: ['gender', 'age', 'birthPlace', 'homeAddress', 'tags'],
-      keywordArr: [],
-      pictureData: {},
-      treeData1: [], // 树状结构数据
-      treeStatus: {
-        gender: true,
-        age: true,
-        birthPlace: true,
-        homeAddress: true,
-        tags: true
-      },
-      state: '',
-      treeData: [],
-      listData: [],
-
-      defaultProps: {
+      treeOpenDefault: ['gender', 'age', 'birthPlace', 'homeAddress', 'tags'], // 默认展开的节点
+      keywordArr: [], // 搜索条件数组
+      treeData: [], // 树状结构数据
+      listData: [], // 搜索结果列表数据
+      defaultProps: { // 树状列表组件默认传值
         children: 'cities',
-        label: 'name',
-        title: 'nameShort'
+        label: 'name'
       },
-      caseType: '',
-      caseTypeId: '',
-      keyword: [],
-      sortFlag: 'desc',
-      keywordAggs: [],
-      pageTotal: 0,
-      pageSize: 5,
-      currentPage: 1,
-      primaryList: [], // 记录原始列表
-      renderList: [], // 实际渲染列表
-      dissensionId: '',
-      judgement: [],
-      law: [],
-      protocol: [],
-      mediateCase: [],
-      prevDom: '', // 记录旧的dom节点
-      timeout: '', // 设置输入延迟
-      keyRex: [],
-      tree: []
+      sortFlag: 'desc', // 按相关度倒序
+      currentPage: 1, // 当前页码
+      renderList: [] // 实际渲染列表
     }
   },
   computed: {
-    ...mapGetters({ getSearchClick: 'header/getSearchClick' }),
+    ...mapGetters({
+      getSearchClick: 'header/getSearchClick',
+      selectClick: 'header/getSelectClick'
+    }),
     searchVal () {
       return this.$route.params.val
     },
     searchType () {
-      console.log('searchType changed')
       return this.$route.params.type
     },
+    // 结果列表左上角总数显示
     resultNumUnit () {
       if (this.$route.params.type === 'people') return '位相关人员'
       if (this.$route.params.type === 'case') return '件相关案件'
       if (this.$route.params.type === 'org') return '个相关机构'
       return null
     }
-    // keywordArr () {
-    //   let arr = []
-    //   if (this.searchVal !== '') {
-    //     arr.push({
-    //       type: 'searchVal',
-    //       val: this.searchVal
-    //     })
-    //   } else {
-    //     // 如果searchVal为空，清空所有搜索条件
-    //     this.resetAll()
-    //   }
-    //   if (this.caseType !== '') {
-    //     arr.push({
-    //       type: 'caseType',
-    //       val: '案件分类:' + this.caseType,
-    //       name: this.caseType
-    //     })
-    //   }
-    //   if (this.keyword.length !== 0) {
-    //     this.keyword.map((item) => {
-    //       arr.push({
-    //         type: 'keyword',
-    //         val: '关键词:' + item,
-    //         name: item
-    //       })
-    //     })
-    //   }
-    //   return arr
-    // }
   },
   watch: {
+    // 头部搜索框内容
+    selectClick (newVal, oldVal) {
+      if (newVal !== oldVal) {
+        console.log(this.$store.state.header.searchVal)
+        this.$router.push('/searchList/' + this.searchType + '/' + this.$store.state.header.searchVal)
+      }
+    },
+    // 监听头部搜索按钮是触发
     getSearchClick () {
       if (this.keywordArr.length === 0) {
         this.keywordArr.push({
@@ -272,47 +230,33 @@ export default {
           name: this.$route.params.val
         })
         apiParams.pagenumber = 1
-        this.searchListInit1()
+        this.searchListInit()
       }
     },
-    // 监控跟搜索有关的参数
+    // 监控搜索条件列表值的变化
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
       this.searchListInit()
     },
+    // 监听searchVal(路由参数)的变化
     searchVal: function (newVal, oldVal) {
-      console.log('searchVal changed')
-      // this.searchListInit1()
       if (oldVal !== '' && oldVal !== newVal) {
-        // this.$router.push('/searchList/' + this.searchType + '/' + newVal)
-        // this.$store.commit('header/changeSearchVal', newVal)
         this.keywordArr = []
         this.keywordArr.push({
           type: 'searchVal',
           name: this.$route.params.val
         })
+        apiParams.querytype = this.searchType
+        apiParams.query = newVal
         apiParams.pagenumber = 1
-        this.searchListInit1()
-        this.caseType = ''
-        this.caseTypeId = ''
-        this.keyword = []
+        this.searchListInit()
       }
     },
-    caseType: function (newVal, oldVal) {
-      if (oldVal !== newVal) {
-        this.keyword = []
-      }
-    },
-    // sortFlag: function (newVal, oldVal) {
-    //   this.currentPage = 1
-    //   this.searchListInit()
-    // },
+
     searchType: function (newVal, oldVal) {
       this.currentPage = 1
-      if (oldVal !== newVal) {
-        this.caseType = ''
-        this.keyword = []
-      }
+      apiParams.querytype = newVal
+      apiParams.query = this.searchVal
     }
   },
   filters: {
@@ -341,153 +285,29 @@ export default {
     }
   },
   methods: {
+    // 去人物信息页
     toDetail (val) {
       let routeUrl = this.$router.resolve({
         path: '/detail/' + val
       })
-      window.open(routeUrl.href, '_blank')
-      // this.$router.push('/detail/' + val)
+      window.open(routeUrl.href, '_blank') // 重开标签页
     },
+
+    // 排序中按相关度右侧箭头的变化
     iconChange (isOpen) {
       return 'el-icon-plus'
     },
-    imagetest (item) {
-      return this.pictureData[item.personId]
-    },
-    // 展示列表的下拉框
-    showDom (ev, val, id) {
-      let _this = this
-      // 选取节点
-      let node = this.$refs[id][0]
-      // 优化一下推荐列表接口的调用
-      if (this.dissensionId === id) {
-        if (this.state !== val) {
-          this.state = val
-          this.$nextTick(() => {
-            node.style.height = node.firstElementChild.offsetHeight + 11 + 'px'
-          })
-        } else {
-          this.state = ''
-          this.$nextTick(() => {
-            node.style.height = node.firstElementChild.offsetHeight + 11 + 'px'
-          })
-        }
-      } else {
-        // 获取推荐列表
-        recommendList({
-          id: id,
-          detailType: _this.searchType
-        }).then((res) => {
-          if (res.code === 1) {
-            let data = res.data
-            if (data.judgement && data.judgement.length >= 1) { _this.judgement = data.judgement.slice(0, 2) }
-            if (data.law && data.law.length >= 1) { _this.law = data.law.slice(0, 2) }
-            if (data.protocol && data.protocol.length >= 1) { _this.protocol = data.protocol.slice(0, 2) }
-            if (data.mediateCase && data.mediateCase.length >= 1) { _this.mediateCase = data.mediateCase.slice(0, 2) }
-          } else {
-            _this.showMessage(res.message, 'warning')
-          }
-          _this.state = val
-          _this.dissensionId = id
-          // 更新dom后再修改高度
-          _this.$nextTick(() => {
-            if (_this.prevDom !== '') {
-              _this.$refs[_this.prevDom][0].style.cssText = ''
-            }
-            node.style.height = node.firstElementChild.offsetHeight + 11 + 'px'
-            _this.prevDom = id
-          })
-        })
-      }
-    },
-    // 提交日志
-    commitLog () {
-      log(({
-        query: this.searchVal,
-        queryType: this.searchType,
-        caseType: this.caseTypeId,
-        keyword: this.keyword,
-        sortFlag: this.sortFlag,
-        pageSize: this.pageSize,
-        currentPage: this.currentPage
-      }))
-    },
-    // 分页插件事件
-    handleSizeChange (val) {
-      this.pageSize = val
-      this.render()
-      this.commitLog()
-    },
-    handleCurrentChange (val) {
-      this.currentPage = val
-      this.render()
-      this.commitLog()
-    },
+
     // 树形插件点击事件
     handleNodeClick () {
       apiParams.pagenumber = 1
       paramsMap[arguments[1]](arguments[0])
       this.addKeyword(arguments[1], arguments[0].name)
-      getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
+      this.searchListInit()
     },
-    // 搜索接口&&初始化搜索列表
-    async searchListInit () {
-      const _this = this
-      _this.$store.dispatch({ type: 'app/changeLoadingStatus', amount: true })
-      _this.commitLog()
-      const res = await searchList({
-        query: _this.searchVal,
-        queryType: _this.searchType,
-        caseType: _this.caseTypeId,
-        keyword: _this.keyword,
-        sortFlag: _this.sortFlag
-      })
-      let data = res.data
-      if (res.code === 1) {
-        // 左侧案件分类树和关键词
-        _this.treeData = data.typeAggs.map((item) => {
-          item.children = item.children || []
-          return {
-            'name': item.name + '(' + item.value + ')',
-            'realName': item.name,
-            'id': item.typeId,
-            'children': item.children.map((item) => {
-              return {
-                'name': item.name + '(' + item.value + ')',
-                'realName': item.name,
-                'id': item.typeId
-              }
-            })
-          }
-        })
-        _this.keywordAggs = data.keywordAggs
-        // 分页
-        _this.pageTotal = data.result.length
-        // 记录原始数据
-        _this.primaryList = data.result
-        // 记录关键词
-        _this.keyRex = data.queryKeyword
-      } else {
-        _this.showMessage(res.message, 'warning')
-      }
-      _this.render()
-      _this.$store.dispatch({ type: 'app/changeLoadingStatus', amount: false })
-    },
-    // 渲染搜索列表
-    render () {
-      let start = (this.currentPage - 1) * this.pageSize
-      let end = this.currentPage * this.pageSize
-      this.renderList = this.primaryList.slice(start, end)
-      // 渲染的时候滚动条滚到最上面
-      this.goTop()
-    },
+
     // 滚动条体验优化
     goTop () {
-      this.state = ''
-      this.dissensionId = ''
       // 重置一下元素
       document.querySelectorAll('.otherInfo ').forEach((item) => {
         item.style.cssText = ''
@@ -495,7 +315,6 @@ export default {
       document.querySelectorAll('.hide_c ').forEach((item) => {
         item.style.cssText = ''
       })
-      this.prevDom = ''
       let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
       let index = 1
       let timer = setInterval(() => {
@@ -504,25 +323,7 @@ export default {
         if (index === 21) { clearInterval(timer) }
       }, 10)
     },
-    // 标红关键字
-    keywords (val) {
-      // 判断val是否为undefined，解决v-if机制问题，未查明原因
-      if (val) {
-        // let keyWords = new RegExp('([' + this.searchVal + ']{2,})', 'gi')
-        let str = ''
-        this.keyRex.forEach((item, index) => {
-          if (index !== 0) {
-            str += '|' + item
-          } else {
-            str += item
-          }
-        })
-        let keyWords = new RegExp('(' + str + ')', 'gi')
-        let newval = val.replace(/\\n/g, '')
-        newval = newval.length > 110 ? newval.substring(0, 110) + '...' : newval
-        return newval.replace(keyWords, `<em style="color:#F74D4E;font-size:inherit">$1</em>`)
-      }
-    },
+
     // 添加关键词
     addKeyword (type, name) {
       if (this.indexOfKeywordArr(type, name) < 0) {
@@ -532,6 +333,7 @@ export default {
         })
       }
     },
+    // 用于判断此关键字是否已经添加过
     indexOfKeywordArr (type, name) {
       for (let i = 0; i < this.keywordArr.length; i++) {
         if (this.keywordArr[i].name === name && this.keywordArr[i].type === type) {
@@ -542,7 +344,7 @@ export default {
     },
     // 删除关键词
     deleteKeyword (val) {
-      if (val.type === 'searchVal') {
+      if (val.type === 'searchVal') { // 第一个标签删除则后面全清空
         this.$store.commit('header/changeSearchVal', '')
         this.keywordArr = []
         apiParams = apiParams = {
@@ -560,14 +362,10 @@ export default {
       } else {
         this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
         delParamsMap[val.type](val.name)
-        apiParams.pagenumber = 1
       }
-      getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
-      // this.$forceUpdate()
+      this.searchListInit()
     },
+
     // 清空所有条件
     resetAll () {
       this.keywordArr.splice(1, this.keywordArr.length - 1)
@@ -583,11 +381,9 @@ export default {
         'xingbie': '',
         'querytype': this.$route.params.type
       }
-      getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
+      this.searchListInit()
     },
+    // 相关搜索
     goAboutSearch (val) {
       this.$store.commit('header/changeSearchVal', val)
       this.$router.push('/searchList/people/' + val)
@@ -605,34 +401,15 @@ export default {
       }
       this.keywordArr[0].name = val
       this.$forceUpdate()
-      getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
+      this.searchListInit()
     },
-    // 处理字符串变数组
-    arrToString (val) {
-      return val === null ? [] : val.split('|')
-    },
-    // 打开新窗口
-    openUrl (url, id) {
-      window.open(window.location.origin + '/#/' + url + '/' + id)
-    },
-    showMessage (message, type, duration) {
-      Message({
-        message: message || '',
-        type: type || 'warning',
-        duration: duration || 2000
-      })
-    },
+    // 分页当前页改变触发
     currentChange (val) {
       apiParams['pagenumber'] = val
       this.currentPage = val
-      getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
+      this.searchListInit()
     },
+    // 去异常页
     goAbnormalPage (key, val) {
       let routeUrl = {
         abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic` }),
@@ -641,6 +418,7 @@ export default {
       }
       window.open(routeUrl[key].href, '_blank')
     },
+    // 按相关度排序方式的变化
     sortChange () {
       this.currentPage = 1
       if (this.sortFlag === 'desc') {
@@ -648,18 +426,14 @@ export default {
       } else if (this.sortFlag === 'asc') {
         this.sortFlag = 'desc'
       }
-      apiParams.pagenumber = 1
       apiParams.order = this.sortFlag
-      getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
+      this.searchListInit()
     },
-    searchListInit1 () {
-      apiParams['query'] = this.$route.params.val
-      apiParams['querytype'] = this.$route.params.type
+    // 搜索结果列表初始化
+    searchListInit () {
+      apiParams['pagenumber'] = 1
       getListData(apiParams).then(res => {
-        this.treeData1 = res.data.result_tree || {}
+        this.treeData = res.data.result_tree || {}
         this.listData = res.data.result_list || null
       })
     }
@@ -672,11 +446,9 @@ export default {
     })
     this.$store.commit('header/changeSearchType', this.$route.params.type)
     this.$store.commit('header/changeSearchVal', this.$route.params.val)
-    // this.searchListInit()
-    this.searchListInit1()
-    getPhotoData().then(res => {
-      this.pictureData = res
-    })
+    apiParams['query'] = this.$route.params.val
+    apiParams['querytype'] = this.$route.params.type
+    this.searchListInit()
   }
 }
 </script>
