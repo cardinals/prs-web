@@ -172,13 +172,18 @@ export default {
       let _this = this
       this.changeSearchVal(_this.search)
       this.changeSearchType(_this.searchType)
-      if (this.search !== '') {
-        this.$router.push('/searchList/' + _this.searchType + '/' + _this.search)
-      } else {
+      if (this.search === '') {
         Message({
           message: '请输入搜索信息',
           type: 'warning'
         })
+      } else if (/^[0-9]+$/.test(_this.search) && this.search.length < 2) {
+        Message({
+          message: '数字查询时，请最少输入两位及以上的数字',
+          type: 'warning'
+        })
+      } else {
+        this.$router.push('/searchList/' + _this.searchType + '/' + _this.search)
       }
     },
     // 跳转至人物信息页
