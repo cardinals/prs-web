@@ -116,10 +116,13 @@
             </div>
           </div>
         </div>
-        <div class="nodataImg" v-if="listData === null">根据搜索条件未匹配到相应结果</div>
         <!-- 分页标签 -->
-        <div v-if="listData !==null " class="page">
-          <el-pagination
+        <div v-if="listData !==null && (listData.resultNum !== 0 || listData.length !== 0)">
+          <div class="nodataImg">根据搜索条件未匹配到相应结果</div>
+        </div>
+        <el-pagination
+            v-if='listData.resultNum>0'
+            class="page"
             layout="prev, pager, next"
             :total="listData.resultNum"
             :page-size="5"
@@ -127,7 +130,6 @@
             @current-change="currentChange"
             >
           </el-pagination>
-        </div>
       </div>
     </div>
   </div>
@@ -166,7 +168,13 @@ const paramsMap = {
   birthPlace: (val) => { apiParams['hujidizhi'] = val.nameid },
   homeAddress: (val) => { apiParams['juzhudi'] = val.nameid },
   tags: (val) => {
-    if (apiParams['label'].indexOf(val.name) < 0) apiParams['label'].push(val.name)
+    if (apiParams['label'].indexOf(val.name) < 0) {
+      if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia') {
+        apiParams['label'].push(val.name.split('：')[1])
+      } else {
+        apiParams['label'].push(val.name)
+      }
+    }
   },
   gender: (val) => { apiParams['xingbie'] = val.nameid }
 }
@@ -218,7 +226,6 @@ export default {
     // 头部搜索框内容
     selectClick (newVal, oldVal) {
       if (newVal !== oldVal) {
-        console.log(this.$store.state.header.searchVal)
         this.$router.push('/searchList/' + this.searchType + '/' + this.$store.state.header.searchVal)
       }
     },
@@ -229,13 +236,17 @@ export default {
           type: 'searchVal',
           name: this.$route.params.val
         })
-        apiParams.pagenumber = 1
-        this.searchListInit()
+        this.apiParamsClear()
       }
     },
     // 监控搜索条件列表值的变化
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
+      apiParams.query = this.$route.params.val
+      apiParams.querytype = this.$route.params.type
+      if (newVal.length === 0) {
+        this.apiParamsClear()
+      }
       this.searchListInit()
     },
     // 监听searchVal(路由参数)的变化
@@ -246,9 +257,7 @@ export default {
           type: 'searchVal',
           name: this.$route.params.val
         })
-        apiParams.querytype = this.searchType
-        apiParams.query = newVal
-        apiParams.pagenumber = 1
+        this.apiParamsClear()
         this.searchListInit()
       }
     },
@@ -285,6 +294,21 @@ export default {
     }
   },
   methods: {
+    // 重置接口参数
+    apiParamsClear () {
+      apiParams = {
+        'age': '',
+        'hujidizhi': '',
+        'juzhudi': '',
+        'label': [],
+        'order': 'desc',
+        'pagecapacity': 5,
+        'pagenumber': 1,
+        'query': '',
+        'xingbie': '',
+        'querytype': ''
+      }
+    },
     // 去人物信息页
     toDetail (val) {
       let routeUrl = this.$router.resolve({
@@ -303,7 +327,6 @@ export default {
       apiParams.pagenumber = 1
       paramsMap[arguments[1]](arguments[0])
       this.addKeyword(arguments[1], arguments[0].name)
-      this.searchListInit()
     },
 
     // 滚动条体验优化
@@ -335,8 +358,11 @@ export default {
     },
     // 用于判断此关键字是否已经添加过
     indexOfKeywordArr (type, name) {
+      console.log(type, name)
+      console.log(this.keywordArr)
       for (let i = 0; i < this.keywordArr.length; i++) {
         if (this.keywordArr[i].name === name && this.keywordArr[i].type === type) {
+          console.log(i)
           return i
         }
       }
@@ -347,61 +373,33 @@ export default {
       if (val.type === 'searchVal') { // 第一个标签删除则后面全清空
         this.$store.commit('header/changeSearchVal', '')
         this.keywordArr = []
-        apiParams = apiParams = {
-          'age': '',
-          'hujidizhi': '',
-          'juzhudi': '',
-          'label': [],
-          'order': 'desc',
-          'pagecapacity': 5,
-          'pagenumber': 1,
-          'query': '',
-          'xingbie': '',
-          'querytype': ''
-        }
+        this.apiParamsClear()
       } else {
         this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
+        if (val.name.indexOf('矫正级别：') === 0 || val.name.indexOf('矫正类型：') === 0 || val.name.indexOf('评价：') === 0 || val.name.indexOf('奖惩类型：') === 0) {
+          val.name = val.name.split('：')[1]
+        }
         delParamsMap[val.type](val.name)
       }
-      this.searchListInit()
     },
 
     // 清空所有条件
     resetAll () {
       this.keywordArr.splice(1, this.keywordArr.length - 1)
-      apiParams = {
-        'age': '',
-        'hujidizhi': '',
-        'juzhudi': '',
-        'label': [],
-        'order': 'desc',
-        'pagecapacity': 5,
-        'pagenumber': 1,
-        'query': this.$route.params.val,
-        'xingbie': '',
-        'querytype': this.$route.params.type
-      }
+      this.apiParamsClear()
+      apiParams.query = this.$route.params.val
+      apiParams.querytype = this.$route.params.type
       this.searchListInit()
     },
     // 相关搜索
     goAboutSearch (val) {
       this.$store.commit('header/changeSearchVal', val)
       this.$router.push('/searchList/people/' + val)
-      apiParams = {
-        'age': '',
-        'hujidizhi': '',
-        'juzhudi': '',
-        'label': [],
-        'order': 'desc',
-        'pagecapacity': 5,
-        'pagenumber': 1,
-        'query': this.$route.params.val,
-        'xingbie': '',
-        'querytype': this.$route.params.type
-      }
+      this.apiParamsClear()
+      apiParams.query = this.$route.params.val
+      apiParams.querytype = this.$route.params.type
       this.keywordArr[0].name = val
       this.$forceUpdate()
-      this.searchListInit()
     },
     // 分页当前页改变触发
     currentChange (val) {
