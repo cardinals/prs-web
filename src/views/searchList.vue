@@ -116,10 +116,7 @@
             </div>
           </div>
         </div>
-        <!-- 分页标签 -->
-        <div v-if="listData !==null && (listData.resultNum !== 0 || listData.length !== 0)">
-          <div class="nodataImg">根据搜索条件未匹配到相应结果</div>
-        </div>
+        <div class="nodataImg" v-if="listData !==null && (listData.resultNum === 0 || listData.length === 0)">根据搜索条件未匹配到相应结果</div>
         <el-pagination
             v-if='listData.resultNum>0'
             class="page"
@@ -129,7 +126,7 @@
             :current-page="currentPage"
             @current-change="currentChange"
             >
-          </el-pagination>
+        </el-pagination>
       </div>
     </div>
   </div>
@@ -221,13 +218,18 @@ export default {
     // 监控搜索条件列表值的变化
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
-      apiParams.query = this.$route.params.val
-      apiParams.querytype = this.$route.params.type
+      apiParams.query = this.$store.state.header.searchVal
+      apiParams.querytype = this.$store.state.header.searchType
+      if (newVal.length === 0) {
+        this.apiParamsClear()
+      }
       this.searchListInit()
     },
-    // 监听searchVal(路由参数)的变化
     searchVal: function (newVal, oldVal) {
-      this.apiParamsClear()
+      this.keywordArr = [{
+        type: 'searchVal',
+        name: this.$route.params.val
+      }]
     },
     searchType: function (newVal, oldVal) {
       this.currentPage = 1
@@ -391,7 +393,7 @@ export default {
     },
     // 搜索结果列表初始化
     searchListInit () {
-      apiParams['pagenumber'] = 1
+      apiParams['pagenumber'] = this.currentPage
       getListData(apiParams).then(res => {
         this.treeData = res.data.result_tree || {}
         this.listData = res.data.result_list || null
@@ -399,7 +401,6 @@ export default {
     }
   },
   mounted () {
-    // 优化刷新网页的时候状态丢失
     this.keywordArr.push({
       type: 'searchVal',
       name: this.$route.params.val
