@@ -15,18 +15,7 @@
 <script>
 export default {
   name: 'container',
-  created () {
-    // 保存url search 中的token
-    console.log(this.$store.state.app.isShowLoading)
-    const search = window.location.search
-    if (search) {
-      const token = search.split('?token=')[1]
-      if (token) {
-        this.$store.dispatch({ type: 'app/setToken', amount: token.split('/')[0] })
-      }
-    }
-    console.log(this.$store.state.app.isShowLoading)
-  }
+  created () {}
 }
 </script>
 

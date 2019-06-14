@@ -358,11 +358,8 @@ export default {
     },
     // 用于判断此关键字是否已经添加过
     indexOfKeywordArr (type, name) {
-      console.log(type, name)
-      console.log(this.keywordArr)
       for (let i = 0; i < this.keywordArr.length; i++) {
         if (this.keywordArr[i].name === name && this.keywordArr[i].type === type) {
-          console.log(i)
           return i
         }
       }
