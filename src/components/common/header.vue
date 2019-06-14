@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 import { tipsCN, tipsEN } from '@/api/api.js'
 import { Message } from 'element-ui'
 export default {
@@ -112,10 +112,6 @@ export default {
       changeSearchVal: 'header/changeSearchVal',
       changeSearchType: 'header/changeSearchType'
     }),
-    ...mapActions({
-      changeSearchClick: 'header/changeSearchClick',
-      changeSelectClick: 'header/changeSelectClick'
-    }),
     // 获取汉字
     ifCN (v) {
       if (v === '' || (/^\s*$/gi).test(v)) return ''
@@ -126,8 +122,8 @@ export default {
     },
     // 选择下拉列表搜索条件
     handleSelect (select) {
-      this.changeSelectClick()
       this.changeSearchVal(select.text)
+      this.$router.replace('/searchList/' + this.searchType + '/' + select.text)
     },
     // 搜索提示
     querySearch (queryString, callback) {
@@ -148,7 +144,6 @@ export default {
     },
     // 去搜索结果页
     goSearch () {
-      let _this = this
       if (this.searchVal === '') {
         Message({
           message: '请输入搜索信息',
@@ -160,15 +155,11 @@ export default {
           type: 'warning'
         })
       } else {
-        this.changeSearchVal(_this.searchVal)
-        this.changeSearchType(_this.searchType)
-        this.changeSearchClick(1)
-        this.$router.push('/searchList/' + _this.searchType + '/' + _this.searchVal)
+        this.$router.replace('/searchList/' + this.searchType + '/' + this.searchVal)
       }
     }
   },
-  mounted () {
-  }
+  mounted () {}
 }
 </script>
 <style>

@@ -137,7 +137,6 @@
 
 <script>
 import { getListData } from '@/api/api.js'
-import { mapGetters } from 'vuex'
 
 // 树状列表名称映射
 const treeTitleMap = {
@@ -204,10 +203,6 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      getSearchClick: 'header/getSearchClick',
-      selectClick: 'header/getSelectClick'
-    }),
     searchVal () {
       return this.$route.params.val
     },
@@ -223,45 +218,17 @@ export default {
     }
   },
   watch: {
-    // 头部搜索框内容
-    selectClick (newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$router.push('/searchList/' + this.searchType + '/' + this.$store.state.header.searchVal)
-      }
-    },
-    // 监听头部搜索按钮是触发
-    getSearchClick () {
-      if (this.keywordArr.length === 0) {
-        this.keywordArr.push({
-          type: 'searchVal',
-          name: this.$route.params.val
-        })
-        this.apiParamsClear()
-      }
-    },
     // 监控搜索条件列表值的变化
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
       apiParams.query = this.$route.params.val
       apiParams.querytype = this.$route.params.type
-      if (newVal.length === 0) {
-        this.apiParamsClear()
-      }
       this.searchListInit()
     },
     // 监听searchVal(路由参数)的变化
     searchVal: function (newVal, oldVal) {
-      if (oldVal !== '' && oldVal !== newVal) {
-        this.keywordArr = []
-        this.keywordArr.push({
-          type: 'searchVal',
-          name: this.$route.params.val
-        })
-        this.apiParamsClear()
-        this.searchListInit()
-      }
+      this.apiParamsClear()
     },
-
     searchType: function (newVal, oldVal) {
       this.currentPage = 1
       apiParams.querytype = newVal
@@ -384,8 +351,6 @@ export default {
     resetAll () {
       this.keywordArr.splice(1, this.keywordArr.length - 1)
       this.apiParamsClear()
-      apiParams.query = this.$route.params.val
-      apiParams.querytype = this.$route.params.type
       this.searchListInit()
     },
     // 相关搜索
