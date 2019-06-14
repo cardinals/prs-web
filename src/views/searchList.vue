@@ -116,10 +116,7 @@
             </div>
           </div>
         </div>
-        <!-- 分页标签 -->
-        <div v-if="listData !==null && (listData.resultNum !== 0 || listData.length !== 0)">
-          <div class="nodataImg">根据搜索条件未匹配到相应结果</div>
-        </div>
+        <div class="nodataImg" v-if="listData !==null && (listData.resultNum === 0 || listData.length === 0)">根据搜索条件未匹配到相应结果</div>
         <el-pagination
             v-if='listData.resultNum>0'
             class="page"
@@ -129,7 +126,7 @@
             :current-page="currentPage"
             @current-change="currentChange"
             >
-          </el-pagination>
+        </el-pagination>
       </div>
     </div>
   </div>
@@ -137,7 +134,6 @@
 
 <script>
 import { getListData } from '@/api/api.js'
-import { mapGetters } from 'vuex'
 
 // 树状列表名称映射
 const treeTitleMap = {
@@ -204,10 +200,6 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      getSearchClick: 'header/getSearchClick',
-      selectClick: 'header/getSelectClick'
-    }),
     searchVal () {
       return this.$route.params.val
     },
@@ -223,45 +215,22 @@ export default {
     }
   },
   watch: {
-    // 头部搜索框内容
-    selectClick (newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$router.push('/searchList/' + this.searchType + '/' + this.$store.state.header.searchVal)
-      }
-    },
-    // 监听头部搜索按钮是触发
-    getSearchClick () {
-      if (this.keywordArr.length === 0) {
-        this.keywordArr.push({
-          type: 'searchVal',
-          name: this.$route.params.val
-        })
-        this.apiParamsClear()
-      }
-    },
     // 监控搜索条件列表值的变化
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
-      apiParams.query = this.$route.params.val
-      apiParams.querytype = this.$route.params.type
+      apiParams.query = this.$store.state.header.searchVal
+      apiParams.querytype = this.$store.state.header.searchType
       if (newVal.length === 0) {
         this.apiParamsClear()
       }
       this.searchListInit()
     },
-    // 监听searchVal(路由参数)的变化
     searchVal: function (newVal, oldVal) {
-      if (oldVal !== '' && oldVal !== newVal) {
-        this.keywordArr = []
-        this.keywordArr.push({
-          type: 'searchVal',
-          name: this.$route.params.val
-        })
-        this.apiParamsClear()
-        this.searchListInit()
-      }
+      this.keywordArr = [{
+        type: 'searchVal',
+        name: this.$route.params.val
+      }]
     },
-
     searchType: function (newVal, oldVal) {
       this.currentPage = 1
       apiParams.querytype = newVal
@@ -358,11 +327,8 @@ export default {
     },
     // 用于判断此关键字是否已经添加过
     indexOfKeywordArr (type, name) {
-      console.log(type, name)
-      console.log(this.keywordArr)
       for (let i = 0; i < this.keywordArr.length; i++) {
         if (this.keywordArr[i].name === name && this.keywordArr[i].type === type) {
-          console.log(i)
           return i
         }
       }
@@ -387,8 +353,6 @@ export default {
     resetAll () {
       this.keywordArr.splice(1, this.keywordArr.length - 1)
       this.apiParamsClear()
-      apiParams.query = this.$route.params.val
-      apiParams.querytype = this.$route.params.type
       this.searchListInit()
     },
     // 相关搜索
@@ -429,7 +393,7 @@ export default {
     },
     // 搜索结果列表初始化
     searchListInit () {
-      apiParams['pagenumber'] = 1
+      apiParams['pagenumber'] = this.currentPage
       getListData(apiParams).then(res => {
         this.treeData = res.data.result_tree || {}
         this.listData = res.data.result_list || null
@@ -437,7 +401,6 @@ export default {
     }
   },
   mounted () {
-    // 优化刷新网页的时候状态丢失
     this.keywordArr.push({
       type: 'searchVal',
       name: this.$route.params.val

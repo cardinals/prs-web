@@ -76,8 +76,6 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
 import { Message } from 'element-ui'
-// 脚部上下翻滚组件
-import upsideDownRoll from '../components/upsideDownRoll.vue'
 // 异常中英文名称映射
 let abnormalMap = {
   abnormalRelation: '异常关系',
@@ -86,15 +84,11 @@ let abnormalMap = {
 }
 export default {
   name: 'home',
-  components: {
-    upsideDownRoll
-  },
   data () {
     return {
       pictureData: {}, // 照片信息
       searchType: 'people', // 搜索类型
-      cardContent: [ // 最新动态卡片内容
-      ],
+      cardContent: [], // 最新动态卡片内容
       firstCardIndex: 0, // 卡片开始索引，用于控制箭头和卡片移动
       search: '', // 搜索输入框内容
       defaultMove: null,
@@ -201,7 +195,6 @@ export default {
     },
     // 跳转至异常页
     goAbnormalPage (key, val) {
-      console.log('fefef')
       let routeUrl = {
         abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic/all` }),
         abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship/all` }),
