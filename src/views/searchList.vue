@@ -230,6 +230,7 @@ export default {
         type: 'searchVal',
         name: this.$route.params.val
       }]
+      this.apiParamsClear()
     },
     searchType: function (newVal, oldVal) {
       this.currentPage = 1
