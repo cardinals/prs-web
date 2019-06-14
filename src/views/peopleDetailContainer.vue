@@ -100,15 +100,15 @@ export default {
     goAbnormal (val) {
       let id = this.$route.params.people
       if (val === 'abnormalRelation') {
-        this.$router.push('/detail/' + id + '/relationship')
+        this.$router.push('/detail/' + id + '/relationship/all')
         this.menuChoice = 'relationship'
       }
       if (val === 'abnormalDynamic') {
-        this.$router.push('/detail/' + id + '/dynamic')
+        this.$router.push('/detail/' + id + '/dynamic/all')
         this.menuChoice = 'dynamic'
       }
       if (val === 'abnormalTrail') {
-        this.$router.push('/detail/' + id + '/peoplePath')
+        this.$router.push('/detail/' + id + '/peoplePath/all')
         this.menuChoice = 'peoplePath'
       }
     },

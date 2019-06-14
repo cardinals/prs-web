@@ -308,13 +308,20 @@ export default {
     this.dataPicked.push(nowTime.getFullYear() + '/01/01')
     this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
     apiParams.g_id = this.$route.params.people
-    apiParams.timestart = nowTime.getFullYear() + '-01-01'
     apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
     apiParams.pagecapacity = 8
     apiParams.pagenumber = 1
-    apiParams.flag = '1'
     apiParams.huodonglx = ''
     apiParams.fengxianlx = ''
+    if (this.$route.params.showNormal === 'all') {
+      apiParams.flag = '2'
+      apiParams.timestart = 'all'
+      this.dataDefault = 'all'
+      this.dangerChecked = 0
+    } else {
+      apiParams.flag = '1'
+      apiParams.timestart = nowTime.getFullYear() + '-01-01'
+    }
     this.getDynamic()
   }
 }
