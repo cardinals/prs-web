@@ -201,7 +201,6 @@ export default {
     },
     // 跳转至异常页
     goAbnormalPage (key, val) {
-      console.log('fefef')
       let routeUrl = {
         abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic/all` }),
         abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship/all` }),
