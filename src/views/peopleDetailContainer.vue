@@ -134,6 +134,7 @@ export default {
     this.getbasicInfo()
     this.menuChoice = this.$route.path.split('/')[this.$route.path.split('/').length - 1]
     this.changeShowMsg(true)
+    this.menuChoice = this.$route.name
   }
 }
 </script>
