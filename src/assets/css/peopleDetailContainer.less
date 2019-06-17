@@ -17,18 +17,21 @@
         height: 140px;
         width: 101px;
         background: #fff;
+        &:hover {
+          box-shadow:0px 0px 10px 2px rgba(193, 197, 199, 0.8);
+        }
         .photo {
           width: 100%;
           height: 100%;
           cursor: pointer;
           &.man {
-            background: url('../images/searchList1/icon_man_default.png') center center no-repeat;
+            background: url('../images/searchList/icon_man_default.png') center center no-repeat;
           }
           &.women {
-            background: url('../images/searchList1/icon_woman_default.png') center center no-repeat;
+            background: url('../images/searchList/icon_woman_default.png') center center no-repeat;
           }
           &.unknow {
-            background: url('../images/searchList1/icon_head_unknown.png')center center no-repeat;
+            background: url('../images/searchList/icon_head_unknown.png')center center no-repeat;
           }
         }
       }
@@ -40,6 +43,9 @@
           font-weight: bold;
           color: rgba(57,57,57,1);
           cursor: pointer;
+          &:hover {
+            color: #4DA7FF;
+          }
           &::after {
             content:'';
             display: inline-block;
@@ -50,17 +56,17 @@
           }
           &.man {
             &::after {
-              background: url('../images/home1/icon_man.png') center center no-repeat;
+              background: url('../images/home/icon_man.png') center center no-repeat;
             }
           }
           &.women {
             &::after {
-              background: url('../images/home1/icon_woman.png') center center no-repeat;
+              background: url('../images/home/icon_woman.png') center center no-repeat;
             }
           }
           &.unknow {
             &::after {
-              background: url('../images/searchList1/icon_gender_unknown.png') center center no-repeat;
+              background: url('../images/searchList/icon_gender_unknown.png') center center no-repeat;
             }
           }
         }
@@ -73,7 +79,7 @@
             display: inline-block;
             width: 21px;
             height: 15px;
-            background: url('../images/searchList1/icon_id_card.png') center center no-repeat;
+            background: url('../images/searchList/icon_id_card.png') center center no-repeat;
             vertical-align: bottom;
             margin-right: 8px;
           }

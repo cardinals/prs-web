@@ -1,5 +1,6 @@
 <template>
   <div class="info">
+    <!-- 基本信息 -->
     <div class="box basicInfo">
       <div class="title">
         <span>基本信息</span>
@@ -87,6 +88,7 @@
         </div>
       </div>
     </div>
+    <!-- 联系信息 -->
     <div class="box contactInfo">
       <div class="title">
         <span>联系信息</span>
@@ -154,6 +156,7 @@
         </div>
       </div>
     </div>
+    <!-- 社会履历 -->
     <div class="box socialHistory">
       <div class="title">
         <span>社会履历</span>
@@ -218,6 +221,7 @@
       </div>
 
     </div>
+    <!-- 获得证书 -->
     <div class="box certificate">
       <div class="title">
         <span>获得证书</span>
@@ -316,6 +320,7 @@
       </div>
 
     </div>
+    <!-- 获得表彰 -->
     <div class="box commend">
       <div class="title">
         <span>获得表彰</span>
@@ -342,6 +347,7 @@
         </el-table>
       </div>
     </div>
+    <!-- 档案信息 -->
     <div class="box archivesInfo">
       <div class="title">
         <span>档案信息</span>
@@ -377,7 +383,12 @@ export default {
   name: 'info',
   data () {
     return {
-      peopleInfo: {}
+      peopleInfo: {
+        basicInfo: {},
+        contactInfo: {},
+        socialHistory: {},
+        certificate: {}
+      }
     }
   },
   filters: {
@@ -385,15 +396,17 @@ export default {
       return val === '' ? '暂无' : val
     },
     IdFormat (val) {
-      return val === '' ? '暂无' : val.substring(0, 6) + '********' + val.substring(14, 18)
+      return val === '' || typeof (val) === 'undefined' ? '暂无' : val.substring(0, 6) + '********' + val.substring(14, 18)
+    }
+  },
+  methods: {
+    async getPeopleInfo () {
+      let res = await getPeopleInfo({ g_id: this.$route.params.people })
+      this.peopleInfo = res.data
     }
   },
   mounted () {
-    console.log(window.localStorage)
-    console.log(this.$route.params.people)
-    getPeopleInfo({ g_id: this.$route.params.people }).then((res) => {
-      this.peopleInfo = res.data
-    })
+    this.getPeopleInfo()
   }
 }
 </script>

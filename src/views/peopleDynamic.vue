@@ -1,5 +1,6 @@
 <template>
   <div class="dynamic">
+    <!-- 异常信息通知 -->
     <div class="msg" v-if="showMsg && dynamicNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
@@ -8,7 +9,9 @@
       <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
       <div class="del" @click="changeShowMsg(false)"></div>
     </div>
+    <!-- 活动及风险类型 -->
     <div class="type">
+      <!-- 活动类型 -->
       <div class="activeType" ref="activeType">
         <div class="name">
           活动类型:
@@ -27,6 +30,7 @@
           <i class="el-icon-arrow-down" :class="{'rotate': isOpen_active}"></i>
         </div>
       </div>
+      <!-- 风险类型 -->
       <div class="dangerType" >
         <div class="name">
           风险类型:
@@ -49,6 +53,7 @@
         </div>
       </div>
     </div>
+    <!-- 人员动态内容展示 -->
     <div class="peopleDynamic">
       <div class="title">
         <span class="name">人员动态</span>
@@ -85,7 +90,8 @@
           <el-pagination
             layout="prev, pager, next"
             :page-size="8"
-            :total="allData.resultNum">
+            :total="allData.resultNum"
+            @current-change="currentChange">
           </el-pagination>
         </div>
       </div>
@@ -95,12 +101,16 @@
 <script>
 import { getDynamic } from '@/api/api.js'
 import { mapActions } from 'vuex'
+// api参数
 let apiParams = {}
+// 获得基于今日往前若干天或往后若干天的日期
 let getDay = day => {
   let today = new Date()
   let targetdayMilliseconds = today.getTime() + 1000 * 60 * 60 * 24 * day
   today.setTime(targetdayMilliseconds)
-  return today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+  let mm = (today.getMonth() + 1) >= 10 ? (today.getMonth() + 1) : '0' + (today.getMonth() + 1)
+  let dd = today.getDate() >= 10 ? today.getDate() : '0' + today.getDate()
+  return today.getFullYear() + '-' + mm + '-' + dd
 }
 export default {
   name: 'dynamic',
@@ -108,11 +118,14 @@ export default {
     return {
       isOpen_active: false, // 活动类型是否展开
       isOpen_danger: false, // 风险类型是否展开
-      allData: {},
-      activeChecked: 0,
-      dangerChecked: -1,
-      dataDefault: 'year',
-      dataPicked: [],
+      allData: {}, // 页面数据
+      activeChecked: 0, // 活动类型选择
+      dangerChecked: -1, // 风险类型选择
+      dataDefault: 'year', // 默认日期选择
+      dataPicked: [], // 日期选择器绑定数值
+      currentPage: 1,
+
+      // 选择不同的日期选项，日期选择器发生相应的变化
       dateMap: {
         all: () => {
           apiParams.timestart = 'all'
@@ -121,30 +134,41 @@ export default {
           this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate())
         },
         today: () => {
-          apiParams.timestart = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          let year = new Date().getFullYear()
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
+          apiParams.timestart = year + '-' + month + '-' + day
+          apiParams.timeend = year + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(apiParams.timestart)
           this.dataPicked.push(apiParams.timeend)
         },
         week: () => {
+          let year = new Date().getFullYear()
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
           apiParams.timestart = getDay(-new Date().getDay() + 1)
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timeend = year + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(apiParams.timestart)
           this.dataPicked.push(apiParams.timeend)
         },
         month: () => {
+          let year = new Date().getFullYear()
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
           // apiParams.timestart = getDay(-30)
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01'
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timestart = year + '-' + month + '-01'
+          apiParams.timeend = year + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01')
           this.dataPicked.push(apiParams.timeend)
         },
         year: () => {
+          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
+          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
           apiParams.timestart = new Date().getFullYear() + '-01-01'
-          apiParams.timeend = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+          apiParams.timeend = new Date().getFullYear() + '-' + month + '-' + day
           this.dataPicked = []
           this.dataPicked.push(apiParams.timestart)
           this.dataPicked.push(apiParams.timeend)
@@ -190,20 +214,20 @@ export default {
         this.$refs.items.style.height = '62px'
       }
     },
+    // 取消过滤相关操作
     filterControl (val, type) {
       this.dangerChecked = val
       if (val === -1) {
         apiParams.flag = '1'
         apiParams.fengxianlx = ''
       } else if (val === 0) {
+        apiParams.flag = '2'
         apiParams.fengxianlx = 'unnormal'
       } else {
+        apiParams.flag = '2'
         apiParams.fengxianlx = type
       }
-      console.log('zhang' + apiParams)
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      this.getDynamic()
       if (this.isOpen_danger) {
         let _this = this
         if (val >= 0) {
@@ -218,18 +242,19 @@ export default {
         }
       }
     },
+    // 底部表格中若是信息为异常信息则改变相应区域的颜色
     dangerColor ({ row, column, rowIndex, columnIndex }) {
       if (columnIndex === 3 && this.allData.activitylist[rowIndex].fengxianyj !== '正常') {
         return 'color: rgba(255,169,83,1)'
       }
     },
+    //  日期选项改变之后重新请求数据
     dataChange (val) {
       this.dataDefault = val
       this.dateMap[val]()
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      this.getDynamic()
     },
+    // 仅显示异常
     onlyDanger () {
       apiParams.flag = '2'
       this.dataDefault = 'all'
@@ -241,6 +266,7 @@ export default {
         }
       })
     },
+    // 活动类型改变相关操作
     huodonglxChange (index, type) {
       this.activeChecked = index
       if (index === 0) {
@@ -248,16 +274,23 @@ export default {
       } else {
         apiParams.huodonglx = type
       }
-      console.log(apiParams)
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      this.getDynamic()
     },
+    // 日期选择器日期改变之后的相关操作
     dataChanged (val) {
       this.dataDefault = 'hahaha'
       apiParams.timestart = val[0]
       apiParams.timeend = val[1]
-
+      this.getDynamic()
+    },
+    getDynamic () {
+      apiParams.pagenumber = 1
+      getDynamic(apiParams).then(res => {
+        this.allData = res.data
+      })
+    },
+    currentChange (val) {
+      apiParams.pagenumber = val
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
@@ -275,16 +308,21 @@ export default {
     this.dataPicked.push(nowTime.getFullYear() + '/01/01')
     this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
     apiParams.g_id = this.$route.params.people
-    apiParams.timestart = nowTime.getFullYear() + '-01-01'
     apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
     apiParams.pagecapacity = 8
     apiParams.pagenumber = 1
-    apiParams.flag = '1'
     apiParams.huodonglx = ''
     apiParams.fengxianlx = ''
-    getDynamic(apiParams).then(res => {
-      this.allData = res.data
-    })
+    if (this.$route.params.showNormal === 'all') {
+      apiParams.flag = '2'
+      apiParams.timestart = 'all'
+      this.dataDefault = 'all'
+      this.dangerChecked = 0
+    } else {
+      apiParams.flag = '1'
+      apiParams.timestart = nowTime.getFullYear() + '-01-01'
+    }
+    this.getDynamic()
   }
 }
 </script>
