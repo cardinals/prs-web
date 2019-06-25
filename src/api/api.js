@@ -40,6 +40,9 @@ export const getDynamic = (params) => post(`${baseUrl}/PersonActivities`, params
 export const tipsCN = (params) => get(`${baseUrl}/SuggestTips`, params)
 // 英文提示
 export const tipsEN = (params) => get(`${baseUrl}/SuggestTips`, params)
+// 人物关系
+export const relation = (params) => get(`./relation.json`, params)
+export const relation2 = (params) => get(`./relation2.json`, params)
 
 // 接口
 // 搜索结果

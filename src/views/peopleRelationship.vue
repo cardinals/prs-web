@@ -1,6 +1,6 @@
 <template>
   <div class="info">
-    <h1>This is from peopleRelationship page</h1>
+    <h1></h1>
   </div>
 </template>
 <script>

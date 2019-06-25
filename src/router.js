@@ -6,9 +6,14 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/test2',
-      name: 'test2',
-      component: () => import('./views/test2.vue')
+      path: '/test3',
+      name: 'test3',
+      component: () => import('./views/test3.vue')
+    },
+    {
+      path: '/test4',
+      name: 'test4',
+      component: () => import('./views/test4.vue')
     },
     {
       path: '/',
