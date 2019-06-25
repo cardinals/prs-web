@@ -6,16 +6,6 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/test3',
-      name: 'test3',
-      component: () => import('./views/test3.vue')
-    },
-    {
-      path: '/test4',
-      name: 'test4',
-      component: () => import('./views/test4.vue')
-    },
-    {
       path: '/',
       // 重定向根路径对应的模块
       redirect: '/home'

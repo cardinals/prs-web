@@ -1,7 +1,7 @@
 const CompressionPlugin = require('compression-webpack-plugin')
 
 module.exports = {
-  baseUrl: '/',
+  publicPath: '/',
   outputDir: './docker/dist',
   lintOnSave: true,
   runtimeCompiler: false,
