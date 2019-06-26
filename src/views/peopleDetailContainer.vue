@@ -94,27 +94,31 @@ export default {
     // 导航点击跳转
     menuClick (msg) {
       this.menuChoice = msg
-      this.$router.push('/detail/' + this.$route.params.people + '/' + msg)
+      if (msg !== 'info') {
+        this.$router.replace('/detail/' + this.$route.params.people + '/' + msg + '/all')
+      } else {
+        this.$router.replace('/detail/' + this.$route.params.people + '/' + msg)
+      }
     },
     // 风险预警点击跳转
     goAbnormal (val) {
       let id = this.$route.params.people
       if (val === 'abnormalRelation') {
-        this.$router.push('/detail/' + id + '/relationship/all')
+        this.$router.replace('/detail/' + id + '/relationship/err')
         this.menuChoice = 'relationship'
       }
       if (val === 'abnormalDynamic') {
-        this.$router.push('/detail/' + id + '/dynamic/all')
+        this.$router.replace('/detail/' + id + '/dynamic/err')
         this.menuChoice = 'dynamic'
       }
       if (val === 'abnormalTrail') {
-        this.$router.push('/detail/' + id + '/peoplePath/all')
+        this.$router.replace('/detail/' + id + '/peoplePath/err')
         this.menuChoice = 'peoplePath'
       }
     },
     // 人物头像及名称点击跳转
     goInfo () {
-      this.$router.push('/detail/' + this.$route.params.people + '/info')
+      this.$router.replace('/detail/' + this.$route.params.people + '/info')
       this.menuChoice = 'info'
     }
   },
