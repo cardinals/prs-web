@@ -15,7 +15,7 @@
       </div>
       <div class="content">
         <div class="graphicContainer">
-          <relation @my-event="myEvent" />
+          <relation @my-event="myEvent" :onlyErr="onlyAbnormal" />
         </div>
         <!-- <button @click="myEvent1">fefe</button> -->
       </div>
@@ -32,6 +32,7 @@ export default {
   },
   data () {
     return {
+      onlyErr: false,
       onlyAbnormal: false
     }
   },
@@ -46,16 +47,29 @@ export default {
       return this.$store.state.relation.peopleName
     }
   },
+  watch: {
+    onlyAbnormal: function (newVal, oldVal) {
+
+    }
+  },
   methods: {
-    ...mapActions('dynamic', {
+    ...mapActions('relation', {
       changeShowMsg: 'changeShowMsg'
     }),
-    onlyDanger () {},
+    onlyDanger () {
+      this.onlyAbnormal = true
+      this.changeShowMsg(false)
+    },
     myEvent (ss) {
       ss.get('nodes')[0].enableCapture(false)
     },
     myEvent1 () {
+      this.onlyErr = !this.onlyErr
+      console.log(this.onlyErr)
     }
+  },
+  mounted () {
+    this.onlyAbnormal = this.$route.params.showNormal === 'err'
   }
 }
 </script>

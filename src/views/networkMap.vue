@@ -24,6 +24,10 @@
       <div class="moveCenter" title="回到中心点" @click="toCenter">
         <div class="icon"></div>
       </div>
+      <div class="zoomControl">
+        <div class="zoom bigger" @click="zoom('bigger')">+</div>
+        <div class="zoom smaller" @click="zoom('smaller')">-</div>
+      </div>
     </div>
   </div>
 </template>
@@ -128,7 +132,13 @@ export default {
           }
         }
       ],
-      legendStatu: []
+      test: false
+    }
+  },
+  props: {
+    onlyErr: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -177,7 +187,23 @@ export default {
       }
     }
   },
+  watch: {
+    onlyErr: function (newVal, oldVal) {
+      if (newVal) {
+        this.showAbnormal()
+      } else if (this.test) {
+        this.showAll()
+      } else {
+        this.test = true
+      }
+    }
+  },
   methods: {
+    zoom (val) {
+      if (val === 'bigger') graph.zoom(2, { x: 425, y: 200 })
+      if (val === 'smaller') graph.zoom(0.5, { x: 425, y: 200 })
+      graph.paint()
+    },
     toCenter () {
       graph.findAll('node', node => {
         if (node.getModel().center) {
@@ -199,9 +225,9 @@ export default {
           graph.hideItem(ele)
           graph.paint()
         })
-        console.log(a)
       } else {
         a.forEach(ele => {
+          console.log(ele.getEdges())
           graph.showItem(ele)
           graph.paint()
         })
@@ -220,7 +246,6 @@ export default {
           graph.hideItem(ele)
           graph.paint()
         })
-        console.log(a)
       } else {
         a.forEach(ele => {
           graph.showItem(ele)
@@ -421,7 +446,7 @@ export default {
               labelStyle = cusEdge.labelStyle
             } else {
               labelStyle.fontSize = labelCfg.fontSize || 12
-              labelStyle.stroke = labelCfg.stroke || '#fff'
+              labelStyle.stroke = labelCfg.stroke || '#F9F9F9'
               labelStyle.fill = labelCfg.fill || '#333'
               labelStyle.lineWidth = labelCfg.lineWidth || 5
             }
@@ -575,7 +600,6 @@ export default {
         changeLabelIn (e) {
           _this.addEdge = e.item.get('edges')
           _this.addEdge.forEach(element => {
-            console.log(element)
             element.update({
               style: {
                 opacity: 1,
@@ -638,38 +662,71 @@ export default {
         this.G6Data = res
         this.init()
       })
+    },
+    showAbnormal () {
+      for (let i = 0; i < this.cusNodes.length; i++) {
+        if (this.cusNodes[i].name === '重点' || this.cusNodes[i].name === '本人') {
+          this.cusNodes[i].checked = false
+        } else {
+          this.cusNodes[i].checked = true
+        }
+        this.changeNodeStatu(i)
+      }
+      for (let i = 0; i < this.cusEdges.length; i++) {
+        if (this.cusEdges[i].name === '重点') {
+          this.cusEdges[i].checked = false
+        } else {
+          this.cusEdges[i].checked = true
+        }
+        this.changeEdgeStatu(i)
+      }
+      this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
+      this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
+    },
+    showAll () {
+      for (let i = 0; i < this.cusNodes.length; i++) {
+        this.cusNodes[i].checked = false
+        this.changeNodeStatu(i)
+      }
+      for (let i = 0; i < this.cusEdges.length; i++) {
+        this.cusEdges[i].checked = false
+        this.changeEdgeStatu(i)
+      }
+      this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
+      this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
     }
   },
   created () {
-    for (let i = 0; i < this.cusNodes.length; i++) {
-      this.cusNodes[i].checked = true
-    }
-    for (let i = 0; i < this.cusEdges.length; i++) {
-      this.cusEdges[i].checked = true
-    }
-    this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
-    this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
-    console.log(this.cusEdges)
+
   },
   mounted () {
-    // relation({
-    //   g_id: '179363',
-    //   flag: 2
-    // }).then(res => {
-    // this.G6Data = res.data
-    this.createGraph('container')
-    this.init()
-    this.$emit('my-event', graph)
-    // })
+    relation({
+      g_id: '179363',
+      flag: 2
+    }).then(res => {
+      this.G6Data = res.data
+      this.createGraph('container')
+      this.init()
+      if (this.onlyErr) {
+        this.showAbnormal()
+      } else {
+        this.showAll()
+      }
+      this.$emit('my-event', graph)
+    })
+  },
+  beforeDestroy () {
+    graph.destroy()
   }
 }
 </script>
 
 <style lang="less">
 .networkMap {
+  user-select: none;
   position: relative;
   #container {
-    border: 1px green solid;
+    min-height: 500px;
   }
   .nodeLegends {
     position: absolute;
@@ -773,6 +830,33 @@ export default {
       height: 20px;
       margin: auto;
       background: url('../assets/images/toCenter.png')
+    }
+  }
+  .zoomControl {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow:0px 4px 6px 0px rgba(159,159,159,0.2);
+    .zoom {
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      line-height: 24px;
+      text-align: center;
+      font-size: 21px;
+      cursor: pointer;
+      color: #4C83FE;
+      &.bigger{
+        border-bottom: 1px #EFEFEF solid;
+      }
+      &.smaller {
+        font-size: 21px;
+      }
+      &:hover {
+        box-shadow:0px 0px 2px 2px rgba(159,159,159,0.2);
+      }
     }
   }
 }
