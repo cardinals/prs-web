@@ -294,6 +294,27 @@ export default {
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
+    },
+    init () {
+      let nowTime = new Date()
+      this.dataPicked.push(nowTime.getFullYear() + '/01/01')
+      this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
+      apiParams.g_id = this.$route.params.people
+      apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
+      apiParams.pagecapacity = 8
+      apiParams.pagenumber = 1
+      apiParams.huodonglx = ''
+      apiParams.fengxianlx = ''
+      if (this.$route.params.type === 'err') {
+        apiParams.flag = '2'
+        apiParams.timestart = 'all'
+        this.dataDefault = 'all'
+        this.dangerChecked = 0
+      } else {
+        apiParams.flag = '1'
+        apiParams.timestart = nowTime.getFullYear() + '-01-01'
+      }
+      this.getDynamic()
     }
   },
   watch: {
@@ -301,28 +322,16 @@ export default {
       if (oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
         this.filterControl(-1)
       }
+    },
+    $route: {
+      handler: function (val, oldVal) {
+        this.init()
+      },
+      deep: true
     }
   },
   mounted () {
-    let nowTime = new Date()
-    this.dataPicked.push(nowTime.getFullYear() + '/01/01')
-    this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
-    apiParams.g_id = this.$route.params.people
-    apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
-    apiParams.pagecapacity = 8
-    apiParams.pagenumber = 1
-    apiParams.huodonglx = ''
-    apiParams.fengxianlx = ''
-    if (this.$route.params.type === 'err') {
-      apiParams.flag = '2'
-      apiParams.timestart = 'all'
-      this.dataDefault = 'all'
-      this.dangerChecked = 0
-    } else {
-      apiParams.flag = '1'
-      apiParams.timestart = nowTime.getFullYear() + '-01-01'
-    }
-    this.getDynamic()
+    this.init()
   }
 }
 </script>
