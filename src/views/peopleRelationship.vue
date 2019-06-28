@@ -50,6 +50,12 @@ export default {
   watch: {
     onlyAbnormal: function (newVal, oldVal) {
 
+    },
+    $route: {
+      handler: function (val, oldVal) {
+        this.onlyAbnormal = this.$route.params.type === 'err'
+      },
+      deep: true
     }
   },
   methods: {
@@ -69,7 +75,7 @@ export default {
     }
   },
   mounted () {
-    this.onlyAbnormal = this.$route.params.showNormal === 'err'
+    this.onlyAbnormal = this.$route.params.type === 'err'
   }
 }
 </script>

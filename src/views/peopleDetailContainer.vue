@@ -95,9 +95,9 @@ export default {
     menuClick (msg) {
       this.menuChoice = msg
       if (msg !== 'info') {
-        this.$router.replace('/detail/' + this.$route.params.people + '/' + msg + '/all')
+        this.$router.replace('/detail/' + this.$route.params.personId + '/' + msg + '/all')
       } else {
-        this.$router.replace('/detail/' + this.$route.params.people + '/' + msg)
+        this.$router.replace('/detail/' + this.$route.params.personId + '/' + msg)
       }
     },
     // 风险预警点击跳转

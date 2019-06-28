@@ -135,6 +135,8 @@
 <script>
 import { getListData } from '@/api/api.js'
 
+import changePage from '@/components/mixins/changePage'
+
 // 树状列表名称映射
 const treeTitleMap = {
   gender: '性别',
@@ -166,7 +168,7 @@ const paramsMap = {
   tags: (val) => {
     if (apiParams['label'].indexOf(val.name) < 0) {
       if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia') {
-        apiParams['label'].push(val.name.split('：')[1])
+        apiParams['label'].push(val.name.split(':')[1])
       } else {
         apiParams['label'].push(val.name)
       }
@@ -199,18 +201,19 @@ export default {
       renderList: [] // 实际渲染列表
     }
   },
+  mixins: [changePage.getMixin()],
   computed: {
     searchVal () {
-      return this.$route.params.val
+      return this.$route.params.searchVal
     },
     searchType () {
-      return this.$route.params.type
+      return this.$route.params.searchType
     },
     // 结果列表左上角总数显示
     resultNumUnit () {
-      if (this.$route.params.type === 'people') return '位相关人员'
-      if (this.$route.params.type === 'case') return '件相关案件'
-      if (this.$route.params.type === 'org') return '个相关机构'
+      if (this.$route.params.searchType === 'people') return '位相关人员'
+      if (this.$route.params.searchType === 'case') return '件相关案件'
+      if (this.$route.params.searchType === 'org') return '个相关机构'
       return null
     }
   },
@@ -228,7 +231,7 @@ export default {
     searchVal: function (newVal, oldVal) {
       this.keywordArr = [{
         type: 'searchVal',
-        name: this.$route.params.val
+        name: this.$route.params.searchVal
       }]
       this.apiParamsClear()
     },
@@ -343,8 +346,8 @@ export default {
         this.apiParamsClear()
       } else {
         this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
-        if (val.name.indexOf('矫正级别：') === 0 || val.name.indexOf('矫正类型：') === 0 || val.name.indexOf('评价：') === 0 || val.name.indexOf('奖惩类型：') === 0) {
-          val.name = val.name.split('：')[1]
+        if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0) {
+          val.name = val.name.split(':')[1]
         }
         delParamsMap[val.type](val.name)
       }
@@ -361,8 +364,8 @@ export default {
       this.$store.commit('header/changeSearchVal', val)
       this.$router.push('/searchList/people/' + val)
       this.apiParamsClear()
-      apiParams.query = this.$route.params.val
-      apiParams.querytype = this.$route.params.type
+      apiParams.query = this.$route.params.searchVal
+      apiParams.querytype = this.$route.params.searchType
       this.keywordArr[0].name = val
       this.$forceUpdate()
     },
@@ -371,15 +374,6 @@ export default {
       apiParams['pagenumber'] = val
       this.currentPage = val
       this.searchListInit()
-    },
-    // 去异常页
-    goAbnormalPage (key, val) {
-      let routeUrl = {
-        abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic` }),
-        abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship` }),
-        abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath` })
-      }
-      window.open(routeUrl[key].href, '_blank')
     },
     // 按相关度排序方式的变化
     sortChange () {
@@ -404,12 +398,12 @@ export default {
   mounted () {
     this.keywordArr.push({
       type: 'searchVal',
-      name: this.$route.params.val
+      name: this.$route.params.searchVal
     })
-    this.$store.commit('header/changeSearchType', this.$route.params.type)
-    this.$store.commit('header/changeSearchVal', this.$route.params.val)
-    apiParams['query'] = this.$route.params.val
-    apiParams['querytype'] = this.$route.params.type
+    this.$store.commit('header/changeSearchType', this.$route.params.searchType)
+    this.$store.commit('header/changeSearchVal', this.$route.params.searchVal)
+    apiParams['query'] = this.$route.params.searchVal
+    apiParams['querytype'] = this.$route.params.searchType
     this.searchListInit()
   }
 }

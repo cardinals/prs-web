@@ -76,6 +76,7 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
 import { Message } from 'element-ui'
+import changePage from '@/components/mixins/changePage'
 // 异常中英文名称映射
 let abnormalMap = {
   abnormalRelation: '异常关系',
@@ -95,6 +96,7 @@ export default {
       placeholder: '请输入人名、身份证号(最少2位)、电话号码(最少3位)'
     }
   },
+  mixins: [changePage.getMixin()],
   computed: {
     ...mapState('header', {
       ifLogin: state => state.ifLogin
@@ -194,15 +196,6 @@ export default {
         if (arr[key] !== 0) res[key] = arr[key]
       }
       return res
-    },
-    // 跳转至异常页
-    goAbnormalPage (key, val) {
-      let routeUrl = {
-        abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic/all` }),
-        abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship/all` }),
-        abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath/all` })
-      }
-      window.open(routeUrl[key].href, '_blank')
     }
   },
   filters: {
