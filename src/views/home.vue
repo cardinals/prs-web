@@ -102,8 +102,10 @@ export default {
   },
   methods: {
     // 改变异常动态页的通知栏状态
-    ...mapActions('dynamic', {
-      changeShowMsg: 'changeShowMsg'
+    ...mapActions({
+      changeShowMsg: 'dynamic/changeShowMsg',
+      RechangeShowMsg: 'relation/changeShowMsg',
+      PathchangeShowMsg: 'path/changeShowMsg'
     }),
     // 左按钮
     moveLeft () {

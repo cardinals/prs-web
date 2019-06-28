@@ -1,7 +1,112 @@
 @import './common.less';
-h1 {
-  color: yellow;
-  font-size: 30px;
-  text-align: center;
-  line-height: 200px;
+.relation {
+  margin-top: 14px;
+  .msg {
+    padding: 0 25px;
+    display: flex;
+    align-items: center;
+    background: rgba(252,240,226,1);
+    border: 1px solid rgba(255,223,186,1);
+    position: relative;
+    margin-bottom: 12px;
+    .icon {
+      width: 16px;
+      height: 16px;
+      background: url('../images/peopleInfo/icon_message.png') center center no-repeat;
+      margin-right: 10px;
+    }
+    .text {
+      line-height: 40px;
+      color: #393939;
+      span {
+        color: #FA8E9A;
+        &:last-child {
+          color: #F5A145;
+        }
+      }
+    }
+    .btn {
+      width: 75px;
+      height: 25px;
+      line-height: 23px;
+      border: 1px solid rgba(39,112,238,1);
+      border-radius: 13px;
+      text-align: center;
+      margin-left: 60px;
+      cursor: pointer;
+      color: #2770EE;
+      &:hover {
+        background: #2770EE;
+        color: #fff;
+      }
+    }
+    .del {
+      width: 20px;
+      position: absolute;
+      right: 25px;
+      cursor: pointer;
+      &:hover {
+        &::before {
+          background: rgb(112, 112, 112);
+        }
+        &::after {
+          background: rgb(112, 112, 112);
+        }
+      }
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        height: 16px;
+        transform: rotate(-45deg);
+        background: rgba(171,171,171,1);
+        margin-left:10px;
+        
+      }
+      &::after {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        height: 16px;
+        transform: rotate(45deg);
+        background: rgb(171, 171, 171);
+        margin-left: -2px; 
+      }
+    }
+  }
+  .peopleRelation {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,1);
+    border: 1px solid rgba(235,238,243,1);
+    .title {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      height: 62px;
+      padding: 0 23px;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(237,237,237,1);
+      .name {
+        font-size: 18px;
+        color: rgba(39,112,238,1);
+        &::before {
+          content: '';
+          display: inline-block;
+          width: 3px;
+          height: 17px;
+          background: rgba(39,112,238,1);
+          border-radius: 2px;
+          margin-right: 8px;
+          vertical-align: bottom;
+        }
+      }
+    }
+    .content {
+      height: 680px;
+      .graphicContainer {
+        background: url('../images/pic_background.png');
+      }
+    }
+  }
 }

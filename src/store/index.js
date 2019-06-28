@@ -10,6 +10,8 @@ import Vuex from 'vuex'
 import app from './modules/app'
 import header from './modules/header'
 import dynamic from './modules/dynamic'
+import relation from './modules/relation'
+import path from './modules/path'
 import home from './modules/home'
 
 Vue.use(Vuex)
@@ -19,6 +21,8 @@ export default new Vuex.Store({
     app,
     header,
     dynamic,
+    relation,
+    path,
     home
   },
   strict: process.env.NODE_ENV !== 'production'

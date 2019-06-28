@@ -6,6 +6,11 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
+      path: '/networkMap',
+      name: 'networkMap',
+      component: () => import('./views/networkMap.vue')
+    },
+    {
       path: '/',
       // 重定向根路径对应的模块
       redirect: '/home'
@@ -32,14 +37,9 @@ export default new Router({
           component: () => import('./views/peopleInfo.vue')
         },
         {
-          path: '/detail/:people/peoplePath',
+          path: '/detail/:people/peoplePath/:showNormal',
           name: 'peoplePath',
           component: () => import('./views/peoplePath.vue')
-        },
-        {
-          path: '/detail/:people/dynamic',
-          name: 'dynamic',
-          component: () => import('./views/peopleDynamic.vue')
         },
         {
           path: '/detail/:people/dynamic/:showNormal',
@@ -47,7 +47,7 @@ export default new Router({
           component: () => import('./views/peopleDynamic.vue')
         },
         {
-          path: '/detail/:people/relationship',
+          path: '/detail/:people/relationship/:showNormal',
           name: 'relationship',
           component: () => import('./views/peopleRelationship.vue')
         }
