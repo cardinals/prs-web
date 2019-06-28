@@ -166,7 +166,7 @@ const paramsMap = {
   tags: (val) => {
     if (apiParams['label'].indexOf(val.name) < 0) {
       if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia') {
-        apiParams['label'].push(val.name.split('：')[1])
+        apiParams['label'].push(val.name.split(':')[1])
       } else {
         apiParams['label'].push(val.name)
       }
@@ -343,8 +343,8 @@ export default {
         this.apiParamsClear()
       } else {
         this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
-        if (val.name.indexOf('矫正级别：') === 0 || val.name.indexOf('矫正类型：') === 0 || val.name.indexOf('评价：') === 0 || val.name.indexOf('奖惩类型：') === 0) {
-          val.name = val.name.split('：')[1]
+        if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0) {
+          val.name = val.name.split(':')[1]
         }
         delParamsMap[val.type](val.name)
       }
