@@ -1,7 +1,29 @@
 <template>
-  <div class="test3">
+  <div class="networkMap">
     <div id="container">
-      <div class="btn">test</div>
+      <div class="nodeLegends">
+        <div class="nodeLegend"
+          v-for="(item, index) in cusNodes"
+          :key="index"
+          :class="{'noChecked': !item.checked}"
+          @click="changeNodeStatu(index)">
+          <div class="legend" :style="`background: ${item.fill}`"></div>
+          <div class="text"> {{item.name}} </div>
+        </div>
+      </div>
+      <div class="edgeLegends">
+        <div class="edgeLegend"
+          v-for="(item, index) in cusEdges"
+          :key="index"
+          :class="{'noChecked': !item.checked}"
+          @click="changeEdgeStatu(index)">
+          <div class="legend" :style="`background: ${item.fill}`"></div>
+          <div class="text"> {{item.name}} </div>
+        </div>
+      </div>
+      <div class="moveCenter" title="回到中心点" @click="toCenter">
+        <div class="icon"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -11,10 +33,68 @@ import { relation, relation2 } from '@/api/api.js'
 const d3 = require('d3')
 let graph = {}
 export default {
-  name: 'test3',
+  name: 'networkMap',
   data () {
     return {
       G6Data: {
+        nodes: [
+          {
+            id: 'node1',
+            shape: '本人',
+            label: '张晓磊',
+            personId: '123465'
+          },
+          {
+            id: 'node2',
+            shape: '重点',
+            label: '李爱国',
+            personId: '123465'
+          },
+          {
+            id: 'node3',
+            shape: '非重点',
+            label: '孙大圣',
+            personId: ''
+          },
+          {
+            id: 'node4',
+            shape: '非重点',
+            label: '牛魔王',
+            personId: ''
+          }
+        ],
+        edges: [
+          {
+            source: 'node1',
+            target: 'node2',
+            shape: '重点',
+            label: '同案犯'
+          },
+          {
+            source: 'node1',
+            target: 'node2',
+            shape: '亲属',
+            label: '表弟'
+          },
+          {
+            source: 'node1',
+            target: 'node3',
+            shape: '其他',
+            label: '同事'
+          },
+          {
+            source: 'node1',
+            target: 'node4',
+            shape: '其他',
+            label: '同事'
+          },
+          {
+            source: 'node2',
+            target: 'node4',
+            shape: '其他',
+            label: '同事'
+          }
+        ]
       },
       cusNodes: [
         {
@@ -33,23 +113,29 @@ export default {
       ],
       cusEdges: [
         {
-          name: '亲属'
-          // fill: 'rgba(56,122,238,1)'
+          name: '亲属',
+          fill: 'rgba(56,122,238,1)'
         },
         {
-          name: '重点'
-          // fill: 'rgba(240,63,64,1)'
+          name: '重点',
+          fill: 'rgba(240,63,64,1)'
         },
         {
-          name: '其他'
-          // fill: 'rgba(35,179,215,1)'
+          name: '其他',
+          fill: 'rgba(35,179,215,1)',
+          labelStyle: {
+            stroke: '#F9F9F9'
+          }
         }
-      ]
+      ],
+      legendStatu: []
     }
   },
   computed: {
     rData: function () {
       if (this.G6Data) {
+        let copyNodes = this.G6Data.nodes
+        copyNodes[0].center = true
         let temp = {}
         let copyEdges = this.G6Data.edges
         // 将起点终点相同边归集
@@ -82,7 +168,7 @@ export default {
           }
         }
         const result = {
-          nodes: this.G6Data.nodes,
+          nodes: copyNodes,
           edges: copyEdges
         }
         return result
@@ -92,6 +178,56 @@ export default {
     }
   },
   methods: {
+    toCenter () {
+      graph.findAll('node', node => {
+        if (node.getModel().center) {
+          graph.focusItem(node)
+          graph.paint()
+        }
+      })
+    },
+    changeNodeStatu (index) {
+      this.cusNodes[index].checked = !this.cusNodes[index].checked
+      let shape = this.cusNodes[index].name
+      let a = graph.findAll('node', node => {
+        if (node.get('currentShape') === shape) {
+          return node
+        }
+      })
+      if (!this.cusNodes[index].checked) {
+        a.forEach(ele => {
+          graph.hideItem(ele)
+          graph.paint()
+        })
+        console.log(a)
+      } else {
+        a.forEach(ele => {
+          graph.showItem(ele)
+          graph.paint()
+        })
+      }
+    },
+    changeEdgeStatu (index) {
+      this.cusEdges[index].checked = !this.cusEdges[index].checked
+      let shape = this.cusEdges[index].name
+      let a = graph.findAll('edge', edge => {
+        if (edge.get('currentShape') === shape) {
+          return edge
+        }
+      })
+      if (!this.cusEdges[index].checked) {
+        a.forEach(ele => {
+          graph.hideItem(ele)
+          graph.paint()
+        })
+        console.log(a)
+      } else {
+        a.forEach(ele => {
+          graph.showItem(ele)
+          graph.paint()
+        })
+      }
+    },
     // 对自定义节点样式传参进行默认值的配置
     nodeDefaultConf (cusNode) {
       cusNode.fill = cusNode.fill || 'skyblue'
@@ -130,6 +266,12 @@ export default {
       cusEdge.fill = cusEdge.fill || '#333'
       cusEdge.lineWidth = cusEdge.lineWidth || 1
       cusEdge.opacity = cusEdge.opacity || 0.5
+      if (cusEdge.labelStyle) {
+        cusEdge.labelStyle.fontSize = cusEdge.labelStyle.fontSize || 12
+        cusEdge.labelStyle.fill = cusEdge.labelStyle.fill || '#333'
+        cusEdge.labelStyle.stroke = cusEdge.labelStyle.stroke || '#fff'
+        cusEdge.labelStyle.lineWidth = cusEdge.labelStyle.lineWidth || 5
+      }
       return cusEdge
     },
     createGraph (container, width, height) {
@@ -246,12 +388,18 @@ export default {
             let points = [startPoint] // 添加起始点
             let opacity = cfg.style.opacity
             let lineWidth = cfg.style.lineWidth || cusEdge.lineWidth
+            let cusFontSize = 12
+            if (cusEdge.labelStyle) {
+              cusFontSize = cusEdge.labelStyle.fontSize
+            }
             // 添加控制点
             if (controlPoints) {
               points = points.concat(controlPoints)
             } // 添加结束点
+            // let middlePoint = (cusEdge.lineWidth / 2) || 0.5
+            // let topPoint = (cusEdge.lineWidth + 4) || 5
             let endArrow = {
-              path: 'M 8,0 L -4,-4 L -4,4 Z', // 自定义箭头为中心点在(0, 0)，指向 x 轴正方向的
+              path: 'M 8,0.5 L -4,-4 L -4,4 Z', // 自定义箭头为中心点在(0, 0)，指向 x 轴正方向的
               d: startPoint.y > endPoint.y ? 4 : -4
             }
             points.push(endPoint)
@@ -261,7 +409,8 @@ export default {
               lineWidth: lineWidth,
               path: path,
               endArrow: endArrow,
-              opacity: opacity
+              opacity: opacity,
+              cusFontSize: cusFontSize
             }
             return style
           },
@@ -271,10 +420,10 @@ export default {
             if (cusEdge.labelStyle) {
               labelStyle = cusEdge.labelStyle
             } else {
-              labelStyle.fontSize = 12
-              labelStyle.stroke = '#EBEEF3'
-              labelStyle.fill = '#333'
-              labelStyle.lineWidth = 5
+              labelStyle.fontSize = labelCfg.fontSize || 12
+              labelStyle.stroke = labelCfg.stroke || '#fff'
+              labelStyle.fill = labelCfg.fill || '#333'
+              labelStyle.lineWidth = labelCfg.lineWidth || 5
             }
             const label = group.addShape('text', {
               attrs: labelStyle
@@ -430,15 +579,13 @@ export default {
             element.update({
               style: {
                 opacity: 1,
-                lineWidth: 2
+                lineWidth: element.get('originStyle').lineWidth
               },
               labelCfg: {
                 autoRotate: true,
                 style: {
-                  fill: '#333333',
-                  stroke: '#EBEEF3',
-                  lineWidth: 5,
-                  fontWeight: 400
+                  fontWeight: 600,
+                  fontSize: element.get('originStyle').cusFontSize + 2
                 }
               }
             })
@@ -455,10 +602,8 @@ export default {
               labelCfg: {
                 autoRotate: true,
                 style: {
-                  fill: '#333333',
-                  stroke: '#EBEEF3',
-                  lineWidth: 5,
-                  fontWeight: 400
+                  fontWeight: 400,
+                  fontSize: element.get('originStyle').cusFontSize
                 }
               }
             })
@@ -495,35 +640,140 @@ export default {
       })
     }
   },
+  created () {
+    for (let i = 0; i < this.cusNodes.length; i++) {
+      this.cusNodes[i].checked = true
+    }
+    for (let i = 0; i < this.cusEdges.length; i++) {
+      this.cusEdges[i].checked = true
+    }
+    this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
+    this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
+    console.log(this.cusEdges)
+  },
   mounted () {
-    relation({
-      g_id: '100416',
-      flag: 2
-    }).then(res => {
-      this.G6Data = res.data
-      this.createGraph('container')
-      this.init()
-      this.$emit('my-event', graph)
-    })
+    // relation({
+    //   g_id: '179363',
+    //   flag: 2
+    // }).then(res => {
+    // this.G6Data = res.data
+    this.createGraph('container')
+    this.init()
+    this.$emit('my-event', graph)
+    // })
   }
 }
 </script>
 
 <style lang="less">
-.test3 {
+.networkMap {
   position: relative;
   #container {
     border: 1px green solid;
   }
-  .btn {
+  .nodeLegends {
     position: absolute;
     right: 20px;
     top: 20px;
-    line-height: 30px;
-    width: 60px;
-    background: skyblue;
-    border-radius: 4px;
-    text-align: center;
+    .nodeLegend {
+      display: inline-block;
+      margin-right: 10px;
+      cursor: pointer;
+      &:hover {
+        .legend {
+          opacity: 1;
+        }
+        .text {
+          font-weight: 600;
+        }
+      }
+      &:last-child {
+        margin-right: 0;
+      }
+      .legend {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        margin-top: 1px;
+        margin-right: 5px;
+        opacity: 0.8;
+      }
+      .text {
+        display: inline-block;
+        vertical-align: top;
+        font-size: 12px;
+      }
+      &.noChecked {
+        .legend {
+          background: rgb(201, 201, 201) !important;
+        }
+        .text {
+          color: rgb(201, 201, 201);
+        }
+      }
+    }
+  }
+  .edgeLegends {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    .edgeLegend {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      &:hover {
+        .legend {
+          opacity: 1;
+        }
+        .text {
+          font-weight: 600;
+        }
+      }
+      .legend {
+        display: inline-block;
+        width: 30px;
+        height: 2px;
+        border-radius: 2px;
+        margin-right: 5px;
+        opacity: 0.5
+      }
+      .text {
+        display: inline-block;
+        font-size: 12px;
+      }
+      &.noChecked {
+        .legend {
+          background: rgb(201, 201, 201) !important;
+        }
+        .text {
+          color: rgb(201, 201, 201);
+        }
+      }
+    }
+  }
+  .moveCenter {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    width: 30px;
+    height: 30px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    border-radius: 50%;
+    box-shadow:0px 0px 5px 2px rgba(226,226,226,1);
+    cursor: pointer;
+    &:hover {
+      box-shadow:0px 0px 10px 5px rgb(226, 226, 226);
+    }
+    .icon {
+      width: 20px;
+      height: 20px;
+      margin: auto;
+      background: url('../assets/images/toCenter.png')
+    }
   }
 }
 </style>

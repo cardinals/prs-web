@@ -17,7 +17,7 @@
         <div class="graphicContainer">
           <relation @my-event="myEvent" />
         </div>
-        <button @click="myEvent1">fefe</button>
+        <!-- <button @click="myEvent1">fefe</button> -->
       </div>
     </div>
   </div>
