@@ -76,7 +76,7 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
 import { Message } from 'element-ui'
-import changePage from '@/components/changePage'
+import changePage from '@/components/mixins/changePage'
 // 异常中英文名称映射
 let abnormalMap = {
   abnormalRelation: '异常关系',

@@ -135,7 +135,7 @@
 <script>
 import { getListData } from '@/api/api.js'
 
-import changePage from '@/components/changePage'
+import changePage from '@/components/mixins/changePage'
 
 // 树状列表名称映射
 const treeTitleMap = {
