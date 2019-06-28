@@ -6,11 +6,6 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/networkMap',
-      name: 'networkMap',
-      component: () => import('./views/networkMap.vue')
-    },
-    {
       path: '/',
       // 重定向根路径对应的模块
       redirect: '/home'
@@ -21,33 +16,33 @@ export default new Router({
       component: () => import('./views/home.vue')
     },
     {
-      path: '/searchList/:type/:val',
+      path: '/searchList/:searchType/:searchVal',
       name: 'searchList',
       component: () => import('./views/searchList.vue')
     },
     {
-      path: '/detail/:people/',
+      path: '/detail/:personId/',
       name: 'detail',
-      redirect: '/detail/:people/info',
+      redirect: '/detail/:personId/info',
       component: () => import('./views/peopleDetailContainer.vue'),
       children: [
         {
-          path: '/detail/:people/info',
+          path: '/detail/:personId/info',
           name: 'info',
           component: () => import('./views/peopleInfo.vue')
         },
         {
-          path: '/detail/:people/peoplePath/:showNormal',
+          path: '/detail/:personId/peoplePath/:type',
           name: 'peoplePath',
           component: () => import('./views/peoplePath.vue')
         },
         {
-          path: '/detail/:people/dynamic/:showNormal',
+          path: '/detail/:personId/dynamic/:type',
           name: 'dynamic',
           component: () => import('./views/peopleDynamic.vue')
         },
         {
-          path: '/detail/:people/relationship/:showNormal',
+          path: '/detail/:personId/relationship/:type',
           name: 'relationship',
           component: () => import('./views/peopleRelationship.vue')
         }

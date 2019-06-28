@@ -313,7 +313,7 @@ export default {
     apiParams.pagenumber = 1
     apiParams.huodonglx = ''
     apiParams.fengxianlx = ''
-    if (this.$route.params.showNormal === 'err') {
+    if (this.$route.params.type === 'err') {
       apiParams.flag = '2'
       apiParams.timestart = 'all'
       this.dataDefault = 'all'

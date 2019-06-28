@@ -204,16 +204,16 @@ export default {
   mixins: [changePage.getMixin()],
   computed: {
     searchVal () {
-      return this.$route.params.val
+      return this.$route.params.searchVal
     },
     searchType () {
-      return this.$route.params.type
+      return this.$route.params.searchType
     },
     // 结果列表左上角总数显示
     resultNumUnit () {
-      if (this.$route.params.type === 'people') return '位相关人员'
-      if (this.$route.params.type === 'case') return '件相关案件'
-      if (this.$route.params.type === 'org') return '个相关机构'
+      if (this.$route.params.searchType === 'people') return '位相关人员'
+      if (this.$route.params.searchType === 'case') return '件相关案件'
+      if (this.$route.params.searchType === 'org') return '个相关机构'
       return null
     }
   },
@@ -231,7 +231,7 @@ export default {
     searchVal: function (newVal, oldVal) {
       this.keywordArr = [{
         type: 'searchVal',
-        name: this.$route.params.val
+        name: this.$route.params.searchVal
       }]
       this.apiParamsClear()
     },
@@ -364,8 +364,8 @@ export default {
       this.$store.commit('header/changeSearchVal', val)
       this.$router.push('/searchList/people/' + val)
       this.apiParamsClear()
-      apiParams.query = this.$route.params.val
-      apiParams.querytype = this.$route.params.type
+      apiParams.query = this.$route.params.searchVal
+      apiParams.querytype = this.$route.params.searchType
       this.keywordArr[0].name = val
       this.$forceUpdate()
     },
@@ -398,12 +398,12 @@ export default {
   mounted () {
     this.keywordArr.push({
       type: 'searchVal',
-      name: this.$route.params.val
+      name: this.$route.params.searchVal
     })
-    this.$store.commit('header/changeSearchType', this.$route.params.type)
-    this.$store.commit('header/changeSearchVal', this.$route.params.val)
-    apiParams['query'] = this.$route.params.val
-    apiParams['querytype'] = this.$route.params.type
+    this.$store.commit('header/changeSearchType', this.$route.params.searchType)
+    this.$store.commit('header/changeSearchVal', this.$route.params.searchVal)
+    apiParams['query'] = this.$route.params.searchVal
+    apiParams['querytype'] = this.$route.params.searchType
     this.searchListInit()
   }
 }

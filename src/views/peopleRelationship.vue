@@ -69,7 +69,7 @@ export default {
     }
   },
   mounted () {
-    this.onlyAbnormal = this.$route.params.showNormal === 'err'
+    this.onlyAbnormal = this.$route.params.type === 'err'
   }
 }
 </script>
