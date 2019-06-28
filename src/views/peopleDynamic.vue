@@ -299,7 +299,7 @@ export default {
       let nowTime = new Date()
       this.dataPicked.push(nowTime.getFullYear() + '/01/01')
       this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
-      apiParams.g_id = this.$route.params.people
+      apiParams.g_id = this.$route.params.personId
       apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
       apiParams.pagecapacity = 8
       apiParams.pagenumber = 1

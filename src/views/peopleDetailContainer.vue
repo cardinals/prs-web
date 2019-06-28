@@ -80,7 +80,7 @@ export default {
     }),
     // 获取基本信息数据
     async getbasicInfo () {
-      let res = await getbasicInfo({ g_id: this.$route.params.people })
+      let res = await getbasicInfo({ g_id: this.$route.params.personId })
       this.peopleBasicInfo = res.data
       this.changeDyNum(res.data.riskWarn.abnormalDynamic)
       this.changePeopleName(res.data.basicInfo.name)
@@ -102,7 +102,7 @@ export default {
     },
     // 风险预警点击跳转
     goAbnormal (val) {
-      let id = this.$route.params.people
+      let id = this.$route.params.personId
       if (val === 'abnormalRelation') {
         this.$router.replace('/detail/' + id + '/relationship/err')
         this.menuChoice = 'relationship'
@@ -118,7 +118,7 @@ export default {
     },
     // 人物头像及名称点击跳转
     goInfo () {
-      this.$router.replace('/detail/' + this.$route.params.people + '/info')
+      this.$router.replace('/detail/' + this.$route.params.personId + '/info')
       this.menuChoice = 'info'
     }
   },

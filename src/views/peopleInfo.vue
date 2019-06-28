@@ -401,7 +401,7 @@ export default {
   },
   methods: {
     async getPeopleInfo () {
-      let res = await getPeopleInfo({ g_id: this.$route.params.people })
+      let res = await getPeopleInfo({ g_id: this.$route.params.personId })
       this.peopleInfo = res.data
     }
   },
