@@ -135,6 +135,8 @@
 <script>
 import { getListData } from '@/api/api.js'
 
+import changePage from '@/components/changePage'
+
 // 树状列表名称映射
 const treeTitleMap = {
   gender: '性别',
@@ -199,6 +201,7 @@ export default {
       renderList: [] // 实际渲染列表
     }
   },
+  mixins: [changePage.getMixin()],
   computed: {
     searchVal () {
       return this.$route.params.val
@@ -371,15 +374,6 @@ export default {
       apiParams['pagenumber'] = val
       this.currentPage = val
       this.searchListInit()
-    },
-    // 去异常页
-    goAbnormalPage (key, val) {
-      let routeUrl = {
-        abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic` }),
-        abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship` }),
-        abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath` })
-      }
-      window.open(routeUrl[key].href, '_blank')
     },
     // 按相关度排序方式的变化
     sortChange () {
