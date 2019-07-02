@@ -12,7 +12,7 @@
           <div class="photo" :class="genderClass()" @click="goInfo"></div>
         </div>
         <div class="info">
-          <span class="name" :class="genderClass()"  @click="goInfo">{{peopleBasicInfo.basicInfo.name}}</span>
+          <span class="name" :class="genderClass()"  @click="goInfo" :title="peopleBasicInfo.basicInfo.name">{{peopleBasicInfo.basicInfo.name|nameFilter}}</span>
           <br>
           <span class="idNumber" :style="peopleBasicInfo.basicInfo.idNumber === '' ? 'color:#989A9F' : ''">{{peopleBasicInfo.basicInfo.idNumber|idFormat}}</span>
           <div class="tagsContainer">
@@ -132,6 +132,12 @@ export default {
     },
     tagFilter (val) {
       return val.length > 9 ? val.substring(0, 9) + '...' : val
+    },
+    nameFilter (val) {
+      if (val.length >= 5) {
+        return val.substring(0, 4) + '...'
+      }
+      return val
     }
   },
   mounted () {
