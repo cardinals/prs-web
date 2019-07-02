@@ -660,12 +660,16 @@ export default {
     },
     clickPerson (e) {
       let id = e.item.getModel().personId
-      if (id !== '' && id !== this.$route.params.personId) {
+      console.log('zhang ')
+      if (id !== '') {
+        console.log('fewffew')
         relation({
-          g_id: e,
-          flag: 1
+          g_id: id,
+          flag: id !== this.$route.params.personId ? 1 : 2
         }).then(res => {
           this.G6Data = res.data
+          if (graph !== null) graph.destroy()
+          this.createGraph('container')
           this.init()
           if (this.onlyErr) {
             this.showAbnormal()
@@ -728,7 +732,9 @@ export default {
     })
   },
   beforeDestroy () {
-    graph.destroy()
+    if (graph !== null) {
+      graph.destroy()
+    }
   }
 }
 </script>
