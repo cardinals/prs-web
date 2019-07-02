@@ -322,7 +322,6 @@ export default {
 
     // 添加关键词
     addKeyword (type, item) {
-      console.log(item)
       if (this.indexOfKeywordArr(type, item) < 0) {
         this.keywordArr.push({
           type: type,
@@ -338,13 +337,10 @@ export default {
     indexOfKeywordArr (type, item) {
       for (let i = 0; i < this.keywordArr.length; i++) {
         if (item.nameid && this.keywordArr[i].nameid) {
-          console.log('zhang')
           if (this.keywordArr[i].nameid.substring(0, 2) === item.nameid.substring(0, 2) && this.keywordArr[i].type === type) {
-            console.log(i)
             return i
           }
         } else if (this.keywordArr[i].name === item.name && this.keywordArr[i].type === type) {
-          console.log(item.name)
           return i
         }
       }
