@@ -227,7 +227,6 @@ export default {
         })
       } else {
         a.forEach(ele => {
-          console.log(ele.getEdges())
           graph.showItem(ele)
           graph.paint()
         })

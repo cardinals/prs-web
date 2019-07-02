@@ -70,7 +70,6 @@ export default {
     },
     myEvent1 () {
       this.onlyErr = !this.onlyErr
-      console.log(this.onlyErr)
     }
   },
   mounted () {
