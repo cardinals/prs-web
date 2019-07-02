@@ -131,9 +131,11 @@ export default {
       return abnormalMap[val]
     },
     tagFilter (val) {
+      if (!val) return val
       return val.length > 9 ? val.substring(0, 9) + '...' : val
     },
     nameFilter (val) {
+      if (!val) return val
       if (val.length >= 5) {
         return val.substring(0, 4) + '...'
       }
