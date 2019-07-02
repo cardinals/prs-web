@@ -6,7 +6,7 @@ export default class changePage {
         goAbnormalPage (key, val) {
           let routeUrl = {
             abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic/err` }),
-            abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationshiperr/err` }),
+            abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship/err` }),
             abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePatherr/err` })
           }
           window.open(routeUrl[key].href, '_blank')
