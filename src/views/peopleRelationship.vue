@@ -64,7 +64,6 @@ export default {
     }),
     onlyDanger () {
       this.onlyAbnormal = true
-      this.changeShowMsg(false)
     },
     myEvent (ss) {
       ss.get('nodes')[0].enableCapture(false)
