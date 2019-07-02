@@ -33,7 +33,7 @@
 </template>
 <script>
 import G6 from '@antv/g6'
-import { relation, relation2 } from '@/api/api.js'
+import { relation } from '@/api/api.js'
 const d3 = require('d3')
 let graph = {}
 export default {
@@ -303,7 +303,7 @@ export default {
       graph = new G6.Graph({
         container: container,
         width: width || 840,
-        height: height || 550,
+        height: height || 680,
         autoPaint: false,
         modes: {
           default: ['drag-canvas',
@@ -361,11 +361,13 @@ export default {
       graph.on('node:dragstart', function (e) {
         simulation.alphaTarget(0.3).restart()
         refreshPosition(e)
+        // simulation.stop()
       })
 
       // 节点操作--拖拽中
       graph.on('node:drag', function (e) {
         refreshPosition(e)
+        simulation.stop()
       })
 
       // 节点操作--拖拽结束
@@ -373,7 +375,7 @@ export default {
         simulation.alphaTarget(0)
         refreshPosition(e)
         // 可以立即停止飘动
-        // simulation.stop()
+        simulation.stop()
       })
 
       // 节点操作--停止飘动
@@ -658,10 +660,21 @@ export default {
       graph.paint()
     },
     clickPerson (e) {
-      relation2().then(res => {
-        this.G6Data = res
-        this.init()
-      })
+      let id = e.item.getModel().personId
+      if (id !== '' && id !== this.$route.params.personId) {
+        relation({
+          g_id: e,
+          flag: 1
+        }).then(res => {
+          this.G6Data = res.data
+          this.init()
+          if (this.onlyErr) {
+            this.showAbnormal()
+          } else {
+            this.showAll()
+          }
+        })
+      }
     },
     showAbnormal () {
       for (let i = 0; i < this.cusNodes.length; i++) {
@@ -700,8 +713,9 @@ export default {
 
   },
   mounted () {
+    let gIdd = this.$route.params.personId
     relation({
-      g_id: '179363',
+      g_id: gIdd,
       flag: 2
     }).then(res => {
       this.G6Data = res.data
@@ -712,7 +726,6 @@ export default {
       } else {
         this.showAll()
       }
-      this.$emit('my-event', graph)
     })
   },
   beforeDestroy () {
@@ -726,7 +739,7 @@ export default {
   user-select: none;
   position: relative;
   #container {
-    min-height: 500px;
+    min-height: 650px;
   }
   .nodeLegends {
     position: absolute;
