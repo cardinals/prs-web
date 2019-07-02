@@ -96,6 +96,7 @@
         </div>
       </div>
     </div>
+    <!-- <div @click="dateMap=['2019/1/1', '2019-/12/1']">gergergr</div> -->
   </div>
 </template>
 <script>
@@ -118,7 +119,7 @@ export default {
     return {
       isOpen_active: false, // 活动类型是否展开
       isOpen_danger: false, // 风险类型是否展开
-      allData: {}, // 页面数据
+      allData: { fengxianlx: [], huodonglx: [] }, // 页面数据
       activeChecked: 0, // 活动类型选择
       dangerChecked: -1, // 风险类型选择
       dataDefault: 'year', // 默认日期选择
@@ -295,10 +296,12 @@ export default {
         this.allData = res.data
       })
     },
-    init () {
+    init (status) {
       let nowTime = new Date()
-      this.dataPicked.push(nowTime.getFullYear() + '/01/01')
-      this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
+      if (!status) {
+        this.dataPicked.push(nowTime.getFullYear() + '/01/01')
+        this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
+      }
       apiParams.g_id = this.$route.params.personId
       apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
       apiParams.pagecapacity = 8
@@ -319,13 +322,21 @@ export default {
   },
   watch: {
     fengxianlx (newVal, oldVal) {
-      if (oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
+      console.log('fwefewfew')
+      if (oldVal && oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
         this.filterControl(-1)
       }
     },
     $route: {
       handler: function (val, oldVal) {
-        this.init()
+        if (val.params.type === 'err') {
+          this.dataDefault = 'all'
+          this.dateMap.all()
+        } else {
+          this.dataDefault = 'year'
+          this.dateMap.year()
+        }
+        this.init(true)
       },
       deep: true
     }
