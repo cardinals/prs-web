@@ -73,17 +73,22 @@ export default {
     }
   },
   methods: {
-    ...mapActions('dynamic', {
-      changeShowMsg: 'changeShowMsg',
-      changeDyNum: 'changeDyNum',
-      changePeopleName: 'changePeopleName'
+    ...mapActions({
+      changeShowMsg: 'dynamic/changeShowMsg',
+      changeDyNum: 'dynamic/changeDyNum',
+      changePeopleName: 'dynamic/changePeopleName',
+      changeShowMsgRe: 'relation/changeShowMsg',
+      changeDyNumRe: 'relation/changeDyNum',
+      changePeopleNameRe: 'relation/changePeopleName'
     }),
     // 获取基本信息数据
     async getbasicInfo () {
       let res = await getbasicInfo({ g_id: this.$route.params.personId })
       this.peopleBasicInfo = res.data
       this.changeDyNum(res.data.riskWarn.abnormalDynamic)
+      this.changeDyNumRe(res.data.riskWarn.abnormalRelation)
       this.changePeopleName(res.data.basicInfo.name)
+      this.changePeopleNameRe(res.data.basicInfo.name)
     },
     // 性别class控制
     genderClass () {
@@ -146,6 +151,7 @@ export default {
     this.getbasicInfo()
     this.menuChoice = this.$route.path.split('/')[this.$route.path.split('/').length - 1]
     this.changeShowMsg(true)
+    this.changeShowMsgRe(true)
     this.menuChoice = this.$route.name
   }
 }
