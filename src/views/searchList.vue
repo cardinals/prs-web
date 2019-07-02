@@ -299,7 +299,7 @@ export default {
     handleNodeClick () {
       apiParams.pagenumber = 1
       paramsMap[arguments[1]](arguments[0])
-      this.addKeyword(arguments[1], arguments[0].name)
+      this.addKeyword(arguments[1], arguments[0])
     },
 
     // 滚动条体验优化
@@ -321,18 +321,30 @@ export default {
     },
 
     // 添加关键词
-    addKeyword (type, name) {
-      if (this.indexOfKeywordArr(type, name) < 0) {
+    addKeyword (type, item) {
+      console.log(item)
+      if (this.indexOfKeywordArr(type, item) < 0) {
         this.keywordArr.push({
           type: type,
-          name: name
+          name: item.name,
+          nameid: item.nameid
         })
+      } else {
+        this.keywordArr[this.indexOfKeywordArr(type, item)].name = item.name
+        this.keywordArr[this.indexOfKeywordArr(type, item)].nameid = item.nameid
       }
     },
     // 用于判断此关键字是否已经添加过
-    indexOfKeywordArr (type, name) {
+    indexOfKeywordArr (type, item) {
       for (let i = 0; i < this.keywordArr.length; i++) {
-        if (this.keywordArr[i].name === name && this.keywordArr[i].type === type) {
+        if (item.nameid && this.keywordArr[i].nameid) {
+          console.log('zhang')
+          if (this.keywordArr[i].nameid.substring(0, 2) === item.nameid.substring(0, 2) && this.keywordArr[i].type === type) {
+            console.log(i)
+            return i
+          }
+        } else if (this.keywordArr[i].name === item.name && this.keywordArr[i].type === type) {
+          console.log(item.name)
           return i
         }
       }
@@ -404,7 +416,7 @@ export default {
     this.$store.commit('header/changeSearchVal', this.$route.params.searchVal)
     apiParams['query'] = this.$route.params.searchVal
     apiParams['querytype'] = this.$route.params.searchType
-    this.searchListInit()
+    // this.searchListInit()
   }
 }
 </script>
