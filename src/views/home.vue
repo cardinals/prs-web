@@ -59,7 +59,7 @@
                 <!-- upsideDownRoll 为自定义的组件，里面的内容放置在组件的默认插槽中 -->
                 <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length - 1" :id="item.personId+''">
                   <div class="cardFooter" v-for="(value, key) in abnormalFilter(item.abnormal)" :key="key">
-                    近期共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
+                    近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
                   </div>
                 </upsideDownRoll>
               </div>
