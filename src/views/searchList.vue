@@ -69,12 +69,12 @@
           <div class="resultList" v-for="(item,index) in listData.pageContent" :key="index" >
             <div class="card">
               <div class="peopleInfo">
-                <div class="photo" @click="toDetail(item.personId)">
+                <div class="photo" @click="toDetail(item); log(item)">
                   <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}" v-if="true"></div>
                 </div>
                 <div class="info">
                   <div class="line1">
-                    <span class="name" @click="toDetail(item.personId)"> {{ item.name }}</span>
+                    <span class="name" @click="toDetail(item); log(item)"> {{ item.name }}</span>
                     <div class="img" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}"></div>
                     <div class="tags">
                       <div class="tag" v-for="(item,index) in item.tags" :key="index"> {{item.name}} </div>
@@ -97,17 +97,17 @@
                 </div>
               </div>
               <div class="abnormal" v-if="item.abnormalDynamic !== 0 || item.abnormalTrail !== 0 || item.abnormalRelation !== 0">
-                <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId)">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId); log(item)">
                   <div class="img trend"></div>
                   <span>异常动态:</span>
                   <span>{{item.abnormalDynamic}} 项</span>
                 </div>
-                <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId)">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId); log(item)">
                   <div class="img path"></div>
                   <span>异常轨迹:</span>
                   <span>{{item.abnormalTrail}}项</span>
                 </div>
-                <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId)">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId); log(item)">
                   <div class="img relationship"></div>
                   <span>异常关系:</span>
                   <span>{{item.abnormalRelation}}项</span>
@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import { getListData } from '@/api/api.js'
+import { getListData, queryLogs } from '@/api/api.js'
 
 import changePage from '@/components/mixins/changePage'
 
@@ -282,10 +282,20 @@ export default {
         'querytype': ''
       }
     },
+    log (item) {
+      queryLogs({
+        querycontent: this.$route.params.searchVal,
+        querytype: this.$route.params.searchType,
+        g_id: item.personId,
+        name: item.name
+      }).then(res => {
+        console.log(res.code)
+      })
+    },
     // 去人物信息页
-    toDetail (val) {
+    toDetail (item) {
       let routeUrl = this.$router.resolve({
-        path: '/detail/' + val
+        path: '/detail/' + item.personId
       })
       window.open(routeUrl.href, '_blank') // 重开标签页
     },
