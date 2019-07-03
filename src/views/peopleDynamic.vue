@@ -322,7 +322,6 @@ export default {
   },
   watch: {
     fengxianlx (newVal, oldVal) {
-      console.log('fwefewfew')
       if (oldVal && oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
         this.filterControl(-1)
       }

@@ -21,8 +21,13 @@
           <div class="text"> {{item.name}} </div>
         </div>
       </div>
-      <div class="moveCenter" title="回到中心点" @click="toCenter">
-        <div class="icon"></div>
+      <div class="positionControl">
+        <div class="control" title="刷新页面" @click="refreshPage">
+          <div class="icon refresh"></div>
+        </div>
+        <div class="control" title="回到中心点" @click="toCenter">
+          <div class="icon moveCenter"></div>
+        </div>
       </div>
       <div class="zoomControl">
         <div class="zoom bigger" @click="zoom('bigger')">+</div>
@@ -36,6 +41,7 @@ import G6 from '@antv/g6'
 import { relation } from '@/api/api.js'
 const d3 = require('d3')
 let graph = {}
+let simulation = null
 export default {
   name: 'networkMap',
   data () {
@@ -189,7 +195,7 @@ export default {
   },
   watch: {
     onlyErr: function (newVal, oldVal) {
-      if (newVal) {
+      if (graph.findAll && newVal) {
         this.showAbnormal()
       } else if (this.test) {
         this.showAll()
@@ -350,7 +356,7 @@ export default {
         e.item.get('model').y = e.y
         graph.refreshPositions()
       }
-      const simulation = d3.forceSimulation()
+      simulation = d3.forceSimulation()
         .force('link', d3.forceLink().id(function (d) { return d.id }).strength(0.001))
         .force('charge', d3.forceManyBody().strength(-80))
         .force('center', d3.forceCenter(425, 300))
@@ -360,7 +366,7 @@ export default {
       graph.on('node:dragstart', function (e) {
         simulation.alphaTarget(0.3).restart()
         refreshPosition(e)
-        // simulation.stop()
+        simulation.stop()
       })
 
       // 节点操作--拖拽中
@@ -660,9 +666,7 @@ export default {
     },
     clickPerson (e) {
       let id = e.item.getModel().personId
-      console.log('zhang ')
       if (id !== '') {
-        console.log('fewffew')
         relation({
           g_id: id,
           flag: id !== this.$route.params.personId ? 1 : 2
@@ -710,31 +714,38 @@ export default {
       }
       this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
       this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
+    },
+    refreshPage () {
+      simulation.stop()
+      graph.destroy()
+      this.initPage()
+    },
+    initPage () {
+      let gIdd = this.$route.params.personId
+      relation({
+        g_id: gIdd,
+        flag: 2
+      }).then(res => {
+        this.G6Data = res.data
+        this.createGraph('container')
+        this.init()
+        if (this.onlyErr) {
+          this.showAbnormal()
+        } else {
+          this.showAll()
+        }
+      })
     }
   },
   created () {
 
   },
   mounted () {
-    let gIdd = this.$route.params.personId
-    relation({
-      g_id: gIdd,
-      flag: 2
-    }).then(res => {
-      this.G6Data = res.data
-      this.createGraph('container')
-      this.init()
-      if (this.onlyErr) {
-        this.showAbnormal()
-      } else {
-        this.showAll()
-      }
-    })
+    this.initPage()
   },
   beforeDestroy () {
-    if (graph !== null) {
-      graph.destroy()
-    }
+    simulation.stop()
+    graph.destroy()
   }
 }
 </script>
@@ -828,28 +839,47 @@ export default {
       }
     }
   }
-  .moveCenter {
+  .positionControl {
     position: absolute;
     left: 20px;
     bottom: 20px;
-    width: 30px;
-    height: 30px;
-    background: #fff;
     display: flex;
-    align-items: center;
-    border-radius: 50%;
-    box-shadow:0px 0px 5px 2px rgba(226,226,226,1);
-    cursor: pointer;
-    &:hover {
-      box-shadow:0px 0px 10px 5px rgb(226, 226, 226);
-    }
-    .icon {
-      width: 20px;
-      height: 20px;
-      margin: auto;
-      background: url('../assets/images/toCenter.png')
+    flex-direction: column;
+    .control {
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      border-radius: 50%;
+      box-shadow:0px 0px 5px 2px rgba(226,226,226,1);
+      cursor: pointer;
+      &:hover {
+        box-shadow:0px 0px 10px 5px rgb(226, 226, 226);
+      }
+      &:first-child{
+        margin-bottom: 3px;
+      }
+      .icon {
+        width: 20px;
+        height: 20px;
+        margin: auto;
+        &.refresh{
+          background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACHklEQVQ4T62UP2jTQRTH37sfMcGfiDgoRERwcBBKFdIhUJGM/sLdhSARpDgIXVwyKA5OopNYEDp0cegeIeTukpSIEDspqKgIgqMiqEhBJGqwyX0lhUpq80/aW9/j8773vu89pl1+vMs8Ggl0zh0horT3/jgzrwkhXoVh+DqTyXSGCRkIbDab+1qt1k0ApwCsMPM7Zm4BOA3gAjM/TCaTt1Op1Pq/4G3AWq12rNPpLAshbkkpHw9S4pyLABTb7bYsFAq/+3O2AEul0p54PN7sdrsqn8+vjepvtVo9472fV0pdGgp0zp3vdrvfcrnco0nMstbeY+ZVKWVlM39HLpfL5UNBEJS11rMDgdbaGaXUs0nUGWMyRHSWiOaJ6L4Q4r2UcvmvQmPMZWZeApDWWr8cB200GmG73X7CzFMAfgFI5XK5txvASqVyUgjxgogSAD7FYrHpKIq+joMaYw4T0VMiKmqtbS9/A+icu+i9P8HMVwAsMfNzpVR1HLAXr9fr+6Mo+j6wh8aYqhBiYdj8TVJgi8vW2lkAC0qpNDNjHMAYM8fMB5VSi0PHxlq7CGBda311FNA5N+29v6OUOtdffNsclkqlIJFIrBDRxyAIbmSz2c/9YOfcXu99kYhmhBBzUsqfQzdlMwBAOOeuA7jGzG8ArDJzCKB3dY4CuKu1fjDoByM3pac2DMMp7/0BAD8AfNBafxnVih2t3n8rHOfyoPgf7dboFcCf4SYAAAAASUVORK5CYII=);
+          &:hover{
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACL0lEQVQ4T62Tz0sUYRjHv8+Mrqbr6sxCHSICwQ4LZlHrtGJEx4I6JUFIh8BLlz20VDt7GQp8NxQCDx7q4B8QRIQgRJCemtl1sQiEjkVQUTuzpRnNru8TLSRrzv4Ifa/Pw+f5vs/3+xD2+NEe89AQmMhsHJTSTxBkvwQXidVX+zp7Xy9aVKknJBAYszjc45csgjzGwAIzvVWY1qUijxPjMgjPKl/1u4UHVP4XvAM4kvEObzLPkaQ7dlZbDFJipN3zACfXOvQLqxb5tT3bgDGLQxHfeyG57WJORIqN9jucdk8TMOEI/WpdoJEuXSJGyc72PW/FLCNdvM9QlnJCe/K3f1cuj6TW9sv28mNb6KOBwPjtb/F8tjffkjrTO0uQZ8CYAOEhs/LOEdrclkLD9K4R82yFKbGc1VaaQY+muLur3XsJwiCYfzJw0hHR1SrQSBdjRCgA1Mngjz6HhlZEz5dmUMNcP0Ds2wAlbaE9/dNfBQ6b7hUFfARM10E8K5mWc0KfbwasirGKEceKfg/coWG68yRpul7+WhmwzWUj445C8rQj9ARA3AxgmO44Mem20GbqxuaU6c6AqWwL7UbDYN/yhkiV95xJ/Vzt8J05HGPVGHAXwPggKx1mfir8qRZ8wuKuNt9LEjheDunjBYs26l7KVsFixfjl3QSQIuANiJeYqZvA/QAOScZULht9FPSDxpcyxmp8oDSoSvRtQvmhKOp7ZzL8udEqdnV6/6+wmc0B9d8IKtwVA0TZ0gAAAABJRU5ErkJggg==);
+          }
+        }
+        &.moveCenter{
+          background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACZ0lEQVQ4T62UT2gTQRTGvzdJSZQuqEeFFhQPglR7UXtQWIoeupkZBIngRRCPSntRVJSCUCrowYieFHrzEFQyk6QgWBbqodJLiwiCiKKil4IKK+jSZJ9sSco2/ZNU3Nt87+1v3pv55hH+80ed8IwxF4QQLKV80C5/Q6AxxhFCDDLzMDOzEOIeEb3O5XIf1gOvCSyXy3ujKLpORCeYeR7A9gbgB4ABAB9TqdSZXC73thW8CmiM6SeiKWaeCMPwcj6fr1trx+MKtdbXisViKpvN3gFwlpkHtdZzSegKoLW2h5lnhBCnpJQzzcQksKkZY84BGE+n04c8z/vU1FuBTwDMKaXGkrtaa28CYKXUaFI3xtwAcFxrfWwV0Bizk4jmHcfpcV33T/JH3/e747Xrur9a9GwQBF+IyJNSzsax5QqttSMA9iulzrezRkv1jwC8V0rdWgIWi8UtmUxmhIhOMnNcwfRSgOinlLJARJwEMDOVy+XYRtsaetyuA+BZGIZ34+DWKIqGYyCAgJlfbgZIREcBdDNzSQhRWG7ZGHOViPb8Q8sPmfmN1rqw4gxLpdJhIqp2dXXtGhoaClsvZWFhoZ7P538n9cnJyczi4uJXAH1a628rgPHCGDNNRM83YZu4q4NKqdNr+rBarfbWarVZIcQVKeXERsa21h5h5qdENKCU+rwmsFFlPwCfiCYcx7nkum4t+VJ8308HQXC7o6fX3KVSqeyr1+uPiagXwCtm3tG4+e/MfADAi3Q6PeZ53ru2wyGZUKlUdjNzXzy+GsBCFEVTWutgPfN3NGCttRcb0+Z+u1fUEbAdJBn/C9fFNE4GngWTAAAAAElFTkSuQmCC);
+          &:hover{
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACjUlEQVQ4T62US2gTYRDH579JjdXWZjcHQaEVrQdFqqWlmyoWoejFk6AIXgTxaGk9WLPbiouYbKyCxsdJoTcvPvDiQbAoFc2DSouIghTrA8VLdlNaqX3kG9locLevpOB3+/4z32+Y+WYG9J8PyuG1RKxTkIjTMeVWKf9lgXu6uXrWl2uXiDsZxMy4LhhvhuLBj0uBFwWqveNbSeR7ifkACCNMLDsAEGwmaiXQGKSKY6mL1e/ngxcAmyN2ox88QIT+1Giwm+4hr2qWSSikrNMR9qn11hUQjs8x2ofi8rAb6gE2nbVqKyROCqLDGTOULDp6gH9FVbdPgIUpSVLLq6j8uejrAap69j4Iw6mYEnVHVfXsBWLitBk679Xtc8S8P20qbQuAjd0/NwR80yM/AnLtJwO/3A+3G1zl3N8ZmHTrmwxevX7G/irBdzAZrcn8qXMxBc3uAokdKTN0slRruO1hLXuHCaNpU4kXgK2nuVJU2l1gPsTAJIgHHQOzlEubwQQR2BuAoWq5TkAEC36ENiKuJsJDaUq+hiaD1/hn7M4CkGgCoBcrAjLtBaiKCY/mVsmJfynrlgbmLStOWbdvM9HbdExOeGoY1sZVpvzj7KS8cfQGpud/Ss045ZNXMeXW6zs4EKqyv83kAw3DfWu/e4DORdWsQYCelN82lgaiXamYcnTRPtzdY9cJITJMUiRtyv3LNnZPNgxBD2YFWl9fUr4sCnREZ/R84GdE3F8ZUM48NzDnnpR9Bvunpq3LZY1eMUq4d2Ibi9m7YKojUIqZlUJ9AIuYdzLwlNkfzZjrPpRcDm6H5khuswRucNaXowtCoiIfHHjZh4mlmr+sBRvW7Q4hmDNx5WapKSoLWAritv8GHrEvkoqlHR4AAAAASUVORK5CYII=);
+          }
+        }
+      }
     }
   }
+
   .zoomControl {
     position: absolute;
     right: 20px;

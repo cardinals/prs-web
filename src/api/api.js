@@ -25,3 +25,5 @@ export const tipsCN = (params) => get(`${baseUrl}/SuggestTips`, params)
 export const tipsEN = (params) => get(`${baseUrl}/SuggestTips`, params)
 // 人物关系
 export const relation = (params) => get(`${baseUrl}/PersonRelationships`, params)
+// 查询记录
+export const queryLogs = (params) => post(`${baseUrl}/QueryLogs`, params)
