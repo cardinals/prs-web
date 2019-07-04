@@ -16,8 +16,8 @@
     <!-- 相关搜索 -->
     <div v-if="true" class="searchCondition">
       <span class="label">相关搜索</span>
-      <span class="searchTags" v-for="(item, index) in treeData.aboutSearch" :key="index" @click="goAboutSearch(item)">
-        {{item}}
+      <span class="searchTags" v-for="(item, index) in treeData.aboutSearch" :key="index" @click="goAboutSearch(item)" :title="item">
+        {{item|aboutSearchFilter}}
       </span>
     </div>
     <!-- 内容区域 -->
@@ -74,7 +74,7 @@
                 </div>
                 <div class="info">
                   <div class="line1">
-                    <span class="name" @click="toDetail(item); log(item)"> {{ item.name }}</span>
+                    <span class="name" @click="toDetail(item); log(item)" :title="item.name"> {{ item.name|nameFilter }}</span>
                     <div class="img" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}"></div>
                     <div class="tags">
                       <div class="tag" v-for="(item,index) in item.tags" :key="index"> {{item.name}} </div>
@@ -167,7 +167,7 @@ const paramsMap = {
   homeAddress: (val) => { apiParams['juzhudi'] = val.nameid },
   tags: (val) => {
     if (apiParams['label'].indexOf(val.name) < 0) {
-      if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia') {
+      if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia' || val.type === 'fengxiandengji') {
         apiParams['label'].push(val.name.split(':')[1])
       } else {
         apiParams['label'].push(val.name)
@@ -242,6 +242,20 @@ export default {
     }
   },
   filters: {
+    aboutSearchFilter (val) {
+      if (val.length > 5) {
+        return val.substring(0, 4) + '...'
+      } else {
+        return val
+      }
+    },
+    nameFilter (val) {
+      if (val.length > 5) {
+        return val.substring(0, 4) + '...'
+      } else {
+        return val
+      }
+    },
     labelFilter (val) {
       if (val.length > 10) {
         return val.substring(0, 10) + '...'
@@ -288,8 +302,6 @@ export default {
         querytype: this.$route.params.searchType,
         g_id: item.personId,
         name: item.name
-      }).then(res => {
-        console.log(res.code)
       })
     },
     // 去人物信息页
@@ -363,11 +375,8 @@ export default {
         this.keywordArr = []
         this.apiParamsClear()
       } else {
-        console.log(val.type, val.name)
-        console.log(this.indexOfKeywordArr(val.type, val))
-        console.log(this.keywordArr)
         this.keywordArr.splice(this.indexOfKeywordArr(val.type, val), 1)
-        if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0) {
+        if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0 || val.name.indexOf('风险等级:') === 0) {
           val.name = val.name.split(':')[1]
         }
         delParamsMap[val.type](val.name)
