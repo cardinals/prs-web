@@ -9,6 +9,7 @@ import headerCom from '@/components/common/header'
 import footerCom from '@/components/common/footer'
 import goTop from '@/components/common/goTop'
 import upsideDownRoll from '@/components/common/upsideDownRoll'
+import dateCheck from '@/components/common/dateCheck'
 
 export default {
   install: function (vue) {
@@ -16,5 +17,6 @@ export default {
     vue.component('footerCom', footerCom)
     vue.component('goTop', goTop)
     vue.component('upsideDownRoll', upsideDownRoll)
+    vue.component('dateCheck', dateCheck)
   }
 }
