@@ -123,7 +123,6 @@ export default {
   },
   watch: {
     dateDefault (newVal, oldVal) {
-      console.log(newVal)
       this.dateChange(newVal)
     }
   },
