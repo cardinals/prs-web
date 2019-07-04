@@ -6,8 +6,8 @@
       <transition-group name="rotate">
         <div class="buttons" v-for="(value, index) in keywordArr" :key="`button${index}`">
           <span :class="value.type" class="typeIcon"></span>
-          <span class="span">{{value.name|cantOver}}</span>
-          <span class="iconx" @click="deleteKeyword(value)">×</span>
+          <span class="span" :class="{'firstTag': value.type ==='searchVal'}">{{value.name|cantOver}}</span>
+          <span class="iconx" v-if="value.type !=='searchVal'" @click="deleteKeyword(value)" >×</span>
         </div>
       </transition-group>
       <div @click="resetAll" class="reset" v-if="keywordArr.length!==0">重置条件</div>
