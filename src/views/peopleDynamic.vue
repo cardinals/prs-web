@@ -57,25 +57,7 @@
     <div class="peopleDynamic">
       <div class="title">
         <span class="name">人员动态</span>
-        <div class="dataSelect">
-          <span :class="{'checked': dataDefault === 'all'}" @click="dataChange('all')">全部</span>
-          <span :class="{'checked': dataDefault === 'today'}" @click="dataChange('today')">今日</span>
-          <span :class="{'checked': dataDefault === 'week'}" @click="dataChange('week')">本周</span>
-          <span :class="{'checked': dataDefault === 'month'}" @click="dataChange('month')">本月</span>
-          <span :class="{'checked': dataDefault === 'year'}" @click="dataChange('year')">今年</span>
-        </div>
-        <div class="dataPicker">
-          <el-date-picker
-            v-model="dataPicked"
-            format="yyyy/M/d"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            value-format="yyyy-MM-dd"
-            @change="dataChanged">
-          </el-date-picker>
-        </div>
+        <dateCheck @dateReturn="dateReturn" :dateDefault="dateDefault" />
       </div>
       <div class="content">
         <div class="resultTable">
@@ -96,7 +78,6 @@
         </div>
       </div>
     </div>
-    <!-- <div @click="dateMap=['2019/1/1', '2019-/12/1']">gergergr</div> -->
   </div>
 </template>
 <script>
@@ -105,14 +86,6 @@ import { mapActions } from 'vuex'
 // api参数
 let apiParams = {}
 // 获得基于今日往前若干天或往后若干天的日期
-let getDay = day => {
-  let today = new Date()
-  let targetdayMilliseconds = today.getTime() + 1000 * 60 * 60 * 24 * day
-  today.setTime(targetdayMilliseconds)
-  let mm = (today.getMonth() + 1) >= 10 ? (today.getMonth() + 1) : '0' + (today.getMonth() + 1)
-  let dd = today.getDate() >= 10 ? today.getDate() : '0' + today.getDate()
-  return today.getFullYear() + '-' + mm + '-' + dd
-}
 export default {
   name: 'dynamic',
   data () {
@@ -122,59 +95,10 @@ export default {
       allData: { fengxianlx: [], huodonglx: [] }, // 页面数据
       activeChecked: 0, // 活动类型选择
       dangerChecked: -1, // 风险类型选择
-      dataDefault: 'year', // 默认日期选择
+      dateDefault: '本年', // 默认日期选择
       dataPicked: [], // 日期选择器绑定数值
-      currentPage: 1,
-
-      // 选择不同的日期选项，日期选择器发生相应的变化
-      dateMap: {
-        all: () => {
-          apiParams.timestart = 'all'
-          this.dataPicked = []
-          this.dataPicked.push(new Date().getFullYear() - 100 + '/1/1')
-          this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate())
-        },
-        today: () => {
-          let year = new Date().getFullYear()
-          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
-          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
-          apiParams.timestart = year + '-' + month + '-' + day
-          apiParams.timeend = year + '-' + month + '-' + day
-          this.dataPicked = []
-          this.dataPicked.push(apiParams.timestart)
-          this.dataPicked.push(apiParams.timeend)
-        },
-        week: () => {
-          let year = new Date().getFullYear()
-          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
-          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
-          apiParams.timestart = getDay(-new Date().getDay() + 1)
-          apiParams.timeend = year + '-' + month + '-' + day
-          this.dataPicked = []
-          this.dataPicked.push(apiParams.timestart)
-          this.dataPicked.push(apiParams.timeend)
-        },
-        month: () => {
-          let year = new Date().getFullYear()
-          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
-          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
-          // apiParams.timestart = getDay(-30)
-          apiParams.timestart = year + '-' + month + '-01'
-          apiParams.timeend = year + '-' + month + '-' + day
-          this.dataPicked = []
-          this.dataPicked.push(new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-01')
-          this.dataPicked.push(apiParams.timeend)
-        },
-        year: () => {
-          let month = (new Date().getMonth() + 1) >= 10 ? (new Date().getMonth() + 1) : '0' + (new Date().getMonth() + 1)
-          let day = new Date().getDate() >= 10 ? new Date().getDate() : '0' + new Date().getDate()
-          apiParams.timestart = new Date().getFullYear() + '-01-01'
-          apiParams.timeend = new Date().getFullYear() + '-' + month + '-' + day
-          this.dataPicked = []
-          this.dataPicked.push(apiParams.timestart)
-          this.dataPicked.push(apiParams.timeend)
-        }
-      }
+      currentPage: 1, // 当前页码
+      firstLoad: true // 是否第一次加载
     }
   },
   computed: {
@@ -221,14 +145,16 @@ export default {
       if (val === -1) {
         apiParams.flag = '1'
         apiParams.fengxianlx = ''
+        if (type !== 'noRequest') this.getDynamic()
       } else if (val === 0) {
         apiParams.flag = '2'
         apiParams.fengxianlx = 'unnormal'
+        this.getDynamic()
       } else {
         apiParams.flag = '2'
         apiParams.fengxianlx = type
+        this.getDynamic()
       }
-      this.getDynamic()
       if (this.isOpen_danger) {
         let _this = this
         if (val >= 0) {
@@ -249,16 +175,11 @@ export default {
         return 'color: rgba(255,169,83,1)'
       }
     },
-    //  日期选项改变之后重新请求数据
-    dataChange (val) {
-      this.dataDefault = val
-      this.dateMap[val]()
-      this.getDynamic()
-    },
     // 仅显示异常
     onlyDanger () {
+      this.changeShowMsg(false)
       apiParams.flag = '2'
-      this.dataDefault = 'all'
+      this.dateDefault = 'all'
       apiParams.timestart = 'all'
       getDynamic(apiParams).then(res => {
         this.allData = res.data
@@ -277,33 +198,28 @@ export default {
       }
       this.getDynamic()
     },
-    // 日期选择器日期改变之后的相关操作
-    dataChanged (val) {
-      this.dataDefault = 'hahaha'
-      apiParams.timestart = val[0]
-      apiParams.timeend = val[1]
-      this.getDynamic()
-    },
+    // 请求接口数据
     getDynamic () {
       apiParams.pagenumber = 1
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
     },
+    // 点击页码重新请求数据
     currentChange (val) {
       apiParams.pagenumber = val
       getDynamic(apiParams).then(res => {
         this.allData = res.data
       })
     },
-    init (status) {
-      let nowTime = new Date()
-      if (!status) {
-        this.dataPicked.push(nowTime.getFullYear() + '/01/01')
-        this.dataPicked.push(nowTime.getFullYear() + '/' + (nowTime.getMonth() + 1) + '/' + nowTime.getDate())
-      }
+    // 时间选择器组件返回的当前选取的时间值
+    dateReturn (date) {
+      this.dataPicked = date
+    },
+    // 初始化接口参数，请求数据
+    init () {
       apiParams.g_id = this.$route.params.personId
-      apiParams.timeend = nowTime.getFullYear() + '-' + (nowTime.getMonth() + 1) + '-' + nowTime.getDate()
+      apiParams.timeend = this.dataPicked[1]
       apiParams.pagecapacity = 8
       apiParams.pagenumber = 1
       apiParams.huodonglx = ''
@@ -311,36 +227,51 @@ export default {
       if (this.$route.params.type === 'err') {
         apiParams.flag = '2'
         apiParams.timestart = 'all'
-        this.dataDefault = 'all'
+        this.dateDefault = '全部'
         this.dangerChecked = 0
       } else {
         apiParams.flag = '1'
-        apiParams.timestart = nowTime.getFullYear() + '-01-01'
+        apiParams.timestart = new Date().getFullYear() + '-01-01'
       }
       this.getDynamic()
     }
   },
   watch: {
-    fengxianlx (newVal, oldVal) {
-      if (oldVal && oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
-        this.filterControl(-1)
+    // 监控时间选择器的日期变化
+    dataPicked (newVal, oldVal) {
+      apiParams.timestart = newVal[0] === '1919-01-01' ? 'all' : newVal[0]
+      apiParams.timeend = newVal[1]
+      apiParams.flag = '1'
+      apiParams.huodonglx = ''
+      apiParams.fengxianlx = ''
+      apiParams.pagenumber = 1
+      if (!this.firstLoad) {
+        this.getDynamic()
+      } else {
+        this.firstLoad = false
       }
     },
+    // 监控风险类型的变化
+    fengxianlx (newVal, oldVal) {
+      if (oldVal && oldVal.length !== 0 && (newVal !== oldVal) && (newVal.length === 0)) {
+        this.filterControl(-1, 'noRequest')
+      }
+    },
+    // 监控路由变化
     $route: {
       handler: function (val, oldVal) {
         if (val.params.type === 'err') {
-          this.dataDefault = 'all'
-          this.dateMap.all()
+          this.dateDefault = '全部'
         } else {
-          this.dataDefault = 'year'
-          this.dateMap.year()
+          this.dateDefault = '本年'
         }
-        this.init(true)
+        this.init()
       },
       deep: true
     }
   },
   mounted () {
+    this.dateDefault = this.$route.params.type === 'err' ? '全部' : '本年'
     this.init()
   }
 }
