@@ -395,12 +395,11 @@ export default {
       this.searchListInit()
     },
     // 搜索结果列表初始化
-    searchListInit () {
+    async searchListInit () {
       apiParams['pagenumber'] = this.currentPage
-      getListData(apiParams).then(res => {
-        this.treeData = res.data.result_tree || {}
-        this.listData = res.data.result_list || null
-      })
+      let res = await getListData(apiParams)
+      this.treeData = res.data.result_tree || {}
+      this.listData = res.data.result_list || null
     }
   },
   mounted () {
@@ -412,7 +411,6 @@ export default {
     this.$store.commit('header/changeSearchVal', this.$route.params.searchVal)
     apiParams['query'] = this.$route.params.searchVal
     apiParams['querytype'] = this.$route.params.searchType
-    // this.searchListInit()
   }
 }
 </script>
