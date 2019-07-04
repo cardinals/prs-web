@@ -363,7 +363,10 @@ export default {
         this.keywordArr = []
         this.apiParamsClear()
       } else {
-        this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
+        console.log(val.type, val.name)
+        console.log(this.indexOfKeywordArr(val.type, val))
+        console.log(this.keywordArr)
+        this.keywordArr.splice(this.indexOfKeywordArr(val.type, val), 1)
         if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0) {
           val.name = val.name.split(':')[1]
         }
