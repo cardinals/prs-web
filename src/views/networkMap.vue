@@ -132,7 +132,9 @@ export default {
           }
         }
       ],
-      test: false
+      firstLoad: true,
+      nodeLegends: [],
+      edgeLegends: []
     }
   },
   props: {
@@ -189,12 +191,12 @@ export default {
   },
   watch: {
     onlyErr: function (newVal, oldVal) {
-      if (newVal) {
+      if (this.firstLoad) {
+        this.firstLoad = false
+      } else if (newVal) {
         this.showAbnormal()
-      } else if (this.test) {
-        this.showAll()
       } else {
-        this.test = true
+        this.showAll()
       }
     }
   },
@@ -660,9 +662,7 @@ export default {
     },
     clickPerson (e) {
       let id = e.item.getModel().personId
-      console.log('zhang ')
       if (id !== '') {
-        console.log('fewffew')
         relation({
           g_id: id,
           flag: id !== this.$route.params.personId ? 1 : 2
@@ -710,6 +710,30 @@ export default {
       }
       this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
       this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
+    },
+    initLegends (data) {
+      let nodesSet = new Set()
+      let edgesSet = new Set()
+      data.nodes.forEach(ele => {
+        nodesSet.add(ele.shape)
+      })
+      data.edges.forEach(ele => {
+        edgesSet.add(ele.shape)
+      })
+      nodesSet.forEach(ele => {
+        this.cusNodes.forEach(eles => {
+          if (eles.name === ele) {
+            this.nodeLegends.push({ name: ele, fill: eles.fill })
+          }
+        })
+      })
+      edgesSet.forEach(ele => {
+        this.cusEdges.forEach(eles => {
+          if (eles.name === ele) {
+            this.edgeLegends.push({ name: ele, fill: eles.fill })
+          }
+        })
+      })
     }
   },
   created () {
@@ -722,6 +746,7 @@ export default {
       flag: 2
     }).then(res => {
       this.G6Data = res.data
+      this.initLegends(this.G6Data)
       this.createGraph('container')
       this.init()
       if (this.onlyErr) {
