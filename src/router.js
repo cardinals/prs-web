@@ -16,38 +16,33 @@ export default new Router({
       component: () => import('./views/home.vue')
     },
     {
-      path: '/searchList/:type/:val',
+      path: '/searchList/:searchType/:searchVal',
       name: 'searchList',
       component: () => import('./views/searchList.vue')
     },
     {
-      path: '/detail/:people/',
+      path: '/detail/:personId/',
       name: 'detail',
-      redirect: '/detail/:people/info',
+      redirect: '/detail/:personId/info',
       component: () => import('./views/peopleDetailContainer.vue'),
       children: [
         {
-          path: '/detail/:people/info',
+          path: '/detail/:personId/info',
           name: 'info',
           component: () => import('./views/peopleInfo.vue')
         },
         {
-          path: '/detail/:people/peoplePath',
+          path: '/detail/:personId/peoplePath/:type',
           name: 'peoplePath',
           component: () => import('./views/peoplePath.vue')
         },
         {
-          path: '/detail/:people/dynamic',
+          path: '/detail/:personId/dynamic/:type',
           name: 'dynamic',
           component: () => import('./views/peopleDynamic.vue')
         },
         {
-          path: '/detail/:people/dynamic/:showNormal',
-          name: 'dynamic',
-          component: () => import('./views/peopleDynamic.vue')
-        },
-        {
-          path: '/detail/:people/relationship',
+          path: '/detail/:personId/relationship/:type',
           name: 'relationship',
           component: () => import('./views/peopleRelationship.vue')
         }

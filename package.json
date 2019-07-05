@@ -1,11 +1,11 @@
 {
-  "name": "search4personfile",
+  "name": "prs-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-image": "yarn build && docker build -t nginx/search-personfile:latest ./docker",
+    "build-image": "yarn build && docker build -t 192.168.93.172/ej_ds_prs/prs-web:latest ./docker",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -13,6 +13,7 @@
     "@antv/util": "^2.0.3",
     "axios": "^0.18.0",
     "core-js": "^2.6.5",
+    "d3": "^5.9.2",
     "element-ui": "^2.8.2",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",

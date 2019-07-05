@@ -57,9 +57,9 @@
                 </div>
                 <!-- 卡片脚部 -->
                 <!-- upsideDownRoll 为自定义的组件，里面的内容放置在组件的默认插槽中 -->
-                <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length - 1" :id="item.personId+''">
+                <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length" :id="item.personId+''">
                   <div class="cardFooter" v-for="(value, key) in abnormalFilter(item.abnormal)" :key="key">
-                    近期共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
+                    近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
                   </div>
                 </upsideDownRoll>
               </div>
@@ -76,6 +76,7 @@
 import { mapState, mapMutations, mapActions } from 'vuex'
 import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
 import { Message } from 'element-ui'
+import changePage from '@/components/mixins/changePage'
 // 异常中英文名称映射
 let abnormalMap = {
   abnormalRelation: '异常关系',
@@ -95,6 +96,7 @@ export default {
       placeholder: '请输入人名、身份证号(最少2位)、电话号码(最少3位)'
     }
   },
+  mixins: [changePage.getMixin()],
   computed: {
     ...mapState('header', {
       ifLogin: state => state.ifLogin
@@ -102,8 +104,10 @@ export default {
   },
   methods: {
     // 改变异常动态页的通知栏状态
-    ...mapActions('dynamic', {
-      changeShowMsg: 'changeShowMsg'
+    ...mapActions({
+      changeShowMsg: 'dynamic/changeShowMsg',
+      RechangeShowMsg: 'relation/changeShowMsg',
+      PathchangeShowMsg: 'path/changeShowMsg'
     }),
     // 左按钮
     moveLeft () {
@@ -192,15 +196,6 @@ export default {
         if (arr[key] !== 0) res[key] = arr[key]
       }
       return res
-    },
-    // 跳转至异常页
-    goAbnormalPage (key, val) {
-      let routeUrl = {
-        abnormalDynamic: this.$router.resolve({ path: `/detail/${val}/dynamic/all` }),
-        abnormalRelation: this.$router.resolve({ path: `/detail/${val}/relationship/all` }),
-        abnormalTrail: this.$router.resolve({ path: `/detail/${val}/peoplePath/all` })
-      }
-      window.open(routeUrl[key].href, '_blank')
     }
   },
   filters: {

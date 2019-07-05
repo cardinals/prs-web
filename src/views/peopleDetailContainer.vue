@@ -12,7 +12,7 @@
           <div class="photo" :class="genderClass()" @click="goInfo"></div>
         </div>
         <div class="info">
-          <span class="name" :class="genderClass()"  @click="goInfo">{{peopleBasicInfo.basicInfo.name}}</span>
+          <span class="name" :class="genderClass()"  @click="goInfo" :title="peopleBasicInfo.basicInfo.name">{{peopleBasicInfo.basicInfo.name|nameFilter}}</span>
           <br>
           <span class="idNumber" :style="peopleBasicInfo.basicInfo.idNumber === '' ? 'color:#989A9F' : ''">{{peopleBasicInfo.basicInfo.idNumber|idFormat}}</span>
           <div class="tagsContainer">
@@ -23,9 +23,17 @@
       <!-- 风险预警 -->
       <div class="title">风险预警</div>
       <div class="riskWarning">
-        <div class="abnormal" v-for="(value, key) in peopleBasicInfo.riskWarn" :key="key" :class="key">
-          <span @click="goAbnormal(key)"> {{key|keyFormat}}: </span>
-          <span> {{value}}项 </span>
+        <div class="abnormal abnormalDynamic">
+          <span @click="goAbnormal('abnormalDynamic')"> 异常动态: </span>
+          <span> {{peopleBasicInfo.riskWarn.abnormalDynamic}}项 </span>
+        </div>
+         <div class="abnormal abnormalTrail">
+          <span @click="goAbnormal('abnormalTrail')"> 异常轨迹: </span>
+          <span> {{peopleBasicInfo.riskWarn.abnormalTrail}}项 </span>
+        </div>
+         <div class="abnormal abnormalRelation" >
+          <span @click="goAbnormal('abnormalRelation')"> 异常关系: </span>
+          <span> {{peopleBasicInfo.riskWarn.abnormalRelation}}项 </span>
         </div>
       </div>
       <!-- 特征标签 -->
@@ -73,17 +81,22 @@ export default {
     }
   },
   methods: {
-    ...mapActions('dynamic', {
-      changeShowMsg: 'changeShowMsg',
-      changeDyNum: 'changeDyNum',
-      changePeopleName: 'changePeopleName'
+    ...mapActions({
+      changeShowMsg: 'dynamic/changeShowMsg',
+      changeDyNum: 'dynamic/changeDyNum',
+      changePeopleName: 'dynamic/changePeopleName',
+      changeShowMsgRe: 'relation/changeShowMsg',
+      changeDyNumRe: 'relation/changeDyNum',
+      changePeopleNameRe: 'relation/changePeopleName'
     }),
     // 获取基本信息数据
     async getbasicInfo () {
-      let res = await getbasicInfo({ g_id: this.$route.params.people })
+      let res = await getbasicInfo({ g_id: this.$route.params.personId })
       this.peopleBasicInfo = res.data
       this.changeDyNum(res.data.riskWarn.abnormalDynamic)
+      this.changeDyNumRe(res.data.riskWarn.abnormalRelation)
       this.changePeopleName(res.data.basicInfo.name)
+      this.changePeopleNameRe(res.data.basicInfo.name)
     },
     // 性别class控制
     genderClass () {
@@ -94,27 +107,31 @@ export default {
     // 导航点击跳转
     menuClick (msg) {
       this.menuChoice = msg
-      this.$router.push('/detail/' + this.$route.params.people + '/' + msg)
+      if (msg !== 'info') {
+        this.$router.replace('/detail/' + this.$route.params.personId + '/' + msg + '/all')
+      } else {
+        this.$router.replace('/detail/' + this.$route.params.personId + '/' + msg)
+      }
     },
     // 风险预警点击跳转
     goAbnormal (val) {
-      let id = this.$route.params.people
+      let id = this.$route.params.personId
       if (val === 'abnormalRelation') {
-        this.$router.push('/detail/' + id + '/relationship/all')
+        this.$router.replace('/detail/' + id + '/relationship/err')
         this.menuChoice = 'relationship'
       }
       if (val === 'abnormalDynamic') {
-        this.$router.push('/detail/' + id + '/dynamic/all')
+        this.$router.replace('/detail/' + id + '/dynamic/err')
         this.menuChoice = 'dynamic'
       }
       if (val === 'abnormalTrail') {
-        this.$router.push('/detail/' + id + '/peoplePath/all')
+        this.$router.replace('/detail/' + id + '/peoplePath/err')
         this.menuChoice = 'peoplePath'
       }
     },
     // 人物头像及名称点击跳转
     goInfo () {
-      this.$router.push('/detail/' + this.$route.params.people + '/info')
+      this.$router.replace('/detail/' + this.$route.params.personId + '/info')
       this.menuChoice = 'info'
     }
   },
@@ -127,13 +144,22 @@ export default {
       return abnormalMap[val]
     },
     tagFilter (val) {
+      if (!val) return val
       return val.length > 9 ? val.substring(0, 9) + '...' : val
+    },
+    nameFilter (val) {
+      if (!val) return val
+      if (val.length >= 5) {
+        return val.substring(0, 4) + '...'
+      }
+      return val
     }
   },
   mounted () {
     this.getbasicInfo()
     this.menuChoice = this.$route.path.split('/')[this.$route.path.split('/').length - 1]
     this.changeShowMsg(true)
+    this.changeShowMsgRe(true)
     this.menuChoice = this.$route.name
   }
 }
