@@ -194,9 +194,7 @@ export default {
   },
   watch: {
     onlyErr: function (newVal, oldVal) {
-      if (this.firstLoad) {
-        this.firstLoad = false
-      } else if (newVal) {
+      if (newVal) {
         this.showAbnormal()
       } else {
         this.showAll()

@@ -31,7 +31,6 @@ export default {
   },
   data () {
     return {
-      onlyErr: false,
       onlyAbnormal: false
     }
   },
