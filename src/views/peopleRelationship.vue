@@ -17,7 +17,6 @@
         <div class="graphicContainer">
           <relation @my-event="myEvent" :onlyErr="onlyAbnormal" />
         </div>
-        <!-- <button @click="myEvent1">fefe</button> -->
       </div>
     </div>
   </div>
@@ -32,7 +31,6 @@ export default {
   },
   data () {
     return {
-      onlyErr: false,
       onlyAbnormal: false
     }
   },
@@ -63,13 +61,11 @@ export default {
       changeShowMsg: 'changeShowMsg'
     }),
     onlyDanger () {
+      this.changeShowMsg(false)
       this.onlyAbnormal = true
     },
     myEvent (ss) {
       ss.get('nodes')[0].enableCapture(false)
-    },
-    myEvent1 () {
-      this.onlyErr = !this.onlyErr
     }
   },
   mounted () {
