@@ -23,9 +23,17 @@
       <!-- 风险预警 -->
       <div class="title">风险预警</div>
       <div class="riskWarning">
-        <div class="abnormal" v-for="(value, key) in peopleBasicInfo.riskWarn" :key="key" :class="key">
-          <span @click="goAbnormal(key)"> {{key|keyFormat}}: </span>
-          <span> {{value}}项 </span>
+        <div class="abnormal abnormalDynamic">
+          <span @click="goAbnormal('abnormalDynamic')"> 异常动态: </span>
+          <span> {{peopleBasicInfo.riskWarn.abnormalDynamic}}项 </span>
+        </div>
+         <div class="abnormal abnormalTrail">
+          <span @click="goAbnormal('abnormalTrail')"> 异常轨迹: </span>
+          <span> {{peopleBasicInfo.riskWarn.abnormalTrail}}项 </span>
+        </div>
+         <div class="abnormal abnormalRelation" >
+          <span @click="goAbnormal('abnormalRelation')"> 异常关系: </span>
+          <span> {{peopleBasicInfo.riskWarn.abnormalRelation}}项 </span>
         </div>
       </div>
       <!-- 特征标签 -->
