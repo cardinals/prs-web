@@ -257,6 +257,7 @@ export default {
     },
     // 仅显示异常
     onlyDanger () {
+      this.changeShowMsg(false)
       apiParams.flag = '2'
       this.dataDefault = 'all'
       apiParams.timestart = 'all'

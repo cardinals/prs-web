@@ -10,7 +10,7 @@
     </div>
     <div class="peopleRelation">
       <div class="title">
-        <span class="name">人员动态</span>
+        <span class="name">人物关系</span>
         <el-checkbox v-model="onlyAbnormal">只看异常</el-checkbox>
       </div>
       <div class="content">
