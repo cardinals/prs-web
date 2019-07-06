@@ -48,18 +48,18 @@
               <div class="peopleInfoCard" v-for="(item, index) in cardContent" :key="index" style="font-size:30px;" >
                 <!-- 卡片内容 -->
                 <div class="content flexColumn">
-                  <div class="photo" @click="goPeopleInfo(item.name, item.personId)">
+                  <div class="photo" @click="goPeopleInfo(item)">
                     <!-- <img :src="pictureData[item.personId]" v-if="pictureData[item.personId]"> -->
                     <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" v-if="true"></div>
                   </div>
-                  <div class="name" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" @click="goPeopleInfo(item.name, item.personId)">{{ item.name }}</div>
+                  <div class="name" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" @click="goPeopleInfo(item)">{{ item.name }}</div>
                   <div class="type"> {{ item.peopleType }} </div>
                 </div>
                 <!-- 卡片脚部 -->
                 <!-- upsideDownRoll 为自定义的组件，里面的内容放置在组件的默认插槽中 -->
                 <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length" :id="item.personId+''">
                   <div class="cardFooter" v-for="(value, key) in abnormalFilter(item.abnormal)" :key="key">
-                    近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
+                    近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId); log(item)"> {{ key|keyTranslation }}</span>
                   </div>
                 </upsideDownRoll>
               </div>
@@ -74,7 +74,7 @@
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
+import { tipsCN, tipsEN, latestNews, queryLogs } from '@/api/api.js'
 import { Message } from 'element-ui'
 import changePage from '@/components/mixins/changePage'
 // 异常中英文名称映射
@@ -185,8 +185,9 @@ export default {
       }
     },
     // 跳转至人物信息页
-    goPeopleInfo (name, id) {
-      let routeUrl = this.$router.resolve({ path: `/detail/${id}/info` })
+    goPeopleInfo (item) {
+      this.log(item)
+      let routeUrl = this.$router.resolve({ path: `/detail/${item.personId}/info` })
       window.open(routeUrl.href, '_blank')
     },
     // 将返回的接口数据中的异常动态、关系、轨迹中数量为0的去除
@@ -196,6 +197,16 @@ export default {
         if (arr[key] !== 0) res[key] = arr[key]
       }
       return res
+    },
+    log (item) {
+      queryLogs(
+        {
+          g_id: item.personId,
+          querytype: this.searchType,
+          name: item.name,
+          querycontent: ''
+        }
+      )
     }
   },
   filters: {

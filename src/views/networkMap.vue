@@ -312,11 +312,16 @@ export default {
         autoPaint: false,
         modes: {
           default: ['drag-canvas',
-            // {
-            //   type: 'activate-relations',
-            //   activeState: 'highlight',
-            //   inactiveState: 'dark'
-            // },
+            {
+              type: 'tooltip',
+              formatText (model) {
+                if (model.label.length > 5) {
+                  return model.label
+                } else {
+                  return ''
+                }
+              }
+            },
             'zoom-canvas',
             'drag-node']
         },
@@ -519,7 +524,7 @@ export default {
                     textAlign: cusNode.labelStyle.textAlign,
                     textBaseline: cusNode.labelStyle.textBaseline,
                     fontSize: cusNode.labelStyle.fontSize,
-                    text: cfg.label,
+                    text: cfg.label.length > 5 ? cfg.label.substring(0, 4) + '...' : cfg.label,
                     fill: cusNode.labelStyle.fill,
                     opacity: cusNode.labelStyle.opacity
                   }
@@ -532,7 +537,7 @@ export default {
                     textAlign: 'center',
                     textBaseline: 'middle',
                     fontSize: 14,
-                    text: cfg.label,
+                    text: cfg.label.length > 5 ? cfg.label.substring(0, 4) + '...' : cfg.label,
                     fill: '#fff',
                     opacity: 1
                   }

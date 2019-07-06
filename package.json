@@ -16,6 +16,7 @@
     "d3": "^5.9.2",
     "element-ui": "^2.8.2",
     "vue": "^2.6.10",
+    "vue-mapboxgl-components": "^1.2.1",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"
   },

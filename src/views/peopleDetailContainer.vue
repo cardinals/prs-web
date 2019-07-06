@@ -79,7 +79,10 @@ export default {
       changePeopleName: 'dynamic/changePeopleName',
       changeShowMsgRe: 'relation/changeShowMsg',
       changeDyNumRe: 'relation/changeDyNum',
-      changePeopleNameRe: 'relation/changePeopleName'
+      changePeopleNameRe: 'relation/changePeopleName',
+      changeShowMsgPath: 'path/changeShowMsg',
+      changeDyNumPath: 'path/changeDyNum',
+      changePeopleNamePath: 'path/changePeopleName'
     }),
     // 获取基本信息数据
     async getbasicInfo () {
@@ -87,8 +90,10 @@ export default {
       this.peopleBasicInfo = res.data
       this.changeDyNum(res.data.riskWarn.abnormalDynamic)
       this.changeDyNumRe(res.data.riskWarn.abnormalRelation)
+      this.changeDyNumPath(res.data.riskWarn.abnormalTrail)
       this.changePeopleName(res.data.basicInfo.name)
       this.changePeopleNameRe(res.data.basicInfo.name)
+      this.changePeopleNamePath(res.data.basicInfo.name)
     },
     // 性别class控制
     genderClass () {
@@ -152,6 +157,7 @@ export default {
     this.menuChoice = this.$route.path.split('/')[this.$route.path.split('/').length - 1]
     this.changeShowMsg(true)
     this.changeShowMsgRe(true)
+    this.changeShowMsgPath(true)
     this.menuChoice = this.$route.name
   }
 }
