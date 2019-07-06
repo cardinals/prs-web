@@ -3,20 +3,20 @@
     <div id="container">
       <div class="nodeLegends">
         <div class="nodeLegend"
-          v-for="(item, index) in cusNodes"
+          v-for="(item, index) in nodeLegends"
           :key="index"
           :class="{'noChecked': !item.checked}"
-          @click="changeNodeStatu(index)">
+          @click="changeNodeLegendStatu(index)">
           <div class="legend" :style="`background: ${item.fill}`"></div>
           <div class="text"> {{item.name}} </div>
         </div>
       </div>
       <div class="edgeLegends">
         <div class="edgeLegend"
-          v-for="(item, index) in cusEdges"
+          v-for="(item, index) in edgeLegends"
           :key="index"
           :class="{'noChecked': !item.checked}"
-          @click="changeEdgeStatu(index)">
+          @click="changeEdgeLegendsStatu(index)">
           <div class="legend" :style="`background: ${item.fill}`"></div>
           <div class="text"> {{item.name}} </div>
         </div>
@@ -124,21 +124,26 @@ export default {
       cusEdges: [
         {
           name: '亲属',
-          fill: 'rgba(56,122,238,1)'
+          fill: '#75be43',
+          lineWidth: 2
         },
         {
           name: '重点',
-          fill: 'rgba(240,63,64,1)'
+          fill: 'rgba(240,63,64,1)',
+          lineWidth: 2
         },
         {
           name: '其他',
-          fill: 'rgba(35,179,215,1)',
+          fill: '#387aee',
+          lineWidth: 2,
           labelStyle: {
             stroke: '#F9F9F9'
           }
         }
       ],
-      test: false
+      firstLoad: true,
+      nodeLegends: [],
+      edgeLegends: []
     }
   },
   props: {
@@ -197,10 +202,8 @@ export default {
     onlyErr: function (newVal, oldVal) {
       if (graph.findAll && newVal) {
         this.showAbnormal()
-      } else if (this.test) {
-        this.showAll()
       } else {
-        this.test = true
+        this.showAll()
       }
     }
   },
@@ -218,15 +221,15 @@ export default {
         }
       })
     },
-    changeNodeStatu (index) {
-      this.cusNodes[index].checked = !this.cusNodes[index].checked
-      let shape = this.cusNodes[index].name
+    changeNodeLegendStatu (index) {
+      this.nodeLegends[index].checked = !this.nodeLegends[index].checked
+      let shape = this.nodeLegends[index].name
       let a = graph.findAll('node', node => {
         if (node.get('currentShape') === shape) {
           return node
         }
       })
-      if (!this.cusNodes[index].checked) {
+      if (!this.nodeLegends[index].checked) {
         a.forEach(ele => {
           graph.hideItem(ele)
           graph.paint()
@@ -238,15 +241,15 @@ export default {
         })
       }
     },
-    changeEdgeStatu (index) {
-      this.cusEdges[index].checked = !this.cusEdges[index].checked
-      let shape = this.cusEdges[index].name
+    changeEdgeLegendsStatu (index) {
+      this.edgeLegends[index].checked = !this.edgeLegends[index].checked
+      let shape = this.edgeLegends[index].name
       let a = graph.findAll('edge', edge => {
         if (edge.get('currentShape') === shape) {
           return edge
         }
       })
-      if (!this.cusEdges[index].checked) {
+      if (!this.edgeLegends[index].checked) {
         a.forEach(ele => {
           graph.hideItem(ele)
           graph.paint()
@@ -337,7 +340,7 @@ export default {
           }
         },
         edgeStyle: {
-          default: { opacity: 0.5 },
+          default: { opacity: 0.6 },
           highlight: { opacity: 1 },
           dark: { opacity: 0.1 }
         }
@@ -633,7 +636,7 @@ export default {
           _this.addEdge.forEach(element => {
             element.update({
               style: {
-                opacity: 0.5
+                opacity: 0.6
               },
               labelCfg: {
                 autoRotate: true,
@@ -689,56 +692,60 @@ export default {
       }
     },
     showAbnormal () {
-      for (let i = 0; i < this.cusNodes.length; i++) {
-        if (this.cusNodes[i].name === '重点' || this.cusNodes[i].name === '本人') {
-          this.cusNodes[i].checked = false
+      for (let i = 0; i < this.nodeLegends.length; i++) {
+        if (this.nodeLegends[i].name === '重点' || this.nodeLegends[i].name === '本人') {
+          this.nodeLegends[i].checked = false
         } else {
-          this.cusNodes[i].checked = true
+          this.nodeLegends[i].checked = true
         }
-        this.changeNodeStatu(i)
+        this.changeNodeLegendStatu(i)
       }
-      for (let i = 0; i < this.cusEdges.length; i++) {
-        if (this.cusEdges[i].name === '重点') {
-          this.cusEdges[i].checked = false
+      console.log(this.nodeLegends)
+      for (let i = 0; i < this.edgeLegends.length; i++) {
+        if (this.edgeLegends[i].name === '重点') {
+          this.edgeLegends[i].checked = false
         } else {
-          this.cusEdges[i].checked = true
+          this.edgeLegends[i].checked = true
         }
-        this.changeEdgeStatu(i)
+        this.changeEdgeLegendsStatu(i)
       }
-      this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
-      this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
+      this.nodeLegends = JSON.parse(JSON.stringify(this.nodeLegends))
+      this.edgeLegends = JSON.parse(JSON.stringify(this.edgeLegends))
     },
     showAll () {
-      for (let i = 0; i < this.cusNodes.length; i++) {
-        this.cusNodes[i].checked = false
-        this.changeNodeStatu(i)
+      for (let i = 0; i < this.nodeLegends.length; i++) {
+        this.nodeLegends[i].checked = false
+        this.changeNodeLegendStatu(i)
       }
-      for (let i = 0; i < this.cusEdges.length; i++) {
-        this.cusEdges[i].checked = false
-        this.changeEdgeStatu(i)
+      for (let i = 0; i < this.edgeLegends.length; i++) {
+        this.edgeLegends[i].checked = false
+        this.changeEdgeLegendsStatu(i)
       }
-      this.cusNodes = JSON.parse(JSON.stringify(this.cusNodes))
-      this.cusEdges = JSON.parse(JSON.stringify(this.cusEdges))
+      this.nodeLegends = JSON.parse(JSON.stringify(this.nodeLegends))
+      this.edgeLegends = JSON.parse(JSON.stringify(this.edgeLegends))
     },
-    refreshPage () {
-      simulation.stop()
-      graph.destroy()
-      this.initPage()
-    },
-    initPage () {
-      let gIdd = this.$route.params.personId
-      relation({
-        g_id: gIdd,
-        flag: 2
-      }).then(res => {
-        this.G6Data = res.data
-        this.createGraph('container')
-        this.init()
-        if (this.onlyErr) {
-          this.showAbnormal()
-        } else {
-          this.showAll()
-        }
+    initLegends (data) {
+      let nodesSet = new Set()
+      let edgesSet = new Set()
+      data.nodes.forEach(ele => {
+        nodesSet.add(ele.shape)
+      })
+      data.edges.forEach(ele => {
+        edgesSet.add(ele.shape)
+      })
+      nodesSet.forEach(ele => {
+        this.cusNodes.forEach(eles => {
+          if (eles.name === ele) {
+            this.nodeLegends.push({ name: ele, fill: eles.fill })
+          }
+        })
+      })
+      edgesSet.forEach(ele => {
+        this.cusEdges.forEach(eles => {
+          if (eles.name === ele) {
+            this.edgeLegends.push({ name: ele, fill: eles.fill })
+          }
+        })
       })
     }
   },
@@ -746,7 +753,21 @@ export default {
 
   },
   mounted () {
-    this.initPage()
+    let gIdd = this.$route.params.personId
+    relation({
+      g_id: gIdd,
+      flag: 2
+    }).then(res => {
+      this.G6Data = res.data
+      this.initLegends(this.G6Data)
+      this.createGraph('container')
+      this.init()
+      if (this.onlyErr) {
+        this.showAbnormal()
+      } else {
+        this.showAll()
+      }
+    })
   },
   beforeDestroy () {
     simulation.stop()

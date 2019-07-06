@@ -1,11 +1,11 @@
 {
-  "name": "ej-ds-prs-web",
+  "name": "prs-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-image": "yarn build && docker build -t 192.168.93.172/ej_ds_prs/web:latest ./docker",
+    "build-image": "yarn build && docker build -t 192.168.93.172/ej_ds_prs/prs-web:latest ./docker",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

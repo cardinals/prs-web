@@ -2,7 +2,7 @@
  * @Author: wupeiwen javapeiwen2010@gmail.com
  * @Date: 2018-08-14 09:28:41
  * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2019-05-11 09:24:21
+ * @Last Modified time: 2019-07-04 14:13:34
  */
 
 import axios from 'axios'
@@ -24,12 +24,12 @@ axios.defaults.timeout = 20000
 axios.interceptors.request.use(
   config => {
     // 打开加载遮罩
-    if (!(config.url === '/SearchCase/xxx')) {
-      store.dispatch({ type: 'app/changeLoadingStatus', amount: false })
+    if ((config.url === '/SearchCase/SearchResults') || (config.url === '/SearchCase/PersonTrajectory')) {
+      store.dispatch({ type: 'app/changeLoadingStatus', amount: true })
     }
-    // 在http请求的header都加上token
-    const token = store.state.app.token || window.localStorage.getItem('token')
-    config.headers.token = token
+    // // 在http请求的header都加上token
+    // const token = store.state.app.token || window.localStorage.getItem('token')
+    // config.headers.token = token
     return config
   },
   error => {
@@ -41,7 +41,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => {
     // 关闭加载遮罩
-    if (!(response.config.url === '/SearchCase/xxx')) {
+    if ((response.config.url === '/SearchCase/SearchResults') || (response.config.url === '/SearchCase/PersonTrajectory')) {
       store.dispatch({ type: 'app/changeLoadingStatus', amount: false })
     }
     // 未登录状态跳转登录页
