@@ -23,12 +23,8 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import relation from './networkMap'
 export default {
   name: 'relationship',
-  components: {
-    relation
-  },
   data () {
     return {
       onlyAbnormal: false
