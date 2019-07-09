@@ -145,7 +145,7 @@ export default {
   },
   filters: {
     idFormat (val) {
-      if (typeof val === 'undefined') return ''
+      if (typeof val === 'undefined' || val.length === 0) return '暂无'
       return val.substring(0, 4) + '************' + val.substring(val.length - 2, val.length)
     },
     keyFormat (val) {
