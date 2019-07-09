@@ -6,6 +6,7 @@ import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import common from './components/common/index'
 import 'vue-mapboxgl-components'
+import 'vue-mapboxgl-components/lib/vue-mapboxgl-components.css'
 
 Vue.config.productionTip = false
 

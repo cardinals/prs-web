@@ -1,7 +1,7 @@
 <template>
   <div class="dynamic">
     <!-- 异常信息通知 -->
-    <div class="msg" v-if="showMsg && dynamicNum !== '0'">
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
         {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常动态</span>风险预警
@@ -179,7 +179,7 @@ export default {
     onlyDanger () {
       this.changeShowMsg(false)
       apiParams.flag = '2'
-      this.dateDefault = 'all'
+      this.dateDefault = '全部'
       apiParams.timestart = 'all'
       getDynamic(apiParams).then(res => {
         this.allData = res.data
@@ -231,6 +231,7 @@ export default {
         this.dangerChecked = 0
       } else {
         apiParams.flag = '1'
+        this.dangerChecked = -1
         apiParams.timestart = new Date().getFullYear() + '-01-01'
       }
       this.getDynamic()
@@ -241,7 +242,7 @@ export default {
     dataPicked (newVal, oldVal) {
       apiParams.timestart = newVal[0] === '1919-01-01' ? 'all' : newVal[0]
       apiParams.timeend = newVal[1]
-      apiParams.flag = '1'
+      apiParams.flag = this.$route.params.type === 'err' ? '2' : '1'
       apiParams.huodonglx = ''
       apiParams.fengxianlx = ''
       apiParams.pagenumber = 1

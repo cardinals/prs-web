@@ -21,7 +21,7 @@
         </div>
       </div>
       <!-- 风险预警 -->
-      <div class="title">风险预警</div>
+      <div class="title">风险预警（全部）</div>
       <div class="riskWarning">
         <div class="abnormal abnormalDynamic">
           <span @click="goAbnormal('abnormalDynamic')"> 异常动态: </span>
@@ -122,14 +122,17 @@ export default {
     goAbnormal (val) {
       let id = this.$route.params.personId
       if (val === 'abnormalRelation') {
+        // this.changeShowMsgRe(false)
         this.$router.replace('/detail/' + id + '/relationship/err')
         this.menuChoice = 'relationship'
       }
       if (val === 'abnormalDynamic') {
+        // this.changeShowMsg(false)
         this.$router.replace('/detail/' + id + '/dynamic/err')
         this.menuChoice = 'dynamic'
       }
       if (val === 'abnormalTrail') {
+        // this.changeShowMsgPath(false)
         this.$router.replace('/detail/' + id + '/peoplePath/err')
         this.menuChoice = 'peoplePath'
       }
@@ -142,8 +145,8 @@ export default {
   },
   filters: {
     idFormat (val) {
-      if (typeof val === 'undefined') return
-      return val.substring(0, 6) + '********' + val.substring(14, 18)
+      if (typeof val === 'undefined') return ''
+      return val.substring(0, 4) + '************' + val.substring(val.length - 2, val.length)
     },
     keyFormat (val) {
       return abnormalMap[val]

@@ -1,6 +1,6 @@
 <template>
   <div class="relation">
-    <div class="msg" v-if="showMsg && dynamicNum !== '0'">
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
         {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常关系</span>风险预警
