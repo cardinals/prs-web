@@ -39,8 +39,8 @@
           :heatmap="heatmap"
           @pointClick="callback">
           <control :fullscreen="{show: true, position: 'bottom-left'}" :navigation="{showZoom:true, position: 'bottom-right'}"></control>
-          <markers :data="markerData" :show-marker="mapType==='point'" @markerMouseenter="test"></markers>
-          <popup :showPopup="showPopup" :laglng="laglng" :htmlContent="htmlContent" :closeOnClick="true" :closeButton="false"></popup>
+          <markers :data="markerData" :show-marker="mapType==='point'" @markerMouseenter="showMarkInfo" @markerMouseleave="hideMarkInfo" @markerClick="setFocusPoint"></markers>
+          <popup :showPopup="showPopup" :laglng="laglng" :htmlContent="htmlContent" :closeOnClick="closeOnClick" :closeButton="false"></popup>
         </mapview>
       </div>
     </div>
@@ -86,6 +86,8 @@ export default {
   name: 'peoplePath',
   data () {
     return {
+      closeOnClick: true,
+      focusPoint: false,
       showPopup: false,
       laglng: [121.4198, 31.1043],
       htmlContent: '<h1>hello</h1>',
@@ -113,7 +115,7 @@ export default {
         // <!-- osm地址 -->
         osmUrl: 'http://192.168.22.88:8700',
         // <!-- 地图样式 -->
-        backgroundStyle: 'Positron'
+        backgroundStyle: 'prs-web'
       },
       // <!-- 地图的可视化类型 -->
       mapTypes: ['heatmap'],
@@ -177,6 +179,11 @@ export default {
     }),
     checkboxChange () {
       if (this.onlyAbnormal) {
+        this.mapConfig.zoom = 7
+      } else {
+        this.mapConfig.zoom = 8.7
+      }
+      if (this.onlyAbnormal) {
         apiParams.flag = '1'
       } else {
         apiParams.flag = '0'
@@ -191,6 +198,7 @@ export default {
       this.init()
     },
     onlyDanger () {
+      this.mapConfig.zoom = 7
       this.changeShowMsg(false)
       this.onlyAbnormal = true
       apiParams.flag = '1'
@@ -257,12 +265,26 @@ export default {
       refreshBtn.appendChild(fullBtn)
       MCG.appendChild(fullContainer)
     },
-    test (data) {
+    showMarkInfo (data) {
       console.log(data)
+      this.focusPoint = false
+      this.closeOnClick = false
       this.showPopup = true
       this.laglng = [data.lng, data.lat]
       this.htmlContent = `<h1>地点：${data.address}</h1>
                           <h1>风险预警：${data.label}</h1>`
+    },
+    hideMarkInfo () {
+      if (!this.focusPoint) this.showPopup = false
+    },
+    setFocusPoint () {
+      this.focusPoint = true
+      this.closeOnClick = true
+      console.log(this.closeOnClick)
+      this.showPopup = false
+      setTimeout(() => {
+        this.showPopup = true
+      }, 10)
     }
   },
   created () {
@@ -328,6 +350,9 @@ export default {
       height: 10px !important;
     }
   }
+}
+.mapboxgl-marker-anchor-center {
+  cursor: pointer;
 }
 .mapboxgl-ctrl-bottom-left {
   display: flex;
