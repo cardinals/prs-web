@@ -11,25 +11,25 @@
             <div class="tabTitle">
               <span>姓名</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.name === ''}">{{peopleInfo.basicInfo.name|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.name"  :class="{'noData': peopleInfo.basicInfo.name === ''}">{{peopleInfo.basicInfo.name|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>性别</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.gender === ''}">{{peopleInfo.basicInfo.gender|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.gender" :class="{'noData': peopleInfo.basicInfo.gender === ''}">{{peopleInfo.basicInfo.gender|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>出生年月</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.birthday === ''}">{{peopleInfo.basicInfo.birthday|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.birthday" :class="{'noData': peopleInfo.basicInfo.birthday === ''}">{{peopleInfo.basicInfo.birthday|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>民族</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.nation === ''}">{{peopleInfo.basicInfo.nation|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.nation" :class="{'noData': peopleInfo.basicInfo.nation === ''}">{{peopleInfo.basicInfo.nation|noDataFormat}}</span>
           </div>
         </div>
         <div class="row row2">
@@ -37,19 +37,19 @@
             <div class="tabTitle">
               <span>籍贯</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.birthPlace === ''}">{{peopleInfo.basicInfo.birthPlace|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.birthPlace" :class="{'noData': peopleInfo.basicInfo.birthPlace === ''}">{{peopleInfo.basicInfo.birthPlace|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>政治面貌</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.politicalOutlook === ''}">{{peopleInfo.basicInfo.politicalOutlook|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.politicalOutlook" :class="{'noData': peopleInfo.basicInfo.politicalOutlook === ''}">{{peopleInfo.basicInfo.politicalOutlook|noDataFormat}}</span>
           </div>
           <div class="col" style="flex:2">
             <div class="tabTitle">
               <span>身份证</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.idNumber === ''}">{{peopleInfo.basicInfo.idNumber|IdFormat}}</span>
+            <span class="value"  style="width: 310px" :class="{'noData': peopleInfo.basicInfo.idNumber === ''}">{{peopleInfo.basicInfo.idNumber|IdFormat}}</span>
           </div>
         </div>
         <div class="row row3">
@@ -57,19 +57,19 @@
             <div class="tabTitle">
               <span>文化程度</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.education === ''}">{{peopleInfo.basicInfo.education|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.education" :class="{'noData': peopleInfo.basicInfo.education === ''}">{{peopleInfo.basicInfo.education|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>户籍地</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.houseRegisterAddress === ''}">{{peopleInfo.basicInfo.houseRegisterAddress|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.houseRegisterAddress" :class="{'noData': peopleInfo.basicInfo.houseRegisterAddress === ''}">{{peopleInfo.basicInfo.houseRegisterAddress|noDataFormat}}</span>
           </div>
           <div class="col" style="flex:2">
             <div class="tabTitle">
               <span>户籍地址</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.houseRegisterLocation === ''}">{{peopleInfo.basicInfo.houseRegisterLocation|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.houseRegisterLocation" style="width: 310px" :class="{'noData': peopleInfo.basicInfo.houseRegisterLocation === ''}">{{peopleInfo.basicInfo.houseRegisterLocation|noDataFormat}}</span>
           </div>
         </div>
         <div class="row row4">
@@ -77,13 +77,13 @@
             <div class="tabTitle">
               <span>居住地</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.homeAddress === ''}">{{peopleInfo.basicInfo.homeAddress|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.homeAddress"  style="width: 310px" :class="{'noData': peopleInfo.basicInfo.homeAddress === ''}">{{peopleInfo.basicInfo.homeAddress|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>居住地址</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.basicInfo.homeLocation === ''}">{{peopleInfo.basicInfo.homeLocation|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.basicInfo.homeLocation"  style="width: 310px" :class="{'noData': peopleInfo.basicInfo.homeLocation === ''}">{{peopleInfo.basicInfo.homeLocation|noDataFormat}}</span>
           </div>
         </div>
       </div>
@@ -99,25 +99,25 @@
             <div class="tabTitle">
               <span class="">手机号码</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.mobile === ''}">{{peopleInfo.contactInfo.mobile|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.mobile" :class="{'noData': peopleInfo.contactInfo.mobile === ''}">{{peopleInfo.contactInfo.mobile|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>联系电话</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.phone === ''}">{{peopleInfo.contactInfo.phone|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.phone" :class="{'noData': peopleInfo.contactInfo.phone === ''}">{{peopleInfo.contactInfo.phone|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>QQ号码</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.QQ === ''}">{{peopleInfo.contactInfo.QQ|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.QQ" :class="{'noData': peopleInfo.contactInfo.QQ === ''}">{{peopleInfo.contactInfo.QQ|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>微信号码</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.weChat === ''}">{{peopleInfo.contactInfo.weChat|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.weChat" :class="{'noData': peopleInfo.contactInfo.weChat === ''}">{{peopleInfo.contactInfo.weChat|noDataFormat}}</span>
           </div>
         </div>
         <div class="row row2">
@@ -125,13 +125,13 @@
             <div class="tabTitle">
               <span>邮箱</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.email === ''}">{{peopleInfo.contactInfo.email|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.email" style="width: 310px" :class="{'noData': peopleInfo.contactInfo.email === ''}">{{peopleInfo.contactInfo.email|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>个人网站</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.website === ''}">{{peopleInfo.contactInfo.website|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.website" style="width: 310px" :class="{'noData': peopleInfo.contactInfo.website === ''}">{{peopleInfo.contactInfo.website|noDataFormat}}</span>
           </div>
         </div>
         <div class="row row3">
@@ -139,19 +139,19 @@
             <div class="tabTitle">
               <span>紧急联系人</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.emerContactPerson === ''}">{{peopleInfo.contactInfo.emerContactPerson|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.emerContactPerson" :class="{'noData': peopleInfo.contactInfo.emerContactPerson === ''}">{{peopleInfo.contactInfo.emerContactPerson|noDataFormat}}</span>
           </div>
           <div class="col">
             <div class="tabTitle">
               <span>紧急联系人电话</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.emerContactPhone === ''}">{{peopleInfo.contactInfo.emerContactPhone|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.emerContactPhone" :class="{'noData': peopleInfo.contactInfo.emerContactPhone === ''}">{{peopleInfo.contactInfo.emerContactPhone|noDataFormat}}</span>
           </div>
           <div class="col" style="flex:2">
             <div class="tabTitle">
               <span>传真</span>
             </div>
-            <span class="value" :class="{'noData': peopleInfo.contactInfo.fax === ''}">{{peopleInfo.contactInfo.fax|noDataFormat}}</span>
+            <span class="value" :title="peopleInfo.contactInfo.fax"  style="width: 310px" :class="{'noData': peopleInfo.contactInfo.fax === ''}">{{peopleInfo.contactInfo.fax|noDataFormat}}</span>
           </div>
         </div>
       </div>
