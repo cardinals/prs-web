@@ -668,10 +668,6 @@ export default {
       endPoint.y = endY + 45 * (sinA * Math.cos(angle) - cosA * Math.sin(angle))
       endPoint.x = endX - 45 * (cosA * Math.cos(angle) + sinA * Math.sin(angle))
     },
-    add () {
-      graph.render()
-      graph.paint()
-    },
     clickPerson (e) {
       let id = e.item.getModel().personId
       if (id !== '') {
@@ -747,27 +743,37 @@ export default {
           }
         })
       })
+    },
+    getData () {
+      let gIdd = this.$route.params.personId
+      relation({
+        g_id: gIdd,
+        flag: 2
+      }).then(res => {
+        this.G6Data = res.data
+        this.initLegends(this.G6Data)
+        this.createGraph('container')
+        this.init()
+        if (this.onlyErr) {
+          this.showAbnormal()
+        } else {
+          this.showAll()
+        }
+      })
+    },
+    refreshPage () {
+      simulation.stop()
+      this.nodeLegends = []
+      this.edgeLegends = []
+      graph.destroy()
+      this.getData()
     }
   },
   created () {
 
   },
   mounted () {
-    let gIdd = this.$route.params.personId
-    relation({
-      g_id: gIdd,
-      flag: 2
-    }).then(res => {
-      this.G6Data = res.data
-      this.initLegends(this.G6Data)
-      this.createGraph('container')
-      this.init()
-      if (this.onlyErr) {
-        this.showAbnormal()
-      } else {
-        this.showAll()
-      }
-    })
+    this.getData()
   },
   beforeDestroy () {
     simulation.stop()
@@ -828,6 +834,7 @@ export default {
   }
   .edgeLegends {
     position: absolute;
+    z-index: 10;
     left: 20px;
     top: 20px;
     .edgeLegend {
@@ -866,6 +873,7 @@ export default {
     }
   }
   .positionControl {
+    z-index: 10;
     position: absolute;
     left: 20px;
     bottom: 20px;
@@ -907,6 +915,7 @@ export default {
   }
 
   .zoomControl {
+    z-index: 10;
     position: absolute;
     right: 20px;
     bottom: 20px;
