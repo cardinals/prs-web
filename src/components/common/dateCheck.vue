@@ -104,8 +104,10 @@ export default {
   methods: {
     dateChange (val) {
       this.dateDefaultCheck = val
-      this.dateMap[val]()
-      this.dateChanged(this.datePicked)
+      if (this.dateMap[val]) {
+        this.dateMap[val]()
+        this.dateChanged(this.datePicked, true)
+      }
       // this.getDynamic()
     },
     isShowButtton (val) {
@@ -117,7 +119,10 @@ export default {
       })
       return res
     },
-    dateChanged (val) {
+    dateChanged (val, status) {
+      if (!status) {
+        this.dateDefaultCheck = ''
+      }
       this.$emit('dateReturn', val)
     }
   },
