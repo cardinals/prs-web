@@ -274,7 +274,11 @@ export default {
       return treeTitleMap[val]
     },
     idNodata (val) {
-      return val === '' ? '暂无' : val.substring(0, 6) + '********' + val.substring(14, 18)
+      if (val === '') {
+        return '未知'
+      } else {
+        return val.substring(0, 4) + '************' + val.substring(val.length - 2, val.length)
+      }
     },
     nodata (val) {
       return val === '' ? '暂无' : val
