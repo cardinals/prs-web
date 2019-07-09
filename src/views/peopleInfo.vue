@@ -396,7 +396,7 @@ export default {
       return val === '' ? '暂无' : val
     },
     IdFormat (val) {
-      return val === '' || typeof (val) === 'undefined' ? '暂无' : val.substring(0, 6) + '********' + val.substring(14, 18)
+      return val === '' || typeof (val) === 'undefined' ? '暂无' : val.substring(0, 4) + '************' + val.substring(val.length - 2, val.length)
     }
   },
   methods: {
