@@ -1,6 +1,6 @@
 <template>
   <div class="peoplePath">
-    <div class="msg" v-if="showMsg && dynamicNum !== '0'">
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
         {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常关系</span>风险预警
@@ -14,10 +14,33 @@
         <dateCheck @dateReturn="dateReturn" :dateDefault="dateDefault" />
       </div>
       <div class="pathMap">
+        <div class="legends" v-if="mapType==='point'">
+          <div class="normal"></div>
+          <span>正常</span>
+          <div class="abnormal"></div>
+          <span>潜在异常</span>
+          <div class="transboundary"></div>
+          <span>矫正越界</span>
+        </div>
+        <div class="screeningConditions">
+          <div class="abnormalCheckbox">
+            <el-checkbox v-model="onlyAbnormal" @change="checkboxChange">只看异常</el-checkbox>
+          </div>
+          <div class="styleSelect">
+            <span>样式:</span>
+            <el-select v-model="mapType" placeholder="请选择样式" size="mini">
+              <el-option label="热力图" value="heatmap"></el-option>
+              <el-option label="点图" value="point"></el-option>
+            </el-select>
+          </div>
+        </div>
         <mapview :map-config="mapConfig" :osm-config="osmConfig"
           :map-types="mapTypes"
           :heatmap="heatmap"
           @pointClick="callback">
+          <control :fullscreen="{show: true, position: 'bottom-left'}" :navigation="{showZoom:true, position: 'bottom-right'}"></control>
+          <markers :data="markerData" :show-marker="mapType==='point'" @markerMouseenter="test"></markers>
+          <popup :showPopup="showPopup" :laglng="laglng" :htmlContent="htmlContent" :closeOnClick="true" :closeButton="false"></popup>
         </mapview>
       </div>
     </div>
@@ -47,14 +70,28 @@
   </div>
 </template>
 <script>
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { mapActions } from 'vuex'
 import { personTrajectory } from '@/api/api.js'
 let apiParams = {}
+const normalMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIBAMAAAA2IaO4AAAAElBMVEUAAAB1vkN1vkN1vkN1vkN1vkNEq6hsAAAABnRSTlMAzL50BW2iYhLOAAAAH0lEQVQI12MAAxYjZQcGZkHBAAYmQUEFMAHmQiRAAAAzEgKlwH02hQAAAABJRU5ErkJggg=='
+const abnorMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX0mTAAAAAHWV8AAAAAAnRSTlPMABHcVXoAAAAPSURBVAjXY/jP0IgE/wMAKDAFBa2/+K0AAAAASUVORK5CYII='
+const transMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIBAMAAAA2IaO4AAAAFVBMVEX/Hx8AAAD/Hx//Hx//Hx//Hx//Hx9n2I/lAAAAB3RSTlPMAJczMjEwGAq1CAAAAC1JREFUCNdjUGBgYGJIYGBgYxBiYFBkEGVgCGQQVGASZBB0YAESQopAQthQEAAt/wKHRx622wAAAABJRU5ErkJggg=='
+const markerImgMap = {
+  '正常': (ele) => { ele.height = 6; ele.width = 6; ele.base64 = normalMarkerImg },
+  '潜在异常': (ele) => { ele.height = 6; ele.width = 6; ele.base64 = abnorMarkerImg },
+  '矫正越界': (ele) => { ele.height = 8; ele.width = 8; ele.base64 = transMarkerImg }
+}
 export default {
   name: 'peoplePath',
   data () {
     return {
-      dateDefault: '本年',
+      showPopup: false,
+      laglng: [121.4198, 31.1043],
+      htmlContent: '<h1>hello</h1>',
+      markerData: [],
+      mapType: 'heatmap',
+      dateDefault: '',
       tableData: [],
       nowDate: [],
       allTableNum: 0,
@@ -68,7 +105,7 @@ export default {
         // <!-- 缩放等级 -->
         zoom: 8.7,
         // <!-- 视角俯视的倾斜角度 -->
-        pitch: 43,
+        pitch: 0,
         // <!-- 地图的旋转角度 -->
         bearing: 0
       },
@@ -88,6 +125,15 @@ export default {
         opacity: 0.8,
         color: ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0, 0, 255, 0)', 0.2, 'royalblue', 0.4, 'cyan', 0.6, 'lime', 0.8, 'yellow', 1, 'red'],
         data: []
+      },
+      point: {
+        color: 'orange',
+        textColor: 'red',
+        showAnimation: true,
+        opacity: 0.8,
+        radius: 4,
+        textOffset: 1,
+        data: []
       }
     }
   },
@@ -105,37 +151,55 @@ export default {
   watch: {
     $route: {
       handler: function (val, oldVal) {
+        if (val.params.type === 'err') {
+          this.onlyAbnormal = true
+          this.dateDefault = '全部'
+        } else {
+          this.onlyAbnormal = false
+          this.dateDefault = '本年'
+        }
         this.init()
       },
       deep: true
     },
-    onlyAbnormal (newVal, oldVal) {
-      if (newVal) {
-        apiParams.flag = '1'
+    mapType (newVal, oldVal) {
+      if (newVal === 'point') {
+        this.mapTypes = []
       } else {
-        apiParams.flag = '0'
+        this.mapTypes = []
+        this.mapTypes.push('heatmap')
       }
-      this.getData()
     }
   },
   methods: {
     ...mapActions('path', {
       changeShowMsg: 'changeShowMsg'
     }),
+    checkboxChange () {
+      if (this.onlyAbnormal) {
+        apiParams.flag = '1'
+      } else {
+        apiParams.flag = '0'
+      }
+      this.getData()
+    },
     callback (data) {
-      console.log(data)
     },
     dateReturn (date) {
       this.nowDate = date
+      console.log(date)
+      this.init()
     },
     onlyDanger () {
       this.changeShowMsg(false)
       this.onlyAbnormal = true
+      apiParams.flag = '1'
+      this.dateDefault = '全部'
+      // this.getData()
     },
     currentChange (pageNum) {
       this.currentPage = pageNum
       this.getTableData(this.currentPage)
-      console.log(this.heatmap.data.length)
     },
     // 改变表格中不同风险预警等级文字的颜色
     dangerColor ({ row, column, rowIndex, columnIndex }) {
@@ -146,13 +210,25 @@ export default {
       }
     },
     getTableData (val) {
-      let temp = JSON.parse(JSON.stringify(this.heatmap.data))
-      this.tableData = temp.splice(this.pageSize * (val - 1), this.pageSize)
+      if (this.heatmap.data) {
+        let temp = JSON.parse(JSON.stringify(this.heatmap.data))
+        this.tableData = temp.splice(this.pageSize * (val - 1), this.pageSize)
+      }
+    },
+    getMarkerData (data) {
+      if (data) {
+        data.forEach(element => {
+          markerImgMap[element.label](element)
+        })
+      }
+      this.markerData = data
     },
     getData () {
       personTrajectory(apiParams).then(res => {
         this.heatmap.data = res.data.data
+        this.point.data = res.data.data
         this.allTableNum = res.data.resultNum
+        this.getMarkerData(res.data.data)
         this.currentPage = 1
         this.getTableData(this.currentPage)
       })
@@ -161,17 +237,42 @@ export default {
       apiParams.g_id = this.$route.params.personId
       apiParams.timestart = this.nowDate[0] === '1919-01-01' ? 'all' : this.nowDate[0]
       apiParams.timeend = this.nowDate[1]
-      apiParams.flag = this.$route.params.type === 'err' ? '1' : '0'
+      apiParams.flag = this.$route.params.type === 'err' || this.onlyAbnormal ? '1' : '0'
       this.getData()
+    },
+    refreshPage () {
+      this.mapConfig.zoom = 8.4
+      this.mapConfig.center = [121.4198, 31.1043]
+    },
+    addRefreshControl () {
+      const MCG = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0].getElementsByClassName('mapboxgl-ctrl-group')[0]
+      let fullBtn = MCG.firstElementChild
+      let fullContainer = document.createElement('div')
+      let refreshBtn = document.createElement('div')
+      refreshBtn.className = 'container fullscreenContainer'
+      fullContainer.className = 'container customRefreshBtn'
+      fullContainer.onclick = this.refreshPage
+      MCG.removeChild(fullBtn)
+      MCG.appendChild(refreshBtn)
+      refreshBtn.appendChild(fullBtn)
+      MCG.appendChild(fullContainer)
+    },
+    test (data) {
+      console.log(data)
+      this.showPopup = true
+      this.laglng = [data.lng, data.lat]
+      this.htmlContent = `<h1>地点：${data.address}</h1>
+                          <h1>风险预警：${data.label}</h1>`
     }
   },
   created () {
 
   },
   mounted () {
+    this.onlyAbnormal = this.$route.params.type === 'err'
     this.dateDefault = this.$route.params.type === 'err' ? '全部' : '本年'
     this.$nextTick(() => {
-      this.init()
+      this.addRefreshControl()
     })
   }
 }
@@ -192,5 +293,83 @@ export default {
     margin-top: 20px;
     text-align: center;
   }
+}
+.abnormalCheckbox {
+  .el-checkbox{
+    color: #333333;
+    .el-checkbox__input.is-checked+.el-checkbox__label {
+    color: #333333;
+  }
+  }
+}
+.el-select-dropdown {
+  border: none;
+  .el-scrollbar {
+    .el-select-dropdown__list {
+      padding: 5px 0;
+      .el-select-dropdown__item {
+        color: rgba(172,172,172,1);
+        padding-left: 15px;
+        &.hover {
+          background: rgba(39,112,238,1) !important;
+        }
+      }
+    }
+  }
+}
+.mapboxgl-ctrl-top-left {
+  bottom: 10px;
+  top: auto;
+  button {
+    width: 20px;
+    height: 20px;
+    .mapboxgl-ctrl-compass-arrow {
+      width: 10px !important;
+      height: 10px !important;
+    }
+  }
+}
+.mapboxgl-ctrl-bottom-left {
+  display: flex;
+  flex-direction: column;
+  .mapboxgl-ctrl-group {
+    background: transparent;
+    box-shadow: none;
+    padding: 2px;
+    .container {
+      background: #fff;
+      box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.11);
+      height: 30px;
+      width: 30px;
+      border-radius: 4px;
+      cursor: pointer;
+      &:hover {
+        background: rgb(241, 241, 241)
+      }
+      &.customRefreshBtn {
+        margin-top: 10px;
+        background-image: url('../assets/images/refresh.png');
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+      &.fullscreenContainer {
+        .mapboxgl-ctrl-icon {
+          margin: 0;
+          border: 0;
+          outline: 0;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          background-color: transparent;
+          border-radius: 4px;
+          cursor: pointer;
+          &:hover {
+            background-color: rgb(241, 241, 241);
+          }
+        }
+      }
+    }
+  }
+
 }
 </style>
