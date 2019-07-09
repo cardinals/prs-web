@@ -39,7 +39,7 @@
           <i class="el-icon-search"></i>
         </div>
       </div>
-      <div class="menu_c">
+      <!-- <div class="menu_c">
         <div class="icon"></div>
         <div class="menu clearfix" v-if="ifLogin">
           <el-dropdown @command="goLogin" trigger="click">
@@ -56,7 +56,7 @@
           </el-dropdown>
         </div>
         <div v-if="!ifLogin" class="menu2">登录</div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
