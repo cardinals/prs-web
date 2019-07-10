@@ -278,31 +278,6 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
-@import '~@/assets/css/peopleDynamic.less';
-</style>
 <style lang="less">
-.el-date-editor .el-range-separator {
-  width: 10%;
-}
-.el-date-editor.el-input__inner {
-  width: 250px !important;
-  height: 28px;
-  .el-input__icon, .el-range-separator {
-    line-height: 20px;
-  }
-}
-
-.el-table__header-wrapper {
-  .has-gutter {
-    tr, th{
-      background: rgba(245,245,245,1);
-      .cell {
-        color:rgba(57,57,57,1);
-        font-size:16px;
-      }
-    }
-  }
-}
-
+@import '~@/assets/css/peopleDynamic.less';
 </style>
