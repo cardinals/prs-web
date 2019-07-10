@@ -411,24 +411,6 @@ export default {
 }
 </script>
 
-<style scoped lang="less" >
+<style lang="less" >
 @import '~@/assets/css/peopleInfo.less';
-</style>
-
-<style lang="less">
-.el-table {
-  border: 1px solid rgba(231,231,231,1);
-  border-radius: 2px;
-  .has-gutter {
-    color: rgba(102,102,102,1);
-     tr, th {
-       background:rgba(245,245,245,1);
-     }
-  }
-  .el-table__row {
-    td {
-      color: #4D4B4B;
-    }
-  }
-}
 </style>

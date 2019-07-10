@@ -70,22 +70,6 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-@import '~@/assets/css/peopleRelationship.less';
-</style>
-
 <style lang="less">
-.el-checkbox__input.is-checked .el-checkbox__inner {
-  background: #2770EE;
-  border-color: #2770EE;
-}
-.el-checkbox .el-checkbox__label {
-  padding-left: 5px;
-  font-size: 14px;
-  color: #000;
-}
-.el-checkbox__input.is-checked+.el-checkbox__label {
-  color: #000;
-}
-
+@import '~@/assets/css/peopleRelationship.less';
 </style>
