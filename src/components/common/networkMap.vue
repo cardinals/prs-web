@@ -787,7 +787,7 @@ export default {
   user-select: none;
   position: relative;
   #container {
-    min-height: 650px;
+    min-height: 682px;
   }
   .nodeLegends {
     position: absolute;
