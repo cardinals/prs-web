@@ -257,12 +257,18 @@
         }
         &.customRefreshBtn {
           margin-top: 10px;
-          background-image: url('../images/refresh.png');
+          background-image: url('../images/peoplePath/icon_location.png');
           background-position: center;
           background-repeat: no-repeat;
+          &:hover {
+            background-image: url('../images/peoplePath/icon_location_blue.png');
+          }
         }
         &.fullscreenContainer {
           .mapboxgl-ctrl-icon {
+            background-image: url('../images/peoplePath/icon_fullScreen.png');
+            background-position: center;
+            background-repeat: no-repeat;
             margin: 0;
             border: 0;
             outline: 0;
@@ -274,10 +280,117 @@
             cursor: pointer;
             &:hover {
               background-color: rgb(241, 241, 241);
+              background-image: url('../images/peoplePath/icon_fullScreen_blue.png');
             }
           }
         }
       }
+    }
+  }
+  .mapboxgl-ctrl-bottom-right {
+    .mapboxgl-ctrl-zoom-in {
+      background-image: url('../images/peoplePath/icon_bigger.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      &:hover {
+        background-image: url('../images/peoplePath/icon_bigger_blue.png');
+      }
+    }
+    .mapboxgl-ctrl-zoom-out {
+      background-image: url('../images/peoplePath/icon_smaller.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      &:hover {
+        background-image: url('../images/peoplePath/icon_smaller_blue.png');
+      }
+    }
+  }
+  .mapboxgl-popup-anchor-top .mapboxgl-popup-tip  {
+    border: 10px transparent solid;
+    border-bottom-color: rgba(173, 180, 187, 0.7);
+  }
+  .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip  {
+    border: 10px transparent solid;
+    border-top-color: rgba(173, 180, 187, 0.7);
+  }
+  .mapboxgl-popup-anchor-right .mapboxgl-popup-tip  {
+    border: 10px transparent solid;
+    border-left-color: rgba(173, 180, 187, 0.7);
+  }
+  .mapboxgl-popup-anchor-left .mapboxgl-popup-tip  {
+    border: 10px transparent solid;
+    border-right-color: rgba(173, 180, 187, 0.7);
+  }
+  .mapboxgl-popup-content {
+    border: 5px #A0A7B0 solid;
+    background: rgba(9,32,64,1);
+    border-radius: 0;
+    opacity: 0.7;
+    position: relative;
+    h1 {
+      color: #fff;
+      font-size: 12px;
+      &.address {
+        margin-bottom: 5px;
+        &::before {
+          content: '';
+          display: inline-block;
+          width: 14px;
+          height: 14px;
+          background: url('../images/peoplePath/icon_location_small.png');
+          vertical-align: middle;
+          margin-right: 8px;
+          margin-bottom: 2px;
+        }
+      }
+      &.risk {
+        &::before {
+          content: '';
+          display: inline-block;
+          width: 14px;
+          height: 14px;
+          background: url('../images/peoplePath/icon_warning.png');
+          vertical-align: middle;
+          margin-right: 8px;
+          margin-bottom: 2px;
+        }
+      }
+    }
+    .left-top {
+      border-left: 2px rgba(9,32,64,1) solid;
+      border-top: 2px rgba(9,32,64,1) solid;
+      width: 10px;
+      height:10px;
+      position: absolute;
+      left: -8px;
+      top: -8px;
+    }
+    .right-top {
+      border-right: 2px rgba(9,32,64,1) solid;
+      border-top: 2px rgba(9,32,64,1) solid;
+      width: 10px;
+      height:10px;
+      position: absolute;
+      right: -8px;
+      top: -8px;
+    }
+    .left-bottom {
+      border-left: 2px rgba(9,32,64,1) solid;
+      border-bottom: 2px rgba(9,32,64,1) solid;
+      width: 10px;
+      height:10px;
+      position: absolute;
+      left: -8px;
+      bottom: -8px;
+    }
+    .right-bottom {
+      border-right: 2px rgba(9,32,64,1) solid;
+      border-bottom: 2px rgba(9,32,64,1) solid;
+      width: 10px;
+      height:10px;
+      position: absolute;
+      right: -8px;
+      bottom: -8px;
     }
   }
 }

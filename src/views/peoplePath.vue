@@ -3,7 +3,7 @@
     <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
-        {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常关系</span>风险预警
+        {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常轨迹</span>风险预警
       </div>
       <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
       <div class="del" @click="changeShowMsg(false)"></div>
@@ -257,13 +257,13 @@ export default {
       let fullBtn = MCG.firstElementChild
       let fullContainer = document.createElement('div')
       let refreshBtn = document.createElement('div')
-      refreshBtn.className = 'container fullscreenContainer'
-      fullContainer.className = 'container customRefreshBtn'
-      fullContainer.onclick = this.refreshPage
+      fullContainer.className = 'container fullscreenContainer'
+      refreshBtn.className = 'container customRefreshBtn'
+      refreshBtn.onclick = this.refreshPage
       MCG.removeChild(fullBtn)
-      MCG.appendChild(refreshBtn)
-      refreshBtn.appendChild(fullBtn)
       MCG.appendChild(fullContainer)
+      MCG.appendChild(refreshBtn)
+      fullContainer.appendChild(fullBtn)
     },
     showMarkInfo (data) {
       console.log(data)
@@ -271,8 +271,9 @@ export default {
       this.closeOnClick = false
       this.showPopup = true
       this.laglng = [data.lng, data.lat]
-      this.htmlContent = `<h1>地点：${data.address}</h1>
-                          <h1>风险预警：${data.label}</h1>`
+      this.htmlContent = `<h1 class="address">${data.address}</h1>
+                          <h1 class="risk">${data.label}</h1>
+                          <div class="left-top"></div><div class="right-top"></div><div class="left-bottom"></div><div class="right-bottom"></div>`
     },
     hideMarkInfo () {
       if (!this.focusPoint) this.showPopup = false
