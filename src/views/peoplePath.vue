@@ -231,15 +231,14 @@ export default {
       }
       this.markerData = data
     },
-    getData () {
-      personTrajectory(apiParams).then(res => {
-        this.heatmap.data = res.data.data
-        this.point.data = res.data.data
-        this.allTableNum = res.data.resultNum
-        this.getMarkerData(res.data.data)
-        this.currentPage = 1
-        this.getTableData(this.currentPage)
-      })
+    async getData () {
+      let res = await personTrajectory(apiParams)
+      this.heatmap.data = res.data.data
+      this.point.data = res.data.data
+      this.allTableNum = res.data.resultNum
+      this.getMarkerData(res.data.data)
+      this.currentPage = 1
+      this.getTableData(this.currentPage)
     },
     init () {
       apiParams.g_id = this.$route.params.personId

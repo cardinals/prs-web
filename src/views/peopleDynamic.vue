@@ -176,17 +176,16 @@ export default {
       }
     },
     // 仅显示异常
-    onlyDanger () {
+    async onlyDanger () {
       this.changeShowMsg(false)
       apiParams.flag = '2'
       this.dateDefault = '全部'
       apiParams.timestart = 'all'
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-        if (this.allData.fengxianlx.length !== 0) {
-          this.dangerChecked = 0
-        }
-      })
+      let res = await getDynamic(apiParams)
+      this.allData = res.data
+      if (this.allData.fengxianlx.length !== 0) {
+        this.dangerChecked = 0
+      }
     },
     // 活动类型改变相关操作
     huodonglxChange (index, type) {
@@ -199,18 +198,16 @@ export default {
       this.getDynamic()
     },
     // 请求接口数据
-    getDynamic () {
+    async getDynamic () {
       apiParams.pagenumber = 1
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      let res = await getDynamic(apiParams)
+      this.allData = res.data
     },
     // 点击页码重新请求数据
-    currentChange (val) {
+    async currentChange (val) {
       apiParams.pagenumber = val
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      let res = await getDynamic(apiParams)
+      this.allData = res.data
     },
     // 时间选择器组件返回的当前选取的时间值
     dateReturn (date) {
