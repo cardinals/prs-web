@@ -231,23 +231,5 @@ export default {
 }
 </script>
 <style lang="less">
-.home{
-  .inline-input{
-    float: left;
-    height: 73px;
-    width: calc(100% - 160px);
-    border-radius:4px 0px 0px 4px;
-    border:1px solid rgba(231,229,229,1);
-  }
-  .el-input__inner{
-    font-size:18px;
-    height: 73px;
-    border:0;
-    border-radius:4px 0px 0px 4px;
-  }
-}
-</style>
-
-<style lang="less" scoped>
   @import '~@/assets/css/home.less';
 </style>
