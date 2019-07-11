@@ -1,7 +1,7 @@
 <template>
   <div class="info">
     <!-- 基本信息 -->
-    <div class="box basicInfo">
+    <div class="box basicInfo" id="基本信息">
       <div class="title">
         <span>基本信息</span>
       </div>
@@ -89,7 +89,7 @@
       </div>
     </div>
     <!-- 联系信息 -->
-    <div class="box contactInfo">
+    <div class="box contactInfo" id="联系信息">
       <div class="title">
         <span>联系信息</span>
       </div>
@@ -157,7 +157,7 @@
       </div>
     </div>
     <!-- 社会履历 -->
-    <div class="box socialHistory">
+    <div class="box socialHistory" id="社会履历">
       <div class="title">
         <span>社会履历</span>
       </div>
@@ -222,7 +222,7 @@
 
     </div>
     <!-- 获得证书 -->
-    <div class="box certificate">
+    <div class="box certificate" id="获得证书">
       <div class="title">
         <span>获得证书</span>
       </div>
@@ -321,7 +321,7 @@
 
     </div>
     <!-- 获得表彰 -->
-    <div class="box commend">
+    <div class="box commend" id="获得表彰">
       <div class="title">
         <span>获得表彰</span>
       </div>
@@ -348,7 +348,7 @@
       </div>
     </div>
     <!-- 档案信息 -->
-    <div class="box archivesInfo">
+    <div class="box archivesInfo" id="档案信息">
       <div class="title">
         <span>档案信息</span>
       </div>
@@ -374,6 +374,7 @@
         </el-table>
       </div>
     </div>
+    <anchorPoint :catalog="msg" defaultSelect="基本信息" />
   </div>
 </template>
 
@@ -383,12 +384,27 @@ export default {
   name: 'info',
   data () {
     return {
+      msg: ['基本信息', '联系信息', '社会履历', '获得证书', '获得表彰', '档案信息'],
       peopleInfo: {
         basicInfo: {},
         contactInfo: {},
         socialHistory: {},
         certificate: {}
       }
+    }
+  },
+  computed: {
+    a () {
+      console.log(document.body.clientWidth)
+      return document.body.clientWidth
+    }
+  },
+  watch: {
+    document: {
+      handler: function (val, oldVal) {
+        console.log(val)
+      },
+      deep: true
     }
   },
   filters: {
@@ -403,10 +419,18 @@ export default {
     async getPeopleInfo () {
       let res = await getPeopleInfo({ g_id: this.$route.params.personId })
       this.peopleInfo = res.data
+    },
+    setAnchorPoint (val) {
+      let a = document.getElementsByClassName('anchor_c')[0]
+      a.style.left = (1200 + (val - 1200) / 2 - 60) + 'px'
     }
   },
   mounted () {
     this.getPeopleInfo()
+    this.setAnchorPoint(document.body.clientWidth)
+    window.onresize = () => {
+      this.setAnchorPoint(document.body.clientWidth)
+    }
   }
 }
 </script>

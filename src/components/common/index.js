@@ -11,6 +11,7 @@ import goTop from '@/components/common/goTop'
 import upsideDownRoll from '@/components/common/upsideDownRoll'
 import dateCheck from '@/components/common/dateCheck'
 import networkMap from '@/components/common/networkMap'
+import anchorPoint from '@/components/common/anchorPoint'
 
 export default {
   install: function (vue) {
@@ -20,5 +21,6 @@ export default {
     vue.component('upsideDownRoll', upsideDownRoll)
     vue.component('dateCheck', dateCheck)
     vue.component('relation', networkMap)
+    vue.component('anchorPoint', anchorPoint)
   }
 }
