@@ -126,20 +126,18 @@ export default {
       this.$router.replace('/searchList/' + this.searchType + '/' + select.text)
     },
     // 搜索提示
-    querySearch (queryString, callback) {
+    async querySearch (queryString, callback) {
       let CN = this.ifCN(queryString)
       if (CN === '') {
         let noQuery = []
         callback(noQuery)
       }
       if (CN) {
-        tipsCN({ 'query': CN }).then((res) => {
-          callback(res.data)
-        })
+        let res = await tipsCN({ 'query': CN })
+        callback(res.data)
       } else {
-        tipsEN({ 'prefix': queryString }).then((res) => {
-          callback(res.data)
-        })
+        let res = await tipsEN({ 'prefix': queryString })
+        callback(res.data)
       }
     },
     // 去搜索结果页

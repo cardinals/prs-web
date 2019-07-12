@@ -1,13 +1,13 @@
 <template>
   <div class="dynamic">
     <!-- 异常信息通知 -->
-    <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && riskNum && riskNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
-        {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常动态</span>风险预警
+        {{personName}}共有<span>{{riskNum}}</span>项<span>异常动态</span>风险预警
       </div>
       <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
-      <div class="del" @click="changeShowMsg(false)"></div>
+      <div class="del" @click="hideMsg('dynamicShowMsg')"></div>
     </div>
     <!-- 活动及风险类型 -->
     <div class="type">
@@ -88,6 +88,7 @@ let apiParams = {}
 // 获得基于今日往前若干天或往后若干天的日期
 export default {
   name: 'dynamic',
+  props: ['personName', 'riskNum'], // 父组件传参【人名， 风险数】
   data () {
     return {
       isOpen_active: false, // 活动类型是否展开
@@ -102,24 +103,17 @@ export default {
     }
   },
   computed: {
-    // 是否展示最上方的消息提示
     showMsg () {
-      return this.$store.state.dynamic.showMsg
-    },
-    dynamicNum () {
-      return this.$store.state.dynamic.dynamicNum
-    },
-    peopleName () {
-      return this.$store.state.dynamic.peopleName
+      return this.$store.state.people.dynamicShowMsg
     },
     fengxianlx () {
       return this.allData.fengxianlx
     }
   },
   methods: {
-    ...mapActions('dynamic', {
-      changeShowMsg: 'changeShowMsg',
-      changeHeight: 'changeHeight'
+    ...mapActions('people', {
+      changeHeight: 'changeHeight',
+      hideMsg: 'hideMsg'
     }),
     // 活动类型展开与收起
     openActiveType () {
@@ -176,17 +170,16 @@ export default {
       }
     },
     // 仅显示异常
-    onlyDanger () {
-      this.changeShowMsg(false)
+    async onlyDanger () {
+      this.hideMsg('dynamicShowMsg')
       apiParams.flag = '2'
       this.dateDefault = '全部'
       apiParams.timestart = 'all'
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-        if (this.allData.fengxianlx.length !== 0) {
-          this.dangerChecked = 0
-        }
-      })
+      let res = await getDynamic(apiParams)
+      this.allData = res.data
+      if (this.allData.fengxianlx.length !== 0) {
+        this.dangerChecked = 0
+      }
     },
     // 活动类型改变相关操作
     huodonglxChange (index, type) {
@@ -199,18 +192,16 @@ export default {
       this.getDynamic()
     },
     // 请求接口数据
-    getDynamic () {
+    async getDynamic () {
       apiParams.pagenumber = 1
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      let res = await getDynamic(apiParams)
+      this.allData = res.data
     },
     // 点击页码重新请求数据
-    currentChange (val) {
+    async currentChange (val) {
       apiParams.pagenumber = val
-      getDynamic(apiParams).then(res => {
-        this.allData = res.data
-      })
+      let res = await getDynamic(apiParams)
+      this.allData = res.data
     },
     // 时间选择器组件返回的当前选取的时间值
     dateReturn (date) {
@@ -278,31 +269,6 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
-@import '~@/assets/css/peopleDynamic.less';
-</style>
 <style lang="less">
-.el-date-editor .el-range-separator {
-  width: 10%;
-}
-.el-date-editor.el-input__inner {
-  width: 250px !important;
-  height: 28px;
-  .el-input__icon, .el-range-separator {
-    line-height: 20px;
-  }
-}
-
-.el-table__header-wrapper {
-  .has-gutter {
-    tr, th{
-      background: rgba(245,245,245,1);
-      .cell {
-        color:rgba(57,57,57,1);
-        font-size:16px;
-      }
-    }
-  }
-}
-
+@import '~@/assets/css/peopleDynamic.less';
 </style>

@@ -1,20 +1,23 @@
 <template>
   <div class="peoplePath">
-    <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
+    <!-- 预警提示信息 -->
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && riskNum && riskNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
-        {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常关系</span>风险预警
+        {{personName}}共有<span>{{riskNum}}</span>项<span>异常轨迹</span>风险预警
       </div>
       <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
-      <div class="del" @click="changeShowMsg(false)"></div>
+      <div class="del" @click="hideMsg('pathShowMsg')"></div>
     </div>
+    <!-- 地图模块 -->
     <div class="mapContainer">
       <div class="title">
         <span class="name">时空轨迹</span>
         <dateCheck @dateReturn="dateReturn" :dateDefault="dateDefault" />
       </div>
       <div class="pathMap">
-        <div class="legends" v-if="mapType==='point'">
+        <!-- 地图图例 -->
+        <div class="legends" v-if="mapType==='marker'">
           <div class="normal"></div>
           <span>正常</span>
           <div class="abnormal"></div>
@@ -22,6 +25,7 @@
           <div class="transboundary"></div>
           <span>矫正越界</span>
         </div>
+        <!-- 地图交互控件 -->
         <div class="screeningConditions">
           <div class="abnormalCheckbox">
             <el-checkbox v-model="onlyAbnormal" @change="checkboxChange">只看异常</el-checkbox>
@@ -30,20 +34,22 @@
             <span>样式:</span>
             <el-select v-model="mapType" placeholder="请选择样式" size="mini">
               <el-option label="热力图" value="heatmap"></el-option>
-              <el-option label="点图" value="point"></el-option>
+              <el-option label="点图" value="marker"></el-option>
             </el-select>
           </div>
         </div>
+        <!-- 地图组件 -->
         <mapview :map-config="mapConfig" :osm-config="osmConfig"
           :map-types="mapTypes"
           :heatmap="heatmap"
           @pointClick="callback">
           <control :fullscreen="{show: true, position: 'bottom-left'}" :navigation="{showZoom:true, position: 'bottom-right'}"></control>
-          <markers :data="markerData" :show-marker="mapType==='point'" @markerMouseenter="test"></markers>
-          <popup :showPopup="showPopup" :laglng="laglng" :htmlContent="htmlContent" :closeOnClick="true" :closeButton="false"></popup>
+          <markers :data="markerData" :show-marker="mapType==='marker'" @markerMouseenter="showMarkInfo" @markerMouseleave="hideMarkInfo" @markerClick="setFocusPoint"></markers>
+          <popup :showPopup="showPopup" :laglng="laglng" :htmlContent="htmlContent" :closeOnClick="closeOnClick" :closeButton="false"></popup>
         </mapview>
       </div>
     </div>
+    <!-- 表格模块 -->
     <div class="tableContainer">
       <div class="title">
         <span class="name">轨迹清单</span>
@@ -70,10 +76,11 @@
   </div>
 </template>
 <script>
-import 'mapbox-gl/dist/mapbox-gl.css'
+import 'mapbox-gl/dist/mapbox-gl.css' // 引入地图组件样式，否则可能导致marker组件失效
 import { mapActions } from 'vuex'
 import { personTrajectory } from '@/api/api.js'
 let apiParams = {}
+// 设置marker的样式
 const normalMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIBAMAAAA2IaO4AAAAElBMVEUAAAB1vkN1vkN1vkN1vkN1vkNEq6hsAAAABnRSTlMAzL50BW2iYhLOAAAAH0lEQVQI12MAAxYjZQcGZkHBAAYmQUEFMAHmQiRAAAAzEgKlwH02hQAAAABJRU5ErkJggg=='
 const abnorMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX0mTAAAAAHWV8AAAAAAnRSTlPMABHcVXoAAAAPSURBVAjXY/jP0IgE/wMAKDAFBa2/+K0AAAAASUVORK5CYII='
 const transMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIBAMAAAA2IaO4AAAAFVBMVEX/Hx8AAAD/Hx//Hx//Hx//Hx//Hx9n2I/lAAAAB3RSTlPMAJczMjEwGAq1CAAAAC1JREFUCNdjUGBgYGJIYGBgYxBiYFBkEGVgCGQQVGASZBB0YAESQopAQthQEAAt/wKHRx622wAAAABJRU5ErkJggg=='
@@ -84,22 +91,24 @@ const markerImgMap = {
 }
 export default {
   name: 'peoplePath',
+  props: ['personName', 'riskNum'], // 父组件传值【人名， 风险数】
   data () {
     return {
-      showPopup: false,
-      laglng: [121.4198, 31.1043],
-      htmlContent: '<h1>hello</h1>',
-      markerData: [],
-      mapType: 'heatmap',
-      dateDefault: '',
-      tableData: [],
-      nowDate: [],
-      allTableNum: 0,
-      currentPage: 1,
-      pageSize: 5,
-      maptype: 'points',
-      onlyAbnormal: false,
-      mapConfig: {
+      closeOnClick: true, // popup组件传参，是否点击空白处取消popup
+      focusPoint: false, // 当前获得焦点的marker点
+      showPopup: false, // popup组件传值，是否显示popup
+      laglng: [121.4198, 31.1043], // popup组件传值，popup弹出的位置
+      htmlContent: '<h1>hello</h1>', // popup组件传值，popup弹出的内容
+      markerData: [], // marker点数据
+      mapType: 'heatmap', // 默认的地图数据展示类型
+      dateDefault: '', // dateCheck组件传值，默认日期
+      tableData: [], // 表格数据
+      nowDate: [], // dateCheck组件返回的开始时间和结束时间
+      allTableNum: 0, // 表格数据条数
+      currentPage: 1, // 当前页码
+      pageSize: 5, // 每一页的条数
+      onlyAbnormal: false, // 是否只显示异常
+      mapConfig: { // 地图设置
         // <!-- 中心点 -->
         center: [121.4198, 31.1043],
         // <!-- 缩放等级 -->
@@ -109,16 +118,16 @@ export default {
         // <!-- 地图的旋转角度 -->
         bearing: 0
       },
-      osmConfig: {
+      osmConfig: { // 地图瓦片地址及样式
         // <!-- osm地址 -->
         osmUrl: 'http://192.168.22.88:8700',
         // <!-- 地图样式 -->
-        backgroundStyle: 'Positron'
+        backgroundStyle: 'prs-web'
       },
       // <!-- 地图的可视化类型 -->
       mapTypes: ['heatmap'],
       // <!-- 热力图配置项 -->
-      heatmap: {
+      heatmap: { // 热力图设置
         radius: 5,
         weight: 1,
         intensity: 1,
@@ -126,26 +135,12 @@ export default {
         color: ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0, 0, 255, 0)', 0.2, 'royalblue', 0.4, 'cyan', 0.6, 'lime', 0.8, 'yellow', 1, 'red'],
         data: []
       },
-      point: {
-        color: 'orange',
-        textColor: 'red',
-        showAnimation: true,
-        opacity: 0.8,
-        radius: 4,
-        textOffset: 1,
-        data: []
-      }
+      firstLoadMap: true
     }
   },
   computed: {
     showMsg () {
-      return this.$store.state.path.showMsg
-    },
-    dynamicNum () {
-      return this.$store.state.path.dynamicNum
-    },
-    peopleName () {
-      return this.$store.state.path.peopleName
+      return this.$store.state.people.pathShowMsg
     }
   },
   watch: {
@@ -154,16 +149,19 @@ export default {
         if (val.params.type === 'err') {
           this.onlyAbnormal = true
           this.dateDefault = '全部'
+          this.firstLoadMap = true
         } else {
           this.onlyAbnormal = false
+          this.firstLoadMap = true
           this.dateDefault = '本年'
         }
         this.init()
       },
       deep: true
     },
+    // select值监控
     mapType (newVal, oldVal) {
-      if (newVal === 'point') {
+      if (newVal === 'marker') {
         this.mapTypes = []
       } else {
         this.mapTypes = []
@@ -172,10 +170,16 @@ export default {
     }
   },
   methods: {
-    ...mapActions('path', {
-      changeShowMsg: 'changeShowMsg'
+    ...mapActions('people', {
+      hideMsg: 'hideMsg'
     }),
+    // 只看异常操作
     checkboxChange () {
+      if (this.onlyAbnormal) {
+        this.mapConfig.zoom = 7
+      } else {
+        this.mapConfig.zoom = 8.7
+      }
       if (this.onlyAbnormal) {
         apiParams.flag = '1'
       } else {
@@ -183,20 +187,24 @@ export default {
       }
       this.getData()
     },
+    // 地图组件callback
     callback (data) {
     },
+    // 时间选择器组件返回当前时间
     dateReturn (date) {
       this.nowDate = date
-      console.log(date)
       this.init()
     },
+    // 头部消息提示点击查看操作
     onlyDanger () {
-      this.changeShowMsg(false)
+      this.mapConfig.zoom = 7
+      this.hideMsg('pathShowMsg')
       this.onlyAbnormal = true
       apiParams.flag = '1'
       this.dateDefault = '全部'
       // this.getData()
     },
+    // 改变当前页码
     currentChange (pageNum) {
       this.currentPage = pageNum
       this.getTableData(this.currentPage)
@@ -209,12 +217,14 @@ export default {
         return 'color: rgba(247,77,78,1)'
       }
     },
+    // 获取表格数据
     getTableData (val) {
       if (this.heatmap.data) {
         let temp = JSON.parse(JSON.stringify(this.heatmap.data))
         this.tableData = temp.splice(this.pageSize * (val - 1), this.pageSize)
       }
     },
+    // 获取marker点数据
     getMarkerData (data) {
       if (data) {
         data.forEach(element => {
@@ -223,16 +233,23 @@ export default {
       }
       this.markerData = data
     },
-    getData () {
-      personTrajectory(apiParams).then(res => {
-        this.heatmap.data = res.data.data
-        this.point.data = res.data.data
-        this.allTableNum = res.data.resultNum
-        this.getMarkerData(res.data.data)
-        this.currentPage = 1
-        this.getTableData(this.currentPage)
-      })
+    // 获取接口数据
+    async getData () {
+      let res = await personTrajectory(apiParams)
+      if (this.$route.params.type === 'err' && this.firstLoadMap) {
+        this.mapConfig.zoom = 7
+        this.firstLoadMap = false
+      } else {
+        this.mapConfig.zoom = 8.7
+        this.firstLoadMap = false
+      }
+      this.heatmap.data = res.data.data
+      this.allTableNum = res.data.resultNum
+      this.getMarkerData(res.data.data)
+      this.currentPage = 1
+      this.getTableData(this.currentPage)
     },
+    // 页面初始化
     init () {
       apiParams.g_id = this.$route.params.personId
       apiParams.timestart = this.nowDate[0] === '1919-01-01' ? 'all' : this.nowDate[0]
@@ -240,29 +257,47 @@ export default {
       apiParams.flag = this.$route.params.type === 'err' || this.onlyAbnormal ? '1' : '0'
       this.getData()
     },
+    // 刷新地图
     refreshPage () {
       this.mapConfig.zoom = 8.4
       this.mapConfig.center = [121.4198, 31.1043]
     },
+    // 添加一键回到中心点（刷新）控件
     addRefreshControl () {
       const MCG = document.getElementsByClassName('mapboxgl-ctrl-bottom-left')[0].getElementsByClassName('mapboxgl-ctrl-group')[0]
       let fullBtn = MCG.firstElementChild
       let fullContainer = document.createElement('div')
       let refreshBtn = document.createElement('div')
-      refreshBtn.className = 'container fullscreenContainer'
-      fullContainer.className = 'container customRefreshBtn'
-      fullContainer.onclick = this.refreshPage
+      fullContainer.className = 'container fullscreenContainer'
+      refreshBtn.className = 'container customRefreshBtn'
+      refreshBtn.onclick = this.refreshPage
       MCG.removeChild(fullBtn)
-      MCG.appendChild(refreshBtn)
-      refreshBtn.appendChild(fullBtn)
       MCG.appendChild(fullContainer)
+      MCG.appendChild(refreshBtn)
+      fullContainer.appendChild(fullBtn)
     },
-    test (data) {
-      console.log(data)
+    // 展示marker点的信息（即popup弹出框）
+    showMarkInfo (data) {
+      this.focusPoint = false
+      this.closeOnClick = false
       this.showPopup = true
       this.laglng = [data.lng, data.lat]
-      this.htmlContent = `<h1>地点：${data.address}</h1>
-                          <h1>风险预警：${data.label}</h1>`
+      this.htmlContent = `<h1 class="address">${data.address}</h1>
+                          <h1 class="risk">${data.label}</h1>
+                          <div class="left-top"></div><div class="right-top"></div><div class="left-bottom"></div><div class="right-bottom"></div>`
+    },
+    // 隐藏Marker点信息
+    hideMarkInfo () {
+      if (!this.focusPoint) this.showPopup = false
+    },
+    // 设置焦点marker
+    setFocusPoint () {
+      this.focusPoint = true
+      this.closeOnClick = true
+      this.showPopup = false
+      setTimeout(() => {
+        this.showPopup = true
+      }, 10)
     }
   },
   created () {
@@ -278,98 +313,6 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-@import '~@/assets/css/peoplePath.less';
-</style>
 <style lang="less">
-.has-gutter {
-  th {
-    padding: 0;
-    line-height: 42px;
-  }
-}
-.pathTable {
-  .page {
-    margin-top: 20px;
-    text-align: center;
-  }
-}
-.abnormalCheckbox {
-  .el-checkbox{
-    color: #333333;
-    .el-checkbox__input.is-checked+.el-checkbox__label {
-    color: #333333;
-  }
-  }
-}
-.el-select-dropdown {
-  border: none;
-  .el-scrollbar {
-    .el-select-dropdown__list {
-      padding: 5px 0;
-      .el-select-dropdown__item {
-        color: rgba(172,172,172,1);
-        padding-left: 15px;
-        &.hover {
-          background: rgba(39,112,238,1) !important;
-        }
-      }
-    }
-  }
-}
-.mapboxgl-ctrl-top-left {
-  bottom: 10px;
-  top: auto;
-  button {
-    width: 20px;
-    height: 20px;
-    .mapboxgl-ctrl-compass-arrow {
-      width: 10px !important;
-      height: 10px !important;
-    }
-  }
-}
-.mapboxgl-ctrl-bottom-left {
-  display: flex;
-  flex-direction: column;
-  .mapboxgl-ctrl-group {
-    background: transparent;
-    box-shadow: none;
-    padding: 2px;
-    .container {
-      background: #fff;
-      box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.11);
-      height: 30px;
-      width: 30px;
-      border-radius: 4px;
-      cursor: pointer;
-      &:hover {
-        background: rgb(241, 241, 241)
-      }
-      &.customRefreshBtn {
-        margin-top: 10px;
-        background-image: url('../assets/images/refresh.png');
-        background-position: center;
-        background-repeat: no-repeat;
-      }
-      &.fullscreenContainer {
-        .mapboxgl-ctrl-icon {
-          margin: 0;
-          border: 0;
-          outline: 0;
-          padding: 0;
-          width: 30px;
-          height: 30px;
-          background-color: transparent;
-          border-radius: 4px;
-          cursor: pointer;
-          &:hover {
-            background-color: rgb(241, 241, 241);
-          }
-        }
-      }
-    }
-  }
-
-}
+@import '~@/assets/css/peoplePath.less';
 </style>

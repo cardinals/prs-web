@@ -139,31 +139,24 @@ export default {
       this.goSearch()
     },
     // 搜索提示
-    querySearch (queryString, callback) {
+    async querySearch (queryString, callback) {
       let CN = this.ifCN(queryString)
       if (CN === '') {
         let noQuery = []
         callback(noQuery)
       }
       if (CN) {
-        tipsCN({ 'query': CN }).then((res) => {
-          callback(res.data)
-        })
+        let res = await tipsCN({ 'query': CN })
+        callback(res.data)
       } else {
-        tipsEN({ 'prefix': queryString }).then((res) => {
-          callback(res.data)
-        })
+        let res = tipsEN({ 'prefix': queryString })
+        callback(res.data)
       }
     },
     // 获得最新动态的数据
-    latestNewsInit () {
-      return new Promise((resolve, reject) => {
-        latestNews().then((res) => {
-          resolve(res)
-        }).catch((err) => {
-          reject(err)
-        })
-      })
+    async latestNewsInit () {
+      let res = await latestNews()
+      this.cardContent = res.data
     },
     // 跳转搜索页
     goSearch () {
@@ -198,6 +191,7 @@ export default {
       }
       return res
     },
+    // 日志记录，主要记录最新动态中人物的点击情况
     log (item) {
       queryLogs(
         {
@@ -216,10 +210,10 @@ export default {
     }
   },
   mounted () {
-    let _this = this
-    this.latestNewsInit().then((res) => {
-      _this.cardContent = res.data
-    })
+    // 请求最新动态的数据
+    this.latestNewsInit()
+
+    // 适应屏幕高度，让首页整体的内容区域居中
     this.$nextTick(() => {
       let a = document.getElementsByClassName('home')[0].style
       a.paddingTop = document.body.clientHeight - 861 + 'px'
@@ -231,23 +225,5 @@ export default {
 }
 </script>
 <style lang="less">
-.home{
-  .inline-input{
-    float: left;
-    height: 73px;
-    width: calc(100% - 160px);
-    border-radius:4px 0px 0px 4px;
-    border:1px solid rgba(231,229,229,1);
-  }
-  .el-input__inner{
-    font-size:18px;
-    height: 73px;
-    border:0;
-    border-radius:4px 0px 0px 4px;
-  }
-}
-</style>
-
-<style lang="less" scoped>
   @import '~@/assets/css/home.less';
 </style>

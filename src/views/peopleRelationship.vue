@@ -1,13 +1,15 @@
 <template>
   <div class="relation">
-    <div class="msg" v-if="$route.params.type!=='err' && showMsg && dynamicNum !== '0'">
+    <!-- 头部消息提示 -->
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && riskNum && riskNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
-        {{peopleName}}共有<span>{{dynamicNum}}</span>项<span>异常关系</span>风险预警
+        {{personName}}共有<span>{{riskNum}}</span>项<span>异常关系</span>风险预警
       </div>
       <div class="btn" @click="onlyDanger"><span>点击查看</span></div>
-      <div class="del" @click="changeShowMsg(false)"></div>
+      <div class="del" @click="hideMsg('ralationShowMsg')"></div>
     </div>
+    <!-- 人物关系图谱 -->
     <div class="peopleRelation">
       <div class="title">
         <span class="name">人物关系</span>
@@ -23,26 +25,17 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import relation from './networkMap'
 export default {
   name: 'relationship',
-  components: {
-    relation
-  },
+  props: ['personName', 'riskNum'], // 父组件传值【人名， 风险数】
   data () {
     return {
-      onlyAbnormal: false
+      onlyAbnormal: false // 是否只显示异常
     }
   },
   computed: {
     showMsg () {
-      return this.$store.state.relation.showMsg
-    },
-    dynamicNum () {
-      return this.$store.state.relation.dynamicNum
-    },
-    peopleName () {
-      return this.$store.state.relation.peopleName
+      return this.$store.state.people.ralationShowMsg
     }
   },
   watch: {
@@ -57,15 +50,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions('relation', {
-      changeShowMsg: 'changeShowMsg'
+    ...mapActions('people', {
+      hideMsg: 'hideMsg'
     }),
+    // 点击查看
     onlyDanger () {
-      this.changeShowMsg(false)
+      this.hideMsg('relationShowMsg')
       this.onlyAbnormal = true
-    },
-    myEvent (ss) {
-      ss.get('nodes')[0].enableCapture(false)
     }
   },
   mounted () {
@@ -74,22 +65,6 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-@import '~@/assets/css/peopleRelationship.less';
-</style>
-
 <style lang="less">
-.el-checkbox__input.is-checked .el-checkbox__inner {
-  background: #2770EE;
-  border-color: #2770EE;
-}
-.el-checkbox .el-checkbox__label {
-  padding-left: 5px;
-  font-size: 14px;
-  color: #000;
-}
-.el-checkbox__input.is-checked+.el-checkbox__label {
-  color: #000;
-}
-
+@import '~@/assets/css/peopleRelationship.less';
 </style>

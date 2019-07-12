@@ -669,6 +669,7 @@ export default {
       endPoint.x = endX - 45 * (cosA * Math.cos(angle) + sinA * Math.sin(angle))
     },
     clickPerson (e) {
+      this.deleteTooltip()
       let id = e.item.getModel().personId
       if (id !== '') {
         relation({
@@ -696,7 +697,6 @@ export default {
         }
         this.changeNodeLegendStatu(i)
       }
-      console.log(this.nodeLegends)
       for (let i = 0; i < this.edgeLegends.length; i++) {
         if (this.edgeLegends[i].name === '重点') {
           this.edgeLegends[i].checked = false
@@ -767,6 +767,10 @@ export default {
       this.edgeLegends = []
       graph.destroy()
       this.getData()
+    },
+    deleteTooltip () {
+      let a = document.getElementsByClassName('g6-tooltip g6-node-tooltip')
+      if (a[0]) a[0].remove()
     }
   },
   created () {
@@ -787,9 +791,10 @@ export default {
   user-select: none;
   position: relative;
   #container {
-    min-height: 650px;
+    min-height: 682px;
   }
   .nodeLegends {
+    z-index: 10;
     position: absolute;
     right: 20px;
     top: 20px;
