@@ -54,7 +54,10 @@
         <span :class="{'checked': menuChoice === 'relationship'}" @click="menuClick('relationship')">人物关系</span>
       </div>
       <!-- 子路由 -->
-      <router-view></router-view>
+      <router-view
+        :risk-num="riskNum"
+        :person-name="personName"
+      ></router-view>
     </div>
   </div>
 </template>
@@ -71,37 +74,30 @@ export default {
   name: 'peopleInfoPage',
   data () {
     return {
+      riskNum: 0,
+      personName: 'fawefe',
       peopleBasicInfo: { // 人员基本信息
         basicInfo: {},
         riskWarn: {},
         selftags: []
       },
       tagType: ['', 'success', 'warning', 'danger'], // 标签级别
-      menuChoice: 'info' // 默认导航路由
+      menuChoice: 'info', // 默认导航路由
+      menuMap: { // 导航类型映射表
+        dynamic: 'abnormalDynamic',
+        peoplePath: 'abnormalTrail',
+        relationship: 'abnormalRelation'
+      }
     }
   },
   methods: {
-    ...mapActions({
-      changeShowMsg: 'dynamic/changeShowMsg',
-      changeDyNum: 'dynamic/changeDyNum',
-      changePeopleName: 'dynamic/changePeopleName',
-      changeShowMsgRe: 'relation/changeShowMsg',
-      changeDyNumRe: 'relation/changeDyNum',
-      changePeopleNameRe: 'relation/changePeopleName',
-      changeShowMsgPath: 'path/changeShowMsg',
-      changeDyNumPath: 'path/changeDyNum',
-      changePeopleNamePath: 'path/changePeopleName'
-    }),
+    ...mapActions({ showAllMsg: 'people/showAllMsg' }),
     // 获取基本信息数据
     async getbasicInfo () {
       let res = await getbasicInfo({ g_id: this.$route.params.personId })
       this.peopleBasicInfo = res.data
-      this.changeDyNum(res.data.riskWarn.abnormalDynamic)
-      this.changeDyNumRe(res.data.riskWarn.abnormalRelation)
-      this.changeDyNumPath(res.data.riskWarn.abnormalTrail)
-      this.changePeopleName(res.data.basicInfo.name)
-      this.changePeopleNameRe(res.data.basicInfo.name)
-      this.changePeopleNamePath(res.data.basicInfo.name)
+      this.personName = this.peopleBasicInfo.basicInfo.name
+      this.riskNum = this.peopleBasicInfo.riskWarn[this.menuMap[this.menuChoice]]
     },
     // 性别class控制
     genderClass () {
@@ -122,17 +118,14 @@ export default {
     goAbnormal (val) {
       let id = this.$route.params.personId
       if (val === 'abnormalRelation') {
-        // this.changeShowMsgRe(false)
         this.$router.replace('/detail/' + id + '/relationship/err')
         this.menuChoice = 'relationship'
       }
       if (val === 'abnormalDynamic') {
-        // this.changeShowMsg(false)
         this.$router.replace('/detail/' + id + '/dynamic/err')
         this.menuChoice = 'dynamic'
       }
       if (val === 'abnormalTrail') {
-        // this.changeShowMsgPath(false)
         this.$router.replace('/detail/' + id + '/peoplePath/err')
         this.menuChoice = 'peoplePath'
       }
@@ -141,6 +134,13 @@ export default {
     goInfo () {
       this.$router.replace('/detail/' + this.$route.params.personId + '/info')
       this.menuChoice = 'info'
+    }
+  },
+  watch: {
+    menuChoice: {
+      handler: function (newVal, oldVal) {
+        if (newVal !== 'info') this.riskNum = this.peopleBasicInfo.riskWarn[this.menuMap[newVal]]
+      }
     }
   },
   filters: {
@@ -165,10 +165,8 @@ export default {
   },
   mounted () {
     this.getbasicInfo()
+    this.showAllMsg()
     this.menuChoice = this.$route.path.split('/')[this.$route.path.split('/').length - 1]
-    this.changeShowMsg(true)
-    this.changeShowMsgRe(true)
-    this.changeShowMsgPath(true)
     this.menuChoice = this.$route.name
   }
 }
