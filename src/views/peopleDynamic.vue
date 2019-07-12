@@ -1,7 +1,7 @@
 <template>
   <div class="dynamic">
     <!-- 异常信息通知 -->
-    <div class="msg" v-if="$route.params.type!=='err' && showMsg && riskNum !== '0'">
+    <div class="msg" v-if="$route.params.type!=='err' && showMsg && riskNum && riskNum !== '0'">
       <div class="icon"></div>
       <div class="text" >
         {{personName}}共有<span>{{riskNum}}</span>项<span>异常动态</span>风险预警
