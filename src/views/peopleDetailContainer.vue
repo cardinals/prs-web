@@ -75,7 +75,7 @@ export default {
   data () {
     return {
       riskNum: 0,
-      personName: 'fawefe',
+      personName: '',
       peopleBasicInfo: { // 人员基本信息
         basicInfo: {},
         riskWarn: {},
