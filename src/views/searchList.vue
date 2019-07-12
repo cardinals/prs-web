@@ -221,8 +221,8 @@ export default {
     // 监控搜索条件列表值的变化
     keywordArr: function (newVal, oldVal) {
       this.currentPage = 1
-      apiParams.query = this.$store.state.header.searchVal
-      apiParams.querytype = this.$store.state.header.searchType
+      apiParams.query = this.$route.params.searchVal
+      apiParams.querytype = this.$route.params.searchType
       if (newVal.length === 0) {
         this.apiParamsClear()
       }
