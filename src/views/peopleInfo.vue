@@ -374,6 +374,7 @@
         </el-table>
       </div>
     </div>
+    <!-- 锚点目录 -->
     <anchorPoint :catalog="msg" defaultSelect="基本信息" />
   </div>
 </template>
@@ -384,27 +385,13 @@ export default {
   name: 'info',
   data () {
     return {
-      msg: ['基本信息', '联系信息', '社会履历', '获得证书', '获得表彰', '档案信息'],
+      msg: ['基本信息', '联系信息', '社会履历', '获得证书', '获得表彰', '档案信息'], // 锚点组件传参（节点名称）
       peopleInfo: {
         basicInfo: {},
         contactInfo: {},
         socialHistory: {},
         certificate: {}
       }
-    }
-  },
-  computed: {
-    a () {
-      console.log(document.body.clientWidth)
-      return document.body.clientWidth
-    }
-  },
-  watch: {
-    document: {
-      handler: function (val, oldVal) {
-        console.log(val)
-      },
-      deep: true
     }
   },
   filters: {
@@ -416,10 +403,12 @@ export default {
     }
   },
   methods: {
+    // 个人数据请求
     async getPeopleInfo () {
       let res = await getPeopleInfo({ g_id: this.$route.params.personId })
       this.peopleInfo = res.data
     },
+    // 设置锚点组件的位置
     setAnchorPoint (val) {
       let a = document.getElementsByClassName('anchor_c')[0]
       a.style.left = (1200 + (val - 1200) / 2 - 60) + 'px'
@@ -428,6 +417,7 @@ export default {
   mounted () {
     this.getPeopleInfo()
     this.setAnchorPoint(document.body.clientWidth)
+    // 窗口大小改变时触发
     window.onresize = () => {
       this.setAnchorPoint(document.body.clientWidth)
     }
