@@ -17,49 +17,58 @@ export default {
       showWhich: ''
     }
   },
+  computed: {
+    // 生成锚点数据 id(锚点名称) min(DOM顶部距离页面顶部的高度) max(DOM底部距离页面顶部的高度)
+    anchorPointArray: function () {
+      let list = []
+      for (let i = 0; i < this.catalog.length; i++) {
+        let element = document.getElementById(this.catalog[i])
+        list.push({ id: this.catalog[i], min: element.offsetTop, max: element.offsetTop + element.offsetHeight })
+      }
+      return list
+    }
+  },
   methods: {
     // 锚点跳转
     goAnchor (selector) {
-      // 查询id 去掉空格
-      let anchor = document.querySelector('#' + selector.replace(/\s/g, ''))
-      // 交互
+      window.removeEventListener('scroll', this.scroll)
+      // 选中锚点
       this.showWhich = selector
-      let index = 1
-      // 计算当前滚动条和元素之差
-      let delt = anchor.offsetTop - document.querySelector('html').scrollTop
-      // 写个定时器实现过渡效果
-      let timer = setInterval(() => {
-        document.querySelector('html').scrollTop += delt / 20
-        index++
-        if (index === 21) { clearInterval(timer) }
-      }, 10)
+      // 获取DOM节点
+      let anchor = document.querySelector('#' + selector.replace(/\s/g, ''))
+      // 重新设置滚动高度
+      document.documentElement.scrollTop = anchor.offsetTop
+      let time = setTimeout(() => {
+        window.addEventListener('scroll', this.scroll)
+        clearTimeout(time)
+      }, 50)
     },
-    test () {
-      let scrollTopArr = []
-      for (let i = 0; i < this.catalog.length; i++) {
-        let element = document.getElementById(this.catalog[i])
-        let height = document.documentElement.scrollTop - element.offsetTop - element.parentElement.offsetTop
-        if (height > 80) {
-          scrollTopArr.push({ index: i, value: height })
+    // 查找锚点
+    findAnchor () {
+      // 获取当前高度
+      const scrollTop = document.documentElement.scrollTop
+      // 遍历锚点列表
+      this.anchorPointArray.map((item) => {
+        if ((item.min <= scrollTop) && (scrollTop <= item.max)) {
+          // 选中锚点
+          this.showWhich = item.id
         }
-      }
-      if (scrollTopArr.length > 0) {
-        let res = scrollTopArr.reduce((x, y) => {
-          if (x.value <= y.value) {
-            return x
-          } else {
-            return y
-          }
-        })
-        this.showWhich = this.catalog[res.index + 1 > this.catalog.length ? this.catalog.length : res.index + 1]
-      } else {
-        this.showWhich = this.catalog[0]
-      }
+      })
+    },
+    // 滚动事件
+    scroll () {
+      this.findAnchor()
     }
   },
   mounted () {
-    window.addEventListener('scroll', this.test)
+    // 设置初始锚点
     this.showWhich = this.defaultSelect ? this.defaultSelect : ''
+    // 添加滚动事件监听
+    window.addEventListener('scroll', this.scroll)
+  },
+  beforeDestroy () {
+    // 移除滚动事件监听
+    window.removeEventListener('scroll', this.scroll)
   }
 }
 </script>
