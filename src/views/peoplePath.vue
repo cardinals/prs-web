@@ -167,6 +167,13 @@ export default {
         this.mapTypes = []
         this.mapTypes.push('heatmap')
       }
+    },
+    onlyAbnormal (newVal, oldVal) {
+      if (newVal) {
+        this.mapConfig.zoom = 7
+      } else {
+        this.mapConfig.zoom = 8.7
+      }
     }
   },
   methods: {
@@ -175,11 +182,6 @@ export default {
     }),
     // 只看异常操作
     checkboxChange () {
-      if (this.onlyAbnormal) {
-        this.mapConfig.zoom = 7
-      } else {
-        this.mapConfig.zoom = 8.7
-      }
       if (this.onlyAbnormal) {
         apiParams.flag = '1'
       } else {
@@ -197,7 +199,6 @@ export default {
     },
     // 头部消息提示点击查看操作
     onlyDanger () {
-      this.mapConfig.zoom = 7
       this.hideMsg('pathShowMsg')
       this.onlyAbnormal = true
       apiParams.flag = '1'
@@ -236,13 +237,6 @@ export default {
     // 获取接口数据
     async getData () {
       let res = await personTrajectory(apiParams)
-      if (this.$route.params.type === 'err' && this.firstLoadMap) {
-        this.mapConfig.zoom = 7
-        this.firstLoadMap = false
-      } else {
-        this.mapConfig.zoom = 8.7
-        this.firstLoadMap = false
-      }
       this.heatmap.data = res.data.data
       this.allTableNum = res.data.resultNum
       this.getMarkerData(res.data.data)
@@ -259,7 +253,6 @@ export default {
     },
     // 刷新地图
     refreshPage () {
-      this.mapConfig.zoom = 8.4
       this.mapConfig.center = [121.4198, 31.1043]
     },
     // 添加一键回到中心点（刷新）控件
