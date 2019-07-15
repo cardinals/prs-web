@@ -417,10 +417,6 @@ export default {
   mounted () {
     this.getPeopleInfo()
     this.setAnchorPoint(document.body.clientWidth)
-    // 窗口大小改变时触发
-    window.onresize = () => {
-      this.setAnchorPoint(document.body.clientWidth)
-    }
   }
 }
 </script>
