@@ -17,7 +17,7 @@
       </div>
       <div class="content">
         <div class="graphicContainer">
-          <relation @my-event="myEvent" :onlyErr="onlyAbnormal" />
+          <relation :onlyErr="onlyAbnormal" @changeCheckBoxState="changeCheckBoxState" />
         </div>
       </div>
     </div>
@@ -55,8 +55,13 @@ export default {
     }),
     // 点击查看
     onlyDanger () {
-      this.hideMsg('relationShowMsg')
+      this.hideMsg('ralationShowMsg')
       this.onlyAbnormal = true
+    },
+    changeCheckBoxState (state) {
+      if (state) {
+        this.onlyAbnormal = false
+      }
     }
   },
   mounted () {

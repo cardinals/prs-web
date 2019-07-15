@@ -205,6 +205,25 @@ export default {
       } else {
         this.showAll()
       }
+    },
+    nodeLegends: {
+      handler: function (newVal, oldVal) {
+        let res = true
+        newVal.forEach(ele => {
+          res = res && ele.checked
+        })
+        this.$emit('changeCheckBoxState', res)
+        let showEdgeSet = new Set()
+        graph.getEdges().forEach(ele => {
+          if (ele.isVisible()) {
+            showEdgeSet.add(ele.getModel().shape)
+          }
+        })
+        this.edgeLegends.forEach(ele => {
+          ele.checked = showEdgeSet.has(ele.name)
+        })
+      },
+      deep: true
     }
   },
   methods: {
