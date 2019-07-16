@@ -57,6 +57,7 @@
       <router-view
         :risk-num="riskNum"
         :person-name="personName"
+        :wristband="peopleBasicInfo.wristband"
       ></router-view>
     </div>
   </div>
@@ -79,7 +80,8 @@ export default {
       peopleBasicInfo: { // 人员基本信息
         basicInfo: {},
         riskWarn: {},
-        selftags: []
+        selftags: [],
+        wristband: 0
       },
       tagType: ['', 'success', 'warning', 'danger'], // 标签级别
       menuChoice: 'info', // 默认导航路由

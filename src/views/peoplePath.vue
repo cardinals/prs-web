@@ -12,7 +12,7 @@
     <!-- 地图模块 -->
     <div class="mapContainer">
       <div class="title">
-        <span class="name">时空轨迹</span>
+        <span class="name">时空轨迹{{wristband?'':' (未配发手环)'}}</span>
         <dateCheck @dateReturn="dateReturn" :dateDefault="dateDefault" />
       </div>
       <div class="pathMap">
@@ -91,7 +91,7 @@ const markerImgMap = {
 }
 export default {
   name: 'peoplePath',
-  props: ['personName', 'riskNum'], // 父组件传值【人名， 风险数】
+  props: ['personName', 'riskNum', 'wristband'], // 父组件传值【人名， 风险数】
   data () {
     return {
       closeOnClick: true, // popup组件传参，是否点击空白处取消popup
