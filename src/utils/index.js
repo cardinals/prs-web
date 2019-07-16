@@ -124,3 +124,18 @@ export let floatIntFormat = (value) => {
 
 // 颜色组
 export const color = ['#1890FF', '#2FC25B', '#FACC14', '#223273', '#8543E0', '#13C2C2', '#3436C7', '#F04864']
+
+let AES = require('crypto-js/aes')
+let enc = require('crypto-js/enc-utf8')
+
+export const encode = (data) => {
+  data = AES.encrypt(data, 'enjoyor').toString()
+  return data
+}
+
+export const decode = (data) => {
+  if (data !== null && data !== undefined) {
+    data = AES.decrypt(data, 'enjoyor').toString(enc)
+  }
+  return data
+}

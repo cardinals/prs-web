@@ -53,18 +53,19 @@
 <script>
 import { imgCheck, login, register, loginStatus } from '@/api/api'
 import { Message } from 'element-ui'
+import { encode, decode } from '@/utils/index.js'
 export default {
   data () {
     return {
       loginFlag: true,
       loginUsername: localStorage.getItem('prs_web_username'),
-      loginPassword: localStorage.getItem('prs_web_userpassword'),
+      loginPassword: decode(localStorage.getItem('prs_web_password')),
       registorUsername: '',
       registorPassword: '',
       registorYzm: '',
       checkRegistorUsername: '',
       checkRegistorPassword: '',
-      remPassword: true
+      remPassword: localStorage.getItem('prs_web_password') !== null
     }
   },
   watch: {
@@ -83,9 +84,9 @@ export default {
     // 选择登录/注册
     choose (type) {
       if (type === 'login') {
-        [this.loginFlag, this.registorUsername, this.registorPassword, this.registorYzm, this.checkRegistorUsername, this.checkRegistorPassword] = [true, '', '', '', '', '']
+        [this.loginFlag, this.remPassword, this.loginUsername, this.loginPassword] = [true, localStorage.getItem('prs_web_password') !== null, localStorage.getItem('prs_web_username'), decode(localStorage.getItem('prs_web_password'))]
       } else {
-        [this.loginFlag, this.loginUsername, this.loginPassword] = [false, '', '']
+        [this.loginFlag, this.registorUsername, this.registorPassword, this.registorYzm, this.checkRegistorUsername, this.checkRegistorPassword] = [false, '', '', '', '', '']
         this.getYzm()
       }
     },
@@ -97,21 +98,19 @@ export default {
     },
     // 登录
     async goLogin () {
-      // 记住密码
-      if (this.remPassword) {
-        // 勾选记住密码功能，将用户名密码存储在本地存储中
-        localStorage.setItem('prs_web_username', this.loginUsername)
-        localStorage.setItem('prs_web_userpassword', this.loginPassword)
-      } else {
-        localStorage.setItem('prs_web_username', '')
-        localStorage.setItem('prs_web_userpassword', '')
-      }
       // 登录接口
       let res = await login({
         username: this.loginUsername,
         password: this.loginPassword
       })
       if (res.code === 1) {
+        localStorage.setItem('prs_web_username', this.loginUsername)
+        // 如果勾选记住密码功能，将用户名密码存储在本地存储中
+        if (this.remPassword) {
+          localStorage.setItem('prs_web_password', encode(this.loginPassword))
+        } else {
+          localStorage.removeItem('prs_web_password')
+        }
         // 登录成功跳转
         this.$router.push('/home')
       } else {
