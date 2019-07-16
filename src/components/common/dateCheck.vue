@@ -35,12 +35,14 @@ let getDay = day => {
 export default {
   name: 'dateCheck',
   props: {
+    // 组件传值，控制日期选择器的按钮的种类
     buttons: {
       type: Array,
       default: () => {
         return ['全部', '今日', '本周', '本月', '本年']
       }
     },
+    // 默认显示日期
     dateDefault: {
       type: String,
       default: '本年'
@@ -102,14 +104,15 @@ export default {
     }
   },
   methods: {
+    // 日期选择器选择按钮改变
     dateChange (val) {
       this.dateDefaultCheck = val
       if (this.dateMap[val]) {
         this.dateMap[val]()
         this.dateChanged(this.datePicked, true)
       }
-      // this.getDynamic()
     },
+    // 按钮是否显示
     isShowButtton (val) {
       let res = false
       this.buttons.forEach(element => {
@@ -119,6 +122,7 @@ export default {
       })
       return res
     },
+    // 日期选择器日历选择日期改变
     dateChanged (val, status) {
       if (!status) {
         this.dateDefaultCheck = ''
