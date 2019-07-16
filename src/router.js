@@ -8,7 +8,12 @@ export default new Router({
     {
       path: '/',
       // 重定向根路径对应的模块
-      redirect: '/home'
+      redirect: '/login'
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('./views/login.vue')
     },
     {
       path: '/home',

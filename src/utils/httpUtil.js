@@ -2,7 +2,7 @@
  * @Author: wupeiwen javapeiwen2010@gmail.com
  * @Date: 2018-08-14 09:28:41
  * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2019-07-04 14:13:34
+ * @Last Modified time: 2019-07-15 16:11:59
  */
 
 import axios from 'axios'
@@ -45,9 +45,12 @@ axios.interceptors.response.use(
       store.dispatch({ type: 'app/changeLoadingStatus', amount: false })
     }
     // 未登录状态跳转登录页
-    // if (response.data.code === 10) {
-    //   Message({ type: 'info', message: '10 未登录！', duration: 5000 })
-    // }
+    if (response.data.code === 10) {
+      Message({ type: 'info', message: '未登录状态, 请先登录！', duration: 1500 })
+      setTimeout(() => {
+        location.href = `${location.origin}/#/login`
+      }, 2000)
+    }
     return Promise.resolve(response)
   },
   error => {
