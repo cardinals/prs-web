@@ -154,23 +154,27 @@ export default {
     },
     // 用户登出
     async logout () {
+      // 登录类型 normal、sso
+      const loginType = process.env.VUE_APP_loginType
       let res = await logout()
       if (res.code === 1) {
-        Message({
-          message: res.message,
-          type: 'info',
-          duration: 1500
-        })
-        setTimeout(() => {
-          location.href = `${location.origin}/#/login`
-        }, 2000)
+        Message({ message: res.message, type: 'info', duration: 1500 })
+        if (loginType === 'sso') {
+          // 如果登陆类型为sso, 跳转响应中的登出页面地址
+          setTimeout(() => {
+            location.href = res.data
+          }, 2000)
+        } else {
+          // 如果登陆类型为normal, 跳转系统登录模块
+          setTimeout(() => {
+            location.href = `${location.origin}/#/login`
+          }, 2000)
+        }
       } else {
-        Message({
-          message: res.message,
-          type: 'error'
-        })
+        Message({ message: res.message, type: 'error' })
       }
     },
+    // 下拉点击
     dropdownClick (command) {
       if (command === 'logout') {
         this.logout()
