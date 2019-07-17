@@ -120,7 +120,7 @@
         <el-pagination
             v-if='listData.resultNum>0'
             class="page"
-            layout="prev, pager, next"
+            layout="total, prev, pager, next, jumper"
             :total="listData.resultNum"
             :page-size="5"
             :current-page="currentPage"
