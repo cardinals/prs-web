@@ -12,7 +12,7 @@
     <!-- 地图模块 -->
     <div class="mapContainer">
       <div class="title">
-        <span class="name">时空轨迹{{wristband?'':' (未配发手环)'}}</span>
+        <span class="name">时空轨迹</span>
         <dateCheck @dateReturn="dateReturn" :dateDefault="dateDefault" />
       </div>
       <div class="pathMap">
