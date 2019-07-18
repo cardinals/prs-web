@@ -207,7 +207,6 @@ export default {
         this.initLegends(this.G6Data)
         this.firstLoad = false
       }
-
       this.createGraph('container')
       this.init()
       this.registerNodes()
@@ -314,7 +313,7 @@ export default {
       cusEdge.fill = cusEdge.fill || '#333'
       cusEdge.lineWidth = cusEdge.lineWidth || 1
       cusEdge.opacity = cusEdge.opacity || 0.5
-      if (cusEdge.labelStyle) { cusEdge.labelStyle = {} }
+      if (!cusEdge.labelStyle) { cusEdge.labelStyle = {} }
       cusEdge.labelStyle.fontSize = cusEdge.labelStyle.fontSize || 12
       cusEdge.labelStyle.fill = cusEdge.labelStyle.fill || '#333'
       cusEdge.labelStyle.stroke = cusEdge.labelStyle.stroke || '#fff'
@@ -340,8 +339,7 @@ export default {
                 }
               }
             },
-            'zoom-canvas',
-            'drag-node']
+            'zoom-canvas']
         },
         nodeStyle: {
           default: {
@@ -378,6 +376,7 @@ export default {
         e.item.get('model').x = e.x
         e.item.get('model').y = e.y
         graph.refreshPositions()
+        graph.paint()
       }
       simulation = d3.forceSimulation()
         .force('link', d3.forceLink().id(function (d) { return d.id }).strength(0.001))
@@ -394,6 +393,7 @@ export default {
 
       // 节点操作--拖拽中
       graph.on('node:drag', function (e) {
+        console.log(e)
         refreshPosition(e)
         simulation.stop()
       })
