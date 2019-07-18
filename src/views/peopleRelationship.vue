@@ -109,7 +109,6 @@ export default {
     },
     $route: {
       handler: function (val, oldVal) {
-        console.log('route change')
         this.onlyAbnormal = this.$route.params.type === 'err'
       },
       deep: true
