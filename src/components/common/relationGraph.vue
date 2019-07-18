@@ -314,12 +314,12 @@ export default {
       cusEdge.fill = cusEdge.fill || '#333'
       cusEdge.lineWidth = cusEdge.lineWidth || 1
       cusEdge.opacity = cusEdge.opacity || 0.5
-      if (cusEdge.labelStyle) {
-        cusEdge.labelStyle.fontSize = cusEdge.labelStyle.fontSize || 12
-        cusEdge.labelStyle.fill = cusEdge.labelStyle.fill || '#333'
-        cusEdge.labelStyle.stroke = cusEdge.labelStyle.stroke || '#fff'
-        cusEdge.labelStyle.lineWidth = cusEdge.labelStyle.lineWidth || 5
-      }
+      if (cusEdge.labelStyle) { cusEdge.labelStyle = {} }
+      cusEdge.labelStyle.fontSize = cusEdge.labelStyle.fontSize || 12
+      cusEdge.labelStyle.fill = cusEdge.labelStyle.fill || '#333'
+      cusEdge.labelStyle.stroke = cusEdge.labelStyle.stroke || '#fff'
+      cusEdge.labelStyle.lineWidth = cusEdge.labelStyle.lineWidth || 5
+
       return cusEdge
     },
     createGraph (container, width, height) {
