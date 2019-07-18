@@ -8600,10 +8600,10 @@ vue-loader@^15.7.0:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
-vue-mapboxgl-components@^1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/vue-mapboxgl-components/-/vue-mapboxgl-components-1.2.7.tgz#587b9d567839bd1977cfd9f3e40892408c432f01"
-  integrity sha512-3avBV2jzMIn/zQmRHtvsDLsKdVICapCkduSh1R1E4CRLuzs0VWMA18HlOi810Za8a63BOmxGhxzVxTLTY5wvDg==
+vue-mapboxgl-components@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/vue-mapboxgl-components/-/vue-mapboxgl-components-1.2.8.tgz#c873a5f4a492aca038520dce736312e06c2ab72d"
+  integrity sha512-6CiU3eeItDAErTF/PyhXS4oG7Ez2/GPDCYgpT9rgxGRGLLAjp7UFoM0nkuS/R4ufHiP+CxLVwQ+TiGMDDaDVgA==
   dependencies:
     mapbox-gl "^0.51.0"
     uuid "^3.3.2"
