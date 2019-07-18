@@ -143,46 +143,6 @@ const treeTitleMap = {
   homeAddress: '居住地',
   tags: '标签'
 }
-
-// 接口请求参数
-let apiParams = {
-  'age': '',
-  'hujidizhi': '',
-  'juzhudi': '',
-  'label': [],
-  'order': 'desc',
-  'pagecapacity': 5,
-  'pagenumber': 1,
-  'query': '',
-  'xingbie': '',
-  'querytype': ''
-}
-
-// 点击树状节点对应的api参数修改方式映射
-const paramsMap = {
-  age: (val) => { apiParams['age'] = val.name },
-  birthPlace: (val) => { apiParams['hujidizhi'] = val.nameid },
-  homeAddress: (val) => { apiParams['juzhudi'] = val.nameid },
-  tags: (val) => {
-    if (apiParams['label'].indexOf(val.name) < 0) {
-      if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia' || val.type === 'fengxiandengji') {
-        apiParams['label'].push(val.name.split(':')[1])
-      } else {
-        apiParams['label'].push(val.name)
-      }
-    }
-  },
-  gender: (val) => { apiParams['xingbie'] = val.nameid }
-}
-
-// 删除搜索条件对应的api参数修改方式映射
-const delParamsMap = {
-  age: (val) => { apiParams['age'] = '' },
-  birthPlace: (val) => { apiParams['hujidizhi'] = '' },
-  homeAddress: (val) => { apiParams['juzhudi'] = '' },
-  gender: (val) => { apiParams['xingbie'] = '' },
-  tags: (val) => { apiParams['label'].splice(apiParams['label'].indexOf(val), 1) }
-}
 export default {
   data () {
     return {
@@ -196,7 +156,45 @@ export default {
       },
       sortFlag: 'desc', // 按相关度倒序
       currentPage: 1, // 当前页码
-      renderList: [] // 实际渲染列表
+      renderList: [], // 实际渲染列表
+
+      // 接口请求参数
+      apiParams: {
+        'age': '',
+        'hujidizhi': '',
+        'juzhudi': '',
+        'label': [],
+        'order': 'desc',
+        'pagecapacity': 5,
+        'pagenumber': 1,
+        'query': '',
+        'xingbie': '',
+        'querytype': ''
+      },
+      // 点击树状节点对应的api参数修改方式映射
+      paramsMap: {
+        age: (val) => { this.apiParams['age'] = val.name },
+        birthPlace: (val) => { this.apiParams['hujidizhi'] = val.nameid },
+        homeAddress: (val) => { this.apiParams['juzhudi'] = val.nameid },
+        tags: (val) => {
+          if (this.apiParams['label'].indexOf(val.name) < 0) {
+            if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia' || val.type === 'fengxiandengji') {
+              this.apiParams['label'].push(val.name.split(':')[1])
+            } else {
+              this.apiParams['label'].push(val.name)
+            }
+          }
+        },
+        gender: (val) => { this.apiParams['xingbie'] = val.nameid }
+      },
+      // 删除搜索条件对应的api参数修改方式映射
+      delParamsMap: {
+        age: (val) => { this.apiParams['age'] = '' },
+        birthPlace: (val) => { this.apiParams['hujidizhi'] = '' },
+        homeAddress: (val) => { this.apiParams['juzhudi'] = '' },
+        gender: (val) => { this.apiParams['xingbie'] = '' },
+        tags: (val) => { this.apiParams['label'].splice(this.apiParams['label'].indexOf(val), 1) }
+      }
     }
   },
   mixins: [changePage.getMixin()],
@@ -216,27 +214,24 @@ export default {
     }
   },
   watch: {
-    // 监控搜索条件列表值的变化
-    keywordArr: function (newVal, oldVal) {
-      this.currentPage = 1
-      apiParams.query = this.$route.params.searchVal
-      apiParams.querytype = this.$route.params.searchType
-      if (newVal.length === 0) {
+
+    apiParams: {
+      handler: function (newVal, oldVal) {
+        this.searchListInit()
+      },
+      deep: true
+    },
+    $route: {
+      handler: function (newVal, oldVal) {
+        this.keywordArr = [{
+          type: 'searchVal',
+          name: this.$route.params.searchVal
+        }]
         this.apiParamsClear()
-      }
-      this.searchListInit()
-    },
-    searchVal: function (newVal, oldVal) {
-      this.keywordArr = [{
-        type: 'searchVal',
-        name: this.$route.params.searchVal
-      }]
-      this.apiParamsClear()
-    },
-    searchType: function (newVal, oldVal) {
-      this.currentPage = 1
-      apiParams.querytype = newVal
-      apiParams.query = this.searchVal
+        this.apiParams.querytype = newVal.params.searchType
+        this.apiParams.query = newVal.params.searchVal
+      },
+      deep: true
     }
   },
   filters: {
@@ -285,7 +280,7 @@ export default {
   methods: {
     // 重置接口参数
     apiParamsClear () {
-      apiParams = {
+      this.apiParams = {
         'age': '',
         'hujidizhi': '',
         'juzhudi': '',
@@ -321,8 +316,8 @@ export default {
 
     // 树形插件点击事件
     handleNodeClick () {
-      apiParams.pagenumber = 1
-      paramsMap[arguments[1]](arguments[0])
+      this.apiParams.pagenumber = 1
+      this.paramsMap[arguments[1]](arguments[0])
       this.addKeyword(arguments[1], arguments[0])
     },
 
@@ -381,7 +376,7 @@ export default {
         if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0 || val.name.indexOf('风险等级:') === 0) {
           val.name = val.name.split(':')[1]
         }
-        delParamsMap[val.type](val.name)
+        this.delParamsMap[val.type](val.name)
       }
     },
 
@@ -389,28 +384,25 @@ export default {
     resetAll () {
       this.keywordArr.splice(1, this.keywordArr.length - 1)
       this.apiParamsClear()
-      this.searchListInit()
+      this.apiParams.querytype = this.$route.params.searchType
+      this.apiParams.query = this.$route.params.searchVal
     },
     // 相关搜索
     goAboutSearch (val) {
       this.$store.commit('header/changeSearchVal', val)
       this.$router.push('/searchList/people/' + val)
-      this.apiParamsClear()
-      apiParams.query = this.$route.params.searchVal
-      apiParams.querytype = this.$route.params.searchType
       this.keywordArr[0].name = val
       this.$forceUpdate()
     },
     // 分页当前页改变触发
     currentChange (val) {
-      apiParams['pagenumber'] = val
+      this.apiParams['pagenumber'] = val
       this.currentPage = val
-      this.searchListInit()
     },
     // 搜索结果列表初始化
     async searchListInit () {
-      apiParams['pagenumber'] = this.currentPage
-      let res = await getListData(apiParams)
+      this.apiParams['pagenumber'] = this.currentPage
+      let res = await getListData(this.apiParams)
       this.treeData = res.data.result_tree || {}
       this.listData = res.data.result_list || null
     }
@@ -422,8 +414,8 @@ export default {
     })
     this.$store.commit('header/changeSearchType', this.$route.params.searchType)
     this.$store.commit('header/changeSearchVal', this.$route.params.searchVal)
-    apiParams['query'] = this.$route.params.searchVal
-    apiParams['querytype'] = this.$route.params.searchType
+    this.apiParams['query'] = this.$route.params.searchVal
+    this.apiParams['querytype'] = this.$route.params.searchType
   }
 }
 </script>
