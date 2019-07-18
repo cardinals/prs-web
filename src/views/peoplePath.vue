@@ -16,8 +16,15 @@
         <dateCheck @dateReturn="dateReturn" :dateDefault="dateDefault" />
       </div>
       <div class="pathMap">
+        <div class="nodata" v-if="wristband === 0">
+          <div class="content">
+            <div class="icon"></div>
+            <span>无轨迹数据</span>
+          </div>
+          <div class="arrow"></div>
+        </div>
         <!-- 地图图例 -->
-        <div class="legends" v-if="mapType==='marker'">
+        <div class="legends" v-if="mapType==='point'">
           <div class="normal"></div>
           <span>正常</span>
           <div class="abnormal"></div>
@@ -33,8 +40,8 @@
           <div class="styleSelect">
             <span>样式:</span>
             <el-select v-model="mapType" placeholder="请选择样式" size="mini">
+              <el-option label="点图" value="point"></el-option>
               <el-option label="热力图" value="heatmap"></el-option>
-              <el-option label="点图" value="marker"></el-option>
             </el-select>
           </div>
         </div>
@@ -42,9 +49,12 @@
         <mapview :map-config="mapConfig" :osm-config="osmConfig"
           :map-types="mapTypes"
           :heatmap="heatmap"
-          @pointClick="callback">
+          :point="point"
+          @pointClick="setFocusPoint"
+          @pointMouseenter="showPointInfo"
+          @pointMouseleave="hidePointInfo"
+          >
           <control :fullscreen="{show: true, position: 'bottom-left'}" :navigation="{showZoom:true, position: 'bottom-right'}"></control>
-          <markers :data="markerData" :show-marker="mapType==='marker'" @markerMouseenter="showMarkInfo" @markerMouseleave="hideMarkInfo" @markerClick="setFocusPoint"></markers>
           <popup :showPopup="showPopup" :laglng="laglng" :htmlContent="htmlContent" :closeOnClick="closeOnClick" :closeButton="false"></popup>
         </mapview>
       </div>
@@ -80,14 +90,11 @@ import 'mapbox-gl/dist/mapbox-gl.css' // 引入地图组件样式，否则可能
 import { mapActions } from 'vuex'
 import { personTrajectory } from '@/api/api.js'
 let apiParams = {}
-// 设置marker的样式
-const normalMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIBAMAAAA2IaO4AAAAElBMVEUAAAB1vkN1vkN1vkN1vkN1vkNEq6hsAAAABnRSTlMAzL50BW2iYhLOAAAAH0lEQVQI12MAAxYjZQcGZkHBAAYmQUEFMAHmQiRAAAAzEgKlwH02hQAAAABJRU5ErkJggg=='
-const abnorMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX0mTAAAAAHWV8AAAAAAnRSTlPMABHcVXoAAAAPSURBVAjXY/jP0IgE/wMAKDAFBa2/+K0AAAAASUVORK5CYII='
-const transMarkerImg = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIBAMAAAA2IaO4AAAAFVBMVEX/Hx8AAAD/Hx//Hx//Hx//Hx//Hx9n2I/lAAAAB3RSTlPMAJczMjEwGAq1CAAAAC1JREFUCNdjUGBgYGJIYGBgYxBiYFBkEGVgCGQQVGASZBB0YAESQopAQthQEAAt/wKHRx622wAAAABJRU5ErkJggg=='
-const markerImgMap = {
-  '正常': (ele) => { ele.height = 6; ele.width = 6; ele.base64 = normalMarkerImg },
-  '潜在异常': (ele) => { ele.height = 6; ele.width = 6; ele.base64 = abnorMarkerImg },
-  '矫正越界': (ele) => { ele.height = 8; ele.width = 8; ele.base64 = transMarkerImg }
+// 设置point的样式
+const pointColorMap = {
+  '正常': (ele) => { ele.color = '#75BE43' },
+  '潜在异常': (ele) => { ele.color = '#F49930' },
+  '矫正越界': (ele) => { ele.color = '#FF1F1F' }
 }
 export default {
   name: 'peoplePath',
@@ -95,12 +102,11 @@ export default {
   data () {
     return {
       closeOnClick: true, // popup组件传参，是否点击空白处取消popup
-      focusPoint: false, // 当前获得焦点的marker点
+      focusPoint: false, // 当前获得焦点的point点
       showPopup: false, // popup组件传值，是否显示popup
       laglng: [121.4198, 31.1043], // popup组件传值，popup弹出的位置
       htmlContent: '<h1>hello</h1>', // popup组件传值，popup弹出的内容
-      markerData: [], // marker点数据
-      mapType: 'heatmap', // 默认的地图数据展示类型
+      mapType: 'point', // 默认的地图数据展示类型
       dateDefault: '', // dateCheck组件传值，默认日期
       tableData: [], // 表格数据
       nowDate: [], // dateCheck组件返回的开始时间和结束时间
@@ -116,7 +122,8 @@ export default {
         // <!-- 视角俯视的倾斜角度 -->
         pitch: 0,
         // <!-- 地图的旋转角度 -->
-        bearing: 0
+        bearing: 0,
+        maxZoom: 17.8
       },
       osmConfig: { // 地图瓦片地址及样式
         // <!-- osm地址 -->
@@ -125,7 +132,7 @@ export default {
         backgroundStyle: 'prs-web'
       },
       // <!-- 地图的可视化类型 -->
-      mapTypes: ['heatmap'],
+      mapTypes: ['point'],
       // <!-- 热力图配置项 -->
       heatmap: { // 热力图设置
         radius: 5,
@@ -133,6 +140,14 @@ export default {
         intensity: 1,
         opacity: 0.8,
         color: ['interpolate', ['linear'], ['heatmap-density'], 0, 'rgba(0, 0, 255, 0)', 0.2, 'royalblue', 0.4, 'cyan', 0.6, 'lime', 0.8, 'yellow', 1, 'red'],
+        data: []
+      },
+      point: {
+        useMultiColor: true,
+        color: 'green',
+        showAnimation: false,
+        opacity: 1,
+        radius: 4,
         data: []
       },
       firstLoadMap: true
@@ -161,8 +176,9 @@ export default {
     },
     // select值监控
     mapType (newVal, oldVal) {
-      if (newVal === 'marker') {
+      if (newVal === 'point') {
         this.mapTypes = []
+        this.mapTypes.push('point')
       } else {
         this.mapTypes = []
         this.mapTypes.push('heatmap')
@@ -188,9 +204,6 @@ export default {
         apiParams.flag = '0'
       }
       this.getData()
-    },
-    // 地图组件callback
-    callback (data) {
     },
     // 时间选择器组件返回当前时间
     dateReturn (date) {
@@ -225,21 +238,21 @@ export default {
         this.tableData = temp.splice(this.pageSize * (val - 1), this.pageSize)
       }
     },
-    // 获取marker点数据
-    getMarkerData (data) {
+    // 获取point点数据
+    getPointData (data) {
       if (data) {
         data.forEach(element => {
-          markerImgMap[element.label](element)
+          pointColorMap[element.label](element)
         })
       }
-      this.markerData = data
+      this.point.data = data
     },
     // 获取接口数据
     async getData () {
       let res = await personTrajectory(apiParams)
       this.heatmap.data = res.data.data
       this.allTableNum = res.data.resultNum
-      this.getMarkerData(res.data.data)
+      this.getPointData(res.data.data)
       this.currentPage = 1
       this.getTableData(this.currentPage)
     },
@@ -269,8 +282,8 @@ export default {
       MCG.appendChild(refreshBtn)
       fullContainer.appendChild(fullBtn)
     },
-    // 展示marker点的信息（即popup弹出框）
-    showMarkInfo (data) {
+    // 展示point点的信息（即popup弹出框）
+    showPointInfo (data) {
       this.focusPoint = false
       this.closeOnClick = false
       this.showPopup = true
@@ -279,11 +292,11 @@ export default {
                           <h1 class="risk">${data.label}</h1>
                           <div class="left-top"></div><div class="right-top"></div><div class="left-bottom"></div><div class="right-bottom"></div>`
     },
-    // 隐藏Marker点信息
-    hideMarkInfo () {
+    // 隐藏point点信息
+    hidePointInfo () {
       if (!this.focusPoint) this.showPopup = false
     },
-    // 设置焦点marker
+    // 设置焦点point
     setFocusPoint () {
       this.focusPoint = true
       this.closeOnClick = true
