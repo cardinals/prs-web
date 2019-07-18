@@ -10,7 +10,7 @@ import footerCom from '@/components/common/footer'
 import goTop from '@/components/common/goTop'
 import upsideDownRoll from '@/components/common/upsideDownRoll'
 import dateCheck from '@/components/common/dateCheck'
-import networkMap from '@/components/common/networkMap'
+import relationGraph from '@/components/common/relationGraph'
 import anchorPoint from '@/components/common/anchorPoint'
 
 export default {
@@ -20,7 +20,7 @@ export default {
     vue.component('goTop', goTop)
     vue.component('upsideDownRoll', upsideDownRoll)
     vue.component('dateCheck', dateCheck)
-    vue.component('relation', networkMap)
+    vue.component('relation', relationGraph)
     vue.component('anchorPoint', anchorPoint)
   }
 }
