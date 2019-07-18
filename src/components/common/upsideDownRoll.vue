@@ -9,20 +9,25 @@
 export default {
   name: 'cardFooter',
   props: {
+    // 显示窗口的高度
     height: {
       type: Number,
       default: 0
     },
+    // 行数
     lineNum: {
       type: Number,
       default: 0
     },
+    // 翻转窗口的id
     id: {
       type: String,
-      default: ''
+      default: '',
+      required: true
     }
   },
   methods: {
+    // 翻转控制
     rollControl () {
       this.$nextTick(() => {
         let i = 0
@@ -48,6 +53,7 @@ export default {
         roll1()
       })
     },
+    // 开始翻转
     startRoll () {
       if (this.lineNum > 1) {
         this.rollControl()

@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   margin-top: 16px;
+  position: relative;
   .title {
     border-bottom: 2px solid rgba(237,237,237,1);
     padding: 0 25px;
@@ -80,6 +81,10 @@
             border-right: 1px rgba(229,229,229,1) solid;
           }
           .value {
+            overflow: hidden;
+            width: 110px;
+            white-space: nowrap;
+            text-overflow: ellipsis;
             padding-left: 10px; 
             &.noData {
               color: rgba(172,172,172,1);
@@ -88,5 +93,24 @@
         }
       }
     }
+  }
+
+  .el-table {
+    border: 1px solid rgba(231,231,231,1);
+    border-radius: 2px;
+    .has-gutter {
+      color: rgba(102,102,102,1);
+       tr, th {
+         background:rgba(245,245,245,1);
+       }
+    }
+    .el-table__row {
+      td {
+        color: #4D4B4B;
+      }
+    }
+  }
+  .anchor_c {
+    left: 0;
   }
 }

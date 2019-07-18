@@ -21,7 +21,7 @@
         </div>
       </div>
       <!-- 风险预警 -->
-      <div class="title">风险预警</div>
+      <div class="title">风险预警（全部）</div>
       <div class="riskWarning">
         <div class="abnormal abnormalDynamic">
           <span @click="goAbnormal('abnormalDynamic')"> 异常动态: </span>
@@ -54,7 +54,11 @@
         <span :class="{'checked': menuChoice === 'relationship'}" @click="menuClick('relationship')">人物关系</span>
       </div>
       <!-- 子路由 -->
-      <router-view></router-view>
+      <router-view
+        :risk-num="riskNum"
+        :person-name="personName"
+        :wristband="peopleBasicInfo.wristband"
+      ></router-view>
     </div>
   </div>
 </template>
@@ -71,32 +75,31 @@ export default {
   name: 'peopleInfoPage',
   data () {
     return {
+      riskNum: 0,
+      personName: '',
       peopleBasicInfo: { // 人员基本信息
         basicInfo: {},
         riskWarn: {},
-        selftags: []
+        selftags: [],
+        wristband: 0
       },
       tagType: ['', 'success', 'warning', 'danger'], // 标签级别
-      menuChoice: 'info' // 默认导航路由
+      menuChoice: 'info', // 默认导航路由
+      menuMap: { // 导航类型映射表
+        dynamic: 'abnormalDynamic',
+        peoplePath: 'abnormalTrail',
+        relationship: 'abnormalRelation'
+      }
     }
   },
   methods: {
-    ...mapActions({
-      changeShowMsg: 'dynamic/changeShowMsg',
-      changeDyNum: 'dynamic/changeDyNum',
-      changePeopleName: 'dynamic/changePeopleName',
-      changeShowMsgRe: 'relation/changeShowMsg',
-      changeDyNumRe: 'relation/changeDyNum',
-      changePeopleNameRe: 'relation/changePeopleName'
-    }),
+    ...mapActions({ showAllMsg: 'people/showAllMsg' }),
     // 获取基本信息数据
     async getbasicInfo () {
       let res = await getbasicInfo({ g_id: this.$route.params.personId })
       this.peopleBasicInfo = res.data
-      this.changeDyNum(res.data.riskWarn.abnormalDynamic)
-      this.changeDyNumRe(res.data.riskWarn.abnormalRelation)
-      this.changePeopleName(res.data.basicInfo.name)
-      this.changePeopleNameRe(res.data.basicInfo.name)
+      this.personName = this.peopleBasicInfo.basicInfo.name
+      this.riskNum = this.peopleBasicInfo.riskWarn[this.menuMap[this.menuChoice]]
     },
     // 性别class控制
     genderClass () {
@@ -135,10 +138,17 @@ export default {
       this.menuChoice = 'info'
     }
   },
+  watch: {
+    menuChoice: {
+      handler: function (newVal, oldVal) {
+        if (newVal !== 'info') this.riskNum = this.peopleBasicInfo.riskWarn[this.menuMap[newVal]]
+      }
+    }
+  },
   filters: {
     idFormat (val) {
-      if (typeof val === 'undefined') return
-      return val.substring(0, 6) + '********' + val.substring(14, 18)
+      if (typeof val === 'undefined' || val.length === 0) return '暂无'
+      return val.substring(0, 4) + '************' + val.substring(val.length - 2, val.length)
     },
     keyFormat (val) {
       return abnormalMap[val]
@@ -157,9 +167,8 @@ export default {
   },
   mounted () {
     this.getbasicInfo()
+    this.showAllMsg()
     this.menuChoice = this.$route.path.split('/')[this.$route.path.split('/').length - 1]
-    this.changeShowMsg(true)
-    this.changeShowMsgRe(true)
     this.menuChoice = this.$route.name
   }
 }

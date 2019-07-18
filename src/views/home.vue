@@ -48,18 +48,18 @@
               <div class="peopleInfoCard" v-for="(item, index) in cardContent" :key="index" style="font-size:30px;" >
                 <!-- 卡片内容 -->
                 <div class="content flexColumn">
-                  <div class="photo" @click="goPeopleInfo(item.name, item.personId)">
+                  <div class="photo" @click="goPeopleInfo(item)">
                     <!-- <img :src="pictureData[item.personId]" v-if="pictureData[item.personId]"> -->
                     <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" v-if="true"></div>
                   </div>
-                  <div class="name" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" @click="goPeopleInfo(item.name, item.personId)">{{ item.name }}</div>
+                  <div class="name" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknown': item.gender === '未知'}" @click="goPeopleInfo(item)">{{ item.name }}</div>
                   <div class="type"> {{ item.peopleType }} </div>
                 </div>
                 <!-- 卡片脚部 -->
                 <!-- upsideDownRoll 为自定义的组件，里面的内容放置在组件的默认插槽中 -->
                 <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length" :id="item.personId+''">
                   <div class="cardFooter" v-for="(value, key) in abnormalFilter(item.abnormal)" :key="key">
-                    近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId)"> {{ key|keyTranslation }}</span>
+                    近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId); log(item)"> {{ key|keyTranslation }}</span>
                   </div>
                 </upsideDownRoll>
               </div>
@@ -74,7 +74,7 @@
 
 <script>
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { tipsCN, tipsEN, latestNews } from '@/api/api.js'
+import { tipsCN, tipsEN, latestNews, queryLogs } from '@/api/api.js'
 import { Message } from 'element-ui'
 import changePage from '@/components/mixins/changePage'
 // 异常中英文名称映射
@@ -139,31 +139,24 @@ export default {
       this.goSearch()
     },
     // 搜索提示
-    querySearch (queryString, callback) {
+    async querySearch (queryString, callback) {
       let CN = this.ifCN(queryString)
       if (CN === '') {
         let noQuery = []
         callback(noQuery)
       }
       if (CN) {
-        tipsCN({ 'query': CN }).then((res) => {
-          callback(res.data)
-        })
+        let res = await tipsCN({ 'query': CN })
+        callback(res.data)
       } else {
-        tipsEN({ 'prefix': queryString }).then((res) => {
-          callback(res.data)
-        })
+        let res = tipsEN({ 'prefix': queryString })
+        callback(res.data)
       }
     },
     // 获得最新动态的数据
-    latestNewsInit () {
-      return new Promise((resolve, reject) => {
-        latestNews().then((res) => {
-          resolve(res)
-        }).catch((err) => {
-          reject(err)
-        })
-      })
+    async latestNewsInit () {
+      let res = await latestNews()
+      this.cardContent = res.data
     },
     // 跳转搜索页
     goSearch () {
@@ -185,8 +178,9 @@ export default {
       }
     },
     // 跳转至人物信息页
-    goPeopleInfo (name, id) {
-      let routeUrl = this.$router.resolve({ path: `/detail/${id}/info` })
+    goPeopleInfo (item) {
+      this.log(item)
+      let routeUrl = this.$router.resolve({ path: `/detail/${item.personId}/info` })
       window.open(routeUrl.href, '_blank')
     },
     // 将返回的接口数据中的异常动态、关系、轨迹中数量为0的去除
@@ -196,6 +190,17 @@ export default {
         if (arr[key] !== 0) res[key] = arr[key]
       }
       return res
+    },
+    // 日志记录，主要记录最新动态中人物的点击情况
+    log (item) {
+      queryLogs(
+        {
+          g_id: item.personId,
+          querytype: this.searchType,
+          name: item.name,
+          querycontent: ''
+        }
+      )
     }
   },
   filters: {
@@ -205,10 +210,10 @@ export default {
     }
   },
   mounted () {
-    let _this = this
-    this.latestNewsInit().then((res) => {
-      _this.cardContent = res.data
-    })
+    // 请求最新动态的数据
+    this.latestNewsInit()
+
+    // 适应屏幕高度，让首页整体的内容区域居中
     this.$nextTick(() => {
       let a = document.getElementsByClassName('home')[0].style
       a.paddingTop = document.body.clientHeight - 861 + 'px'
@@ -220,23 +225,5 @@ export default {
 }
 </script>
 <style lang="less">
-.home{
-  .inline-input{
-    float: left;
-    height: 73px;
-    width: calc(100% - 160px);
-    border-radius:4px 0px 0px 4px;
-    border:1px solid rgba(231,229,229,1);
-  }
-  .el-input__inner{
-    font-size:18px;
-    height: 73px;
-    border:0;
-    border-radius:4px 0px 0px 4px;
-  }
-}
-</style>
-
-<style lang="less" scoped>
   @import '~@/assets/css/home.less';
 </style>

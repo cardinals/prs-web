@@ -6,8 +6,8 @@
       <transition-group name="rotate">
         <div class="buttons" v-for="(value, index) in keywordArr" :key="`button${index}`">
           <span :class="value.type" class="typeIcon"></span>
-          <span class="span">{{value.name|cantOver}}</span>
-          <span class="iconx" @click="deleteKeyword(value)">×</span>
+          <span class="span" :class="{'firstTag': value.type ==='searchVal'}">{{value.name|cantOver}}</span>
+          <span class="iconx" v-if="value.type !=='searchVal'" @click="deleteKeyword(value)" >×</span>
         </div>
       </transition-group>
       <div @click="resetAll" class="reset" v-if="keywordArr.length!==0">重置条件</div>
@@ -16,8 +16,8 @@
     <!-- 相关搜索 -->
     <div v-if="true" class="searchCondition">
       <span class="label">相关搜索</span>
-      <span class="searchTags" v-for="(item, index) in treeData.aboutSearch" :key="index" @click="goAboutSearch(item)">
-        {{item}}
+      <span class="searchTags" v-for="(item, index) in treeData.aboutSearch" :key="index" @click="goAboutSearch(item)" :title="item">
+        {{item|aboutSearchFilter}}
       </span>
     </div>
     <!-- 内容区域 -->
@@ -59,9 +59,7 @@
         <div class="others">
           <div class="label">排序:</div>
           <div class="sort active">
-            <span @click="sortChange">按相关度</span>
-            <i class="el-icon-download" v-if="sortFlag === 'desc'"></i>
-            <i class="el-icon-upload2" v-if="sortFlag === 'asc'"></i>
+            <span>按相关度 <i class="el-icon-download"></i></span>
           </div>
           <div class="num" v-if='listData !== null'>共找到 <span style="color:#2770EE">{{listData.resultNum}}</span> {{resultNumUnit}}</div>
         </div>
@@ -69,12 +67,12 @@
           <div class="resultList" v-for="(item,index) in listData.pageContent" :key="index" >
             <div class="card">
               <div class="peopleInfo">
-                <div class="photo" @click="toDetail(item.personId)">
+                <div class="photo" @click="toDetail(item); log(item)">
                   <div :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}" v-if="true"></div>
                 </div>
                 <div class="info">
                   <div class="line1">
-                    <span class="name" @click="toDetail(item.personId)"> {{ item.name }}</span>
+                    <span class="name" @click="toDetail(item); log(item)" :title="item.name"> {{ item.name|nameFilter }}</span>
                     <div class="img" :class="{'man': item.gender === '男性', 'women': item.gender === '女性', 'unknow': item.gender === '未知'}"></div>
                     <div class="tags">
                       <div class="tag" v-for="(item,index) in item.tags" :key="index"> {{item.name}} </div>
@@ -97,17 +95,17 @@
                 </div>
               </div>
               <div class="abnormal" v-if="item.abnormalDynamic !== 0 || item.abnormalTrail !== 0 || item.abnormalRelation !== 0">
-                <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId)">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalDynamic', item.personId); log(item)">
                   <div class="img trend"></div>
                   <span>异常动态:</span>
                   <span>{{item.abnormalDynamic}} 项</span>
                 </div>
-                <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId)">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalTrail', item.personId); log(item)">
                   <div class="img path"></div>
                   <span>异常轨迹:</span>
                   <span>{{item.abnormalTrail}}项</span>
                 </div>
-                <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId)">
+                <div class="abnormalContent"  @click="goAbnormalPage('abnormalRelation', item.personId); log(item)">
                   <div class="img relationship"></div>
                   <span>异常关系:</span>
                   <span>{{item.abnormalRelation}}项</span>
@@ -120,7 +118,7 @@
         <el-pagination
             v-if='listData.resultNum>0'
             class="page"
-            layout="prev, pager, next"
+            layout="total, prev, pager, next, jumper"
             :total="listData.resultNum"
             :page-size="5"
             :current-page="currentPage"
@@ -133,7 +131,7 @@
 </template>
 
 <script>
-import { getListData } from '@/api/api.js'
+import { getListData, queryLogs } from '@/api/api.js'
 
 import changePage from '@/components/mixins/changePage'
 
@@ -144,46 +142,6 @@ const treeTitleMap = {
   birthPlace: '籍贯',
   homeAddress: '居住地',
   tags: '标签'
-}
-
-// 接口请求参数
-let apiParams = {
-  'age': '',
-  'hujidizhi': '',
-  'juzhudi': '',
-  'label': [],
-  'order': 'desc',
-  'pagecapacity': 5,
-  'pagenumber': 1,
-  'query': '',
-  'xingbie': '',
-  'querytype': ''
-}
-
-// 点击树状节点对应的api参数修改方式映射
-const paramsMap = {
-  age: (val) => { apiParams['age'] = val.name },
-  birthPlace: (val) => { apiParams['hujidizhi'] = val.nameid },
-  homeAddress: (val) => { apiParams['juzhudi'] = val.nameid },
-  tags: (val) => {
-    if (apiParams['label'].indexOf(val.name) < 0) {
-      if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia') {
-        apiParams['label'].push(val.name.split(':')[1])
-      } else {
-        apiParams['label'].push(val.name)
-      }
-    }
-  },
-  gender: (val) => { apiParams['xingbie'] = val.nameid }
-}
-
-// 删除搜索条件对应的api参数修改方式映射
-const delParamsMap = {
-  age: (val) => { apiParams['age'] = '' },
-  birthPlace: (val) => { apiParams['hujidizhi'] = '' },
-  homeAddress: (val) => { apiParams['juzhudi'] = '' },
-  gender: (val) => { apiParams['xingbie'] = '' },
-  tags: (val) => { apiParams['label'].splice(apiParams['label'].indexOf(val), 1) }
 }
 export default {
   data () {
@@ -198,7 +156,45 @@ export default {
       },
       sortFlag: 'desc', // 按相关度倒序
       currentPage: 1, // 当前页码
-      renderList: [] // 实际渲染列表
+      renderList: [], // 实际渲染列表
+
+      // 接口请求参数
+      apiParams: {
+        'age': '',
+        'hujidizhi': '',
+        'juzhudi': '',
+        'label': [],
+        'order': 'desc',
+        'pagecapacity': 5,
+        'pagenumber': 1,
+        'query': '',
+        'xingbie': '',
+        'querytype': ''
+      },
+      // 点击树状节点对应的api参数修改方式映射
+      paramsMap: {
+        age: (val) => { this.apiParams['age'] = val.name },
+        birthPlace: (val) => { this.apiParams['hujidizhi'] = val.nameid },
+        homeAddress: (val) => { this.apiParams['juzhudi'] = val.nameid },
+        tags: (val) => {
+          if (this.apiParams['label'].indexOf(val.name) < 0) {
+            if (val.type === 'jiaozhengjibie' || val.type === 'jiangchengleixing' || val.type === 'jiaozhengleixing' || val.type === 'pingjia' || val.type === 'fengxiandengji') {
+              this.apiParams['label'].push(val.name.split(':')[1])
+            } else {
+              this.apiParams['label'].push(val.name)
+            }
+          }
+        },
+        gender: (val) => { this.apiParams['xingbie'] = val.nameid }
+      },
+      // 删除搜索条件对应的api参数修改方式映射
+      delParamsMap: {
+        age: (val) => { this.apiParams['age'] = '' },
+        birthPlace: (val) => { this.apiParams['hujidizhi'] = '' },
+        homeAddress: (val) => { this.apiParams['juzhudi'] = '' },
+        gender: (val) => { this.apiParams['xingbie'] = '' },
+        tags: (val) => { this.apiParams['label'].splice(this.apiParams['label'].indexOf(val), 1) }
+      }
     }
   },
   mixins: [changePage.getMixin()],
@@ -218,30 +214,41 @@ export default {
     }
   },
   watch: {
-    // 监控搜索条件列表值的变化
-    keywordArr: function (newVal, oldVal) {
-      this.currentPage = 1
-      apiParams.query = this.$store.state.header.searchVal
-      apiParams.querytype = this.$store.state.header.searchType
-      if (newVal.length === 0) {
+
+    apiParams: {
+      handler: function (newVal, oldVal) {
+        this.searchListInit()
+      },
+      deep: true
+    },
+    $route: {
+      handler: function (newVal, oldVal) {
+        this.keywordArr = [{
+          type: 'searchVal',
+          name: this.$route.params.searchVal
+        }]
         this.apiParamsClear()
-      }
-      this.searchListInit()
-    },
-    searchVal: function (newVal, oldVal) {
-      this.keywordArr = [{
-        type: 'searchVal',
-        name: this.$route.params.searchVal
-      }]
-      this.apiParamsClear()
-    },
-    searchType: function (newVal, oldVal) {
-      this.currentPage = 1
-      apiParams.querytype = newVal
-      apiParams.query = this.searchVal
+        this.apiParams.querytype = newVal.params.searchType
+        this.apiParams.query = newVal.params.searchVal
+      },
+      deep: true
     }
   },
   filters: {
+    aboutSearchFilter (val) {
+      if (val.length > 5) {
+        return val.substring(0, 4) + '...'
+      } else {
+        return val
+      }
+    },
+    nameFilter (val) {
+      if (val.length > 5) {
+        return val.substring(0, 4) + '...'
+      } else {
+        return val
+      }
+    },
     labelFilter (val) {
       if (val.length > 10) {
         return val.substring(0, 10) + '...'
@@ -260,7 +267,11 @@ export default {
       return treeTitleMap[val]
     },
     idNodata (val) {
-      return val === '' ? '暂无' : val.substring(0, 6) + '********' + val.substring(14, 18)
+      if (val === '') {
+        return '未知'
+      } else {
+        return val.substring(0, 4) + '************' + val.substring(val.length - 2, val.length)
+      }
     },
     nodata (val) {
       return val === '' ? '暂无' : val
@@ -269,7 +280,7 @@ export default {
   methods: {
     // 重置接口参数
     apiParamsClear () {
-      apiParams = {
+      this.apiParams = {
         'age': '',
         'hujidizhi': '',
         'juzhudi': '',
@@ -282,10 +293,18 @@ export default {
         'querytype': ''
       }
     },
+    log (item) {
+      queryLogs({
+        querycontent: this.$route.params.searchVal,
+        querytype: this.$route.params.searchType,
+        g_id: item.personId,
+        name: item.name
+      })
+    },
     // 去人物信息页
-    toDetail (val) {
+    toDetail (item) {
       let routeUrl = this.$router.resolve({
-        path: '/detail/' + val
+        path: '/detail/' + item.personId
       })
       window.open(routeUrl.href, '_blank') // 重开标签页
     },
@@ -297,8 +316,8 @@ export default {
 
     // 树形插件点击事件
     handleNodeClick () {
-      apiParams.pagenumber = 1
-      paramsMap[arguments[1]](arguments[0])
+      this.apiParams.pagenumber = 1
+      this.paramsMap[arguments[1]](arguments[0])
       this.addKeyword(arguments[1], arguments[0])
     },
 
@@ -353,11 +372,11 @@ export default {
         this.keywordArr = []
         this.apiParamsClear()
       } else {
-        this.keywordArr.splice(this.indexOfKeywordArr(val.type, val.name), 1)
-        if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0) {
+        this.keywordArr.splice(this.indexOfKeywordArr(val.type, val), 1)
+        if (val.name.indexOf('矫正级别:') === 0 || val.name.indexOf('矫正类型:') === 0 || val.name.indexOf('评价:') === 0 || val.name.indexOf('奖惩类型:') === 0 || val.name.indexOf('风险等级:') === 0) {
           val.name = val.name.split(':')[1]
         }
-        delParamsMap[val.type](val.name)
+        this.delParamsMap[val.type](val.name)
       }
     },
 
@@ -365,39 +384,25 @@ export default {
     resetAll () {
       this.keywordArr.splice(1, this.keywordArr.length - 1)
       this.apiParamsClear()
-      this.searchListInit()
+      this.apiParams.querytype = this.$route.params.searchType
+      this.apiParams.query = this.$route.params.searchVal
     },
     // 相关搜索
     goAboutSearch (val) {
       this.$store.commit('header/changeSearchVal', val)
       this.$router.push('/searchList/people/' + val)
-      this.apiParamsClear()
-      apiParams.query = this.$route.params.searchVal
-      apiParams.querytype = this.$route.params.searchType
       this.keywordArr[0].name = val
       this.$forceUpdate()
     },
     // 分页当前页改变触发
     currentChange (val) {
-      apiParams['pagenumber'] = val
+      this.apiParams['pagenumber'] = val
       this.currentPage = val
-      this.searchListInit()
-    },
-    // 按相关度排序方式的变化
-    sortChange () {
-      this.currentPage = 1
-      if (this.sortFlag === 'desc') {
-        this.sortFlag = 'asc'
-      } else if (this.sortFlag === 'asc') {
-        this.sortFlag = 'desc'
-      }
-      apiParams.order = this.sortFlag
-      this.searchListInit()
     },
     // 搜索结果列表初始化
     async searchListInit () {
-      apiParams['pagenumber'] = this.currentPage
-      let res = await getListData(apiParams)
+      this.apiParams['pagenumber'] = this.currentPage
+      let res = await getListData(this.apiParams)
       this.treeData = res.data.result_tree || {}
       this.listData = res.data.result_list || null
     }
@@ -409,149 +414,12 @@ export default {
     })
     this.$store.commit('header/changeSearchType', this.$route.params.searchType)
     this.$store.commit('header/changeSearchVal', this.$route.params.searchVal)
-    apiParams['query'] = this.$route.params.searchVal
-    apiParams['querytype'] = this.$route.params.searchType
+    this.apiParams['query'] = this.$route.params.searchVal
+    this.apiParams['querytype'] = this.$route.params.searchType
   }
 }
 </script>
 
 <style lang="less">
-  // 过渡动画
-  .rotate-enter-active{
-    transition:0.6s ease;
-  }
-  .rotate-leave-active{
-    transition: 0.4s ease;
-  }
-  .rotate-enter{
-    opacity: 0;
-    transform: rotateY(180deg);
-  }
-  .rotate-leave-to{
-    opacity: 0;
-    transform: rotateY(180deg);
-  }
-
-  // element-ui
-  .el-tree-node__expand-icon{
-    color:#808080;
-  }
-  .el-collapse-item__arrow {
-    &::before {
-      content: "";
-      display: inline-block;
-      width: 0;
-      height: 0;
-      border: 4px transparent solid;
-      border-left-color:#808080;
-      border-left-width: 6px;
-      margin-left: 5px;
-    }
-  }
-  .el-tree-node__expand-icon.is-leaf{
-    // width: 4px;
-    // height: 8px;
-    margin-left:10px;
-    margin-right: 8px;
-    padding:2.5px;
-    font-size: 0;
-    border-radius: 50%;
-    background: #808080;
-  }
-  .el-collapse-item__wrap {
-    padding-left: 50px;
-  }
-  .el-tree-node__content{
-    &:hover{
-      .el-tree-node__expand-icon{
-        color:#2770EE;
-        background: rgba(241,245,255,1);
-      }
-      .el-tree-node__expand-icon.is-leaf{
-        background: #669AFF;
-      }
-      color:#669AFF;
-      background: rgba(241,245,255,1)
-    }
-  }
-
-  // 展开前的小加号
-  .el-tree-node__expand-icon:not(.is-leaf) {
-    position: relative;
-    width: 20px;
-    height: 22px;
-    &::before {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 10px;
-      height: 2px;
-      background:rgba(128,128,128,1);
-      top: 10px;
-    }
-    &::after {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 2px;
-      height: 10px;
-      background:rgba(128,128,128,1);
-      left: 10px;
-    }
-    &.expanded {
-      transform: none;
-      &::after {
-        content: "";
-        height: 0;
-      }
-    }
-  }
-
-  .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
-    background: rgba(241,245,255,1);
-    color:#669AFF;
-    .el-tree-node__expand-icon.is-leaf{
-      background: #669AFF;
-    }
-    .el-tree-node__expand-icon{
-      color:#669AFF;
-    }
-  }
-  .el-pagination.is-background .el-pager li:not(.disabled).active{
-    background: #669AFF;
-  }
-  .el-tree__empty-block {
-    min-height: 0;
-  }
-  .el-collapse-item__header {
-    background:rgba(246,246,246,1);
-    &.is-active {
-      background:rgba(246,246,246,1);
-    }
-  }
-  .el-collapse-item__wrap {
-    border: none;
-    .el-collapse-item__content{
-      padding: 0;
-    }
-  }
-  .el-pagination {
-
-    button {
-      background: transparent !important;
-    }
-    .el-pager {
-      background: transparent !important;
-      .number {
-        background: transparent !important;
-      }
-      .more {
-        background: transparent !important;
-      }
-    }
-  }
-</style>
-
-<style lang="less" scoped>
   @import '~@/assets/css/searchList.less';
 </style>

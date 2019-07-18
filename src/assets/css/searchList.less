@@ -18,7 +18,7 @@
       min-height: 25px;
       .searchTags {
         color: #2770EE;
-        text-decoration: underline;
+        // text-decoration: underline;
         margin-left: 20px;
         cursor: pointer;
         &:hover {
@@ -80,6 +80,9 @@
         line-height: 25px;
         font-size: @fontMiddle;
         color:white;
+        &.firstTag {
+          margin-right: 15px;
+        }
       }
       .iconx{
         display: inline-block;
@@ -97,6 +100,7 @@
           background: @block;
           color:@blue;
         }
+        
       }
     }
     .reset{
@@ -232,14 +236,7 @@
           margin-left: 20px;
           line-height: 22px;
           font-size: @fontMiddle;
-          cursor: pointer;
-          color:#2770EE;
-          &:hover{
-            color:@blue;
-          }
-        }
-        .active{
-          color:#2770EE;
+          color:#333;
         }
         .echarts{
           float: right;
@@ -340,7 +337,7 @@
                 }
                 .tags {
                   flex: 1;
-                  max-width: 620px; 
+                  // max-width: 620px; 
                   height: 35px;
                   overflow: hidden;
                   display: flex;
@@ -355,7 +352,7 @@
                     line-height: 33px;
                     font-size: 14px;
                     padding: 0 5px;
-                    margin-left: 15px;
+                    margin-right: 15px;
                     flex: 0 0 auto
                   }
                 }
@@ -428,15 +425,6 @@
                 }
               }
             }
-            .trend {
-
-            }
-            .path {
-
-            }
-            .relationship {
-
-            }
           }
         }
       }
@@ -444,7 +432,139 @@
         width: 100%;
         margin-top: 88px;
         text-align: center;
-        margin-bottom: 152px;
+      }
+    }
+  }
+  .rotate-enter-active{
+    transition:0.6s ease;
+  }
+  .rotate-leave-active{
+    transition: 0.4s ease;
+  }
+  .rotate-enter{
+    opacity: 0;
+    transform: rotateY(180deg);
+  }
+  .rotate-leave-to{
+    opacity: 0;
+    transform: rotateY(180deg);
+  }
+
+  // element-ui
+  .el-tree-node__expand-icon{
+    color:#808080;
+  }
+  .el-collapse-item__arrow {
+    &::before {
+      content: "";
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border: 4px transparent solid;
+      border-left-color:#808080;
+      border-left-width: 6px;
+      margin-left: 5px;
+    }
+  }
+  .el-tree-node__expand-icon.is-leaf{
+    // width: 4px;
+    // height: 8px;
+    margin-left:10px;
+    margin-right: 8px;
+    padding:2.5px;
+    font-size: 0;
+    border-radius: 50%;
+    background: #808080;
+  }
+  .el-collapse-item__wrap {
+    padding-left: 50px;
+  }
+  .el-tree-node__content{
+    &:hover{
+      .el-tree-node__expand-icon{
+        color:#2770EE;
+        background: rgba(241,245,255,1);
+      }
+      .el-tree-node__expand-icon.is-leaf{
+        background: #669AFF;
+      }
+      color:#669AFF;
+      background: rgba(241,245,255,1)
+    }
+  }
+
+  // 展开前的小加号
+  .el-tree-node__expand-icon:not(.is-leaf) {
+    position: relative;
+    width: 20px;
+    height: 22px;
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 10px;
+      height: 2px;
+      background:rgba(128,128,128,1);
+      top: 10px;
+    }
+    &::after {
+      content: "";
+      display: block;
+      position: absolute;
+      width: 2px;
+      height: 10px;
+      background:rgba(128,128,128,1);
+      left: 10px;
+    }
+    &.expanded {
+      transform: none;
+      &::after {
+        content: "";
+        height: 0;
+      }
+    }
+  }
+
+  .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
+    background: rgba(241,245,255,1);
+    color:#669AFF;
+    .el-tree-node__expand-icon.is-leaf{
+      background: #669AFF;
+    }
+    .el-tree-node__expand-icon{
+      color:#669AFF;
+    }
+  }
+  .el-pagination.is-background .el-pager li:not(.disabled).active{
+    background: #669AFF;
+  }
+  .el-tree__empty-block {
+    min-height: 0;
+  }
+  .el-collapse-item__header {
+    background:rgba(246,246,246,1);
+    &.is-active {
+      background:rgba(246,246,246,1);
+    }
+  }
+  .el-collapse-item__wrap {
+    border: none;
+    .el-collapse-item__content{
+      padding: 0;
+    }
+  }
+  .el-pagination {
+
+    button {
+      background: transparent !important;
+    }
+    .el-pager {
+      background: transparent !important;
+      .number {
+        background: transparent !important;
+      }
+      .more {
+        background: transparent !important;
       }
     }
   }

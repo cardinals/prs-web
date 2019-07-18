@@ -1,7 +1,7 @@
 <template>
-  <div class="networkMap">
-    <div id="container">
-      <div class="nodeLegends">
+  <div class="relationGraph">
+    <div id="container" >
+      <div class="nodeLegends" v-if="legend.showNodeLegend">
         <div class="nodeLegend"
           v-for="(item, index) in nodeLegends"
           :key="index"
@@ -11,7 +11,7 @@
           <div class="text"> {{item.name}} </div>
         </div>
       </div>
-      <div class="edgeLegends">
+      <div class="edgeLegends" v-if="legend.showEdgeLegend">
         <div class="edgeLegend"
           v-for="(item, index) in edgeLegends"
           :key="index"
@@ -21,10 +21,15 @@
           <div class="text"> {{item.name}} </div>
         </div>
       </div>
-      <div class="moveCenter" title="回到中心点" @click="toCenter">
-        <div class="icon"></div>
+      <div class="positionControl">
+        <div class="control" title="刷新页面" @click="refreshPage" v-if="controler.refreshBtn">
+          <div class="icon refresh"></div>
+        </div>
+        <div class="control" title="回到中心点" @click="toCenter" v-if="controler.positionBtn">
+          <div class="icon moveCenter"></div>
+        </div>
       </div>
-      <div class="zoomControl">
+      <div class="zoomControl" v-if="controler.zoomBtn">
         <div class="zoom bigger" @click="zoom('bigger')">+</div>
         <div class="zoom smaller" @click="zoom('smaller')">-</div>
       </div>
@@ -33,74 +38,47 @@
 </template>
 <script>
 import G6 from '@antv/g6'
-import { relation } from '@/api/api.js'
 const d3 = require('d3')
 let graph = {}
+let simulation = null
 export default {
-  name: 'networkMap',
+  name: 'relationGraph',
   data () {
     return {
       G6Data: {
-        nodes: [
-          {
-            id: 'node1',
-            shape: '本人',
-            label: '张晓磊',
-            personId: '123465'
-          },
-          {
-            id: 'node2',
-            shape: '重点',
-            label: '李爱国',
-            personId: '123465'
-          },
-          {
-            id: 'node3',
-            shape: '非重点',
-            label: '孙大圣',
-            personId: ''
-          },
-          {
-            id: 'node4',
-            shape: '非重点',
-            label: '牛魔王',
-            personId: ''
-          }
-        ],
-        edges: [
-          {
-            source: 'node1',
-            target: 'node2',
-            shape: '重点',
-            label: '同案犯'
-          },
-          {
-            source: 'node1',
-            target: 'node2',
-            shape: '亲属',
-            label: '表弟'
-          },
-          {
-            source: 'node1',
-            target: 'node3',
-            shape: '其他',
-            label: '同事'
-          },
-          {
-            source: 'node1',
-            target: 'node4',
-            shape: '其他',
-            label: '同事'
-          },
-          {
-            source: 'node2',
-            target: 'node4',
-            shape: '其他',
-            label: '同事'
-          }
-        ]
       },
-      cusNodes: [
+      firstLoad: true,
+      nodeLegends: [],
+      edgeLegends: []
+    }
+  },
+  props: {
+    legend: {
+      type: Object,
+      default: () => {
+        return {
+          showEdgeLegend: true,
+          showNodeLegend: true
+        }
+      }
+    },
+    controler: {
+      type: Object,
+      default: () => {
+        return {
+          refreshBtn: true,
+          positionBtn: true,
+          zoomBtn: true
+        }
+      }
+    },
+    data: {
+      type: Object,
+      required: true
+    },
+    cusNodes: {
+      type: Array,
+      default: () => [
         {
           name: '本人',
           fill: '#F36924',
@@ -114,8 +92,11 @@ export default {
           name: '非重点',
           fill: '#387AEE'
         }
-      ],
-      cusEdges: [
+      ]
+    },
+    cusEdges: {
+      type: Array,
+      default: () => [
         {
           name: '亲属',
           fill: '#75be43',
@@ -134,16 +115,13 @@ export default {
             stroke: '#F9F9F9'
           }
         }
-      ],
-      firstLoad: true,
-      nodeLegends: [],
-      edgeLegends: []
-    }
-  },
-  props: {
-    onlyErr: {
-      type: Boolean,
-      default: false
+      ]
+    },
+    showKeyNodes: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   computed: {
@@ -193,13 +171,55 @@ export default {
     }
   },
   watch: {
-    onlyErr: function (newVal, oldVal) {
-      if (newVal) {
-        this.showAbnormal()
+    showKeyNodes: function (newVal, oldVal) {
+      if (graph.findAll && newVal.length > 0) {
+        this.justKeyNodes()
+      } else {
+        this.showAll()
+      }
+    },
+    nodeLegends: {
+      handler: function (newVal, oldVal) {
+        if (newVal.length > 0) {
+          this.$emit('nodeLegendClick', newVal)
+          let showEdgeSet = new Set()
+          graph.getEdges().forEach(ele => {
+            if (ele.isVisible()) {
+              showEdgeSet.add(ele.getModel().shape)
+            }
+          })
+          this.edgeLegends.forEach(ele => {
+            ele.checked = showEdgeSet.has(ele.name)
+          })
+        }
+      },
+      deep: true
+    },
+    data (newVal, oldVal) {
+      this.firstLoad = true
+      if (typeof graph.destroy !== 'undefined' && !graph.destroyed) graph.destroy()
+      this.G6Data = JSON.parse(JSON.stringify(newVal))
+    },
+    G6Data (newVal, oldVal) {
+      if (this.firstLoad) {
+        this.nodeLegends = []
+        this.edgeLegends = []
+        this.initLegends(this.G6Data)
+        this.firstLoad = false
+      }
+      this.createGraph('container')
+      this.init()
+      this.registerNodes()
+      this.registerEdges()
+      this.registerBehaviors()
+      graph.render()
+      if (this.showKeyNodes.length > 0) {
+        this.justKeyNodes()
       } else {
         this.showAll()
       }
     }
+
   },
   methods: {
     zoom (val) {
@@ -274,18 +294,18 @@ export default {
       } else {
         cusNode.r = cusNode.r || 32
       }
-      if (cusNode.labelStyle) {
-        cusNode.labelStyle.x = cusNode.labelStyle.x || 0
-        cusNode.labelStyle.y = cusNode.labelStyle.y || 0
-        cusNode.labelStyle.fill = cusNode.labelStyle.fill || '#fff'
-        cusNode.labelStyle.stroke = cusNode.labelStyle.stroke || '#fff'
-        cusNode.labelStyle.lineWidth = cusNode.labelStyle.lineWidth || 0
-        cusNode.labelStyle.fontSize = cusNode.labelStyle.fontSize || 12
-        cusNode.labelStyle.fontWeight = cusNode.labelStyle.fontWeight || 400
-        cusNode.labelStyle.textAlign = cusNode.labelStyle.textAlign || 'center'
-        cusNode.labelStyle.textBaseline = cusNode.labelStyle.textBaseline || 'middle'
-        cusNode.labelStyle.opacity = cusNode.labelStyle.opacity || 1
-      }
+      if (!cusNode.labelStyle) cusNode.labelStyle = {}
+      cusNode.labelStyle.x = cusNode.labelStyle.x || 0
+      cusNode.labelStyle.y = cusNode.labelStyle.y || 0
+      cusNode.labelStyle.fill = cusNode.labelStyle.fill || '#fff'
+      cusNode.labelStyle.stroke = cusNode.labelStyle.stroke || '#fff'
+      cusNode.labelStyle.lineWidth = cusNode.labelStyle.lineWidth || 0
+      cusNode.labelStyle.fontSize = cusNode.labelStyle.fontSize || 12
+      cusNode.labelStyle.fontWeight = cusNode.labelStyle.fontWeight || 400
+      cusNode.labelStyle.textAlign = cusNode.labelStyle.textAlign || 'center'
+      cusNode.labelStyle.textBaseline = cusNode.labelStyle.textBaseline || 'middle'
+      cusNode.labelStyle.opacity = cusNode.labelStyle.opacity || 1
+
       return cusNode
     },
     // 对自定义边样式传参进行默认值的配置
@@ -293,12 +313,12 @@ export default {
       cusEdge.fill = cusEdge.fill || '#333'
       cusEdge.lineWidth = cusEdge.lineWidth || 1
       cusEdge.opacity = cusEdge.opacity || 0.5
-      if (cusEdge.labelStyle) {
-        cusEdge.labelStyle.fontSize = cusEdge.labelStyle.fontSize || 12
-        cusEdge.labelStyle.fill = cusEdge.labelStyle.fill || '#333'
-        cusEdge.labelStyle.stroke = cusEdge.labelStyle.stroke || '#fff'
-        cusEdge.labelStyle.lineWidth = cusEdge.labelStyle.lineWidth || 5
-      }
+      if (!cusEdge.labelStyle) { cusEdge.labelStyle = {} }
+      cusEdge.labelStyle.fontSize = cusEdge.labelStyle.fontSize || 12
+      cusEdge.labelStyle.fill = cusEdge.labelStyle.fill || '#333'
+      cusEdge.labelStyle.stroke = cusEdge.labelStyle.stroke || '#fff'
+      cusEdge.labelStyle.lineWidth = cusEdge.labelStyle.lineWidth || 5
+
       return cusEdge
     },
     createGraph (container, width, height) {
@@ -309,13 +329,17 @@ export default {
         autoPaint: false,
         modes: {
           default: ['drag-canvas',
-            // {
-            //   type: 'activate-relations',
-            //   activeState: 'highlight',
-            //   inactiveState: 'dark'
-            // },
-            'zoom-canvas',
-            'drag-node']
+            {
+              type: 'tooltip',
+              formatText (model) {
+                if (model.label.length > 5) {
+                  return model.label
+                } else {
+                  return ''
+                }
+              }
+            },
+            'zoom-canvas']
         },
         nodeStyle: {
           default: {
@@ -352,8 +376,9 @@ export default {
         e.item.get('model').x = e.x
         e.item.get('model').y = e.y
         graph.refreshPositions()
+        graph.paint()
       }
-      const simulation = d3.forceSimulation()
+      simulation = d3.forceSimulation()
         .force('link', d3.forceLink().id(function (d) { return d.id }).strength(0.001))
         .force('charge', d3.forceManyBody().strength(-80))
         .force('center', d3.forceCenter(425, 300))
@@ -368,6 +393,7 @@ export default {
 
       // 节点操作--拖拽中
       graph.on('node:drag', function (e) {
+        console.log(e)
         refreshPosition(e)
         simulation.stop()
       })
@@ -384,13 +410,8 @@ export default {
       let _this = this
       graph.on('node:click', function (e) {
         simulation.stop()
-        _this.clickPerson(e)
+        _this.clickNode(e)
       })
-      this.registerNodes()
-      this.registerEdges()
-      this.registerBehaviors()
-
-      graph.render()
     },
     // 自定义边（关系）
     registerEdges () {
@@ -451,7 +472,7 @@ export default {
             } else {
               labelStyle.fontSize = labelCfg.fontSize || 12
               labelStyle.stroke = labelCfg.stroke || '#F9F9F9'
-              labelStyle.fill = labelCfg.fill || '#333'
+              labelStyle.fill = '#F9F9F9'
               labelStyle.lineWidth = labelCfg.lineWidth || 5
             }
             const label = group.addShape('text', {
@@ -486,7 +507,7 @@ export default {
                 cursor: cusNode.cursor
               }
             })
-            if (cfg.personId !== '' && !cusNode.MasterStyle) {
+            if (cfg.expanded && !cusNode.MasterStyle) {
               openShape(group)
             }
             if (cusNode.MasterStyle) {
@@ -516,7 +537,7 @@ export default {
                     textAlign: cusNode.labelStyle.textAlign,
                     textBaseline: cusNode.labelStyle.textBaseline,
                     fontSize: cusNode.labelStyle.fontSize,
-                    text: cfg.label,
+                    text: cfg.label.length > 5 ? cfg.label.substring(0, 4) + '...' : cfg.label,
                     fill: cusNode.labelStyle.fill,
                     opacity: cusNode.labelStyle.opacity
                   }
@@ -529,7 +550,7 @@ export default {
                     textAlign: 'center',
                     textBaseline: 'middle',
                     fontSize: 14,
-                    text: cfg.label,
+                    text: cfg.label.length > 5 ? cfg.label.substring(0, 4) + '...' : cfg.label,
                     fill: '#fff',
                     opacity: 1
                   }
@@ -657,49 +678,22 @@ export default {
       endPoint.y = endY + 45 * (sinA * Math.cos(angle) - cosA * Math.sin(angle))
       endPoint.x = endX - 45 * (cosA * Math.cos(angle) + sinA * Math.sin(angle))
     },
-    add () {
-      graph.render()
-      graph.paint()
+    clickNode (e) {
+      this.deleteTooltip()
+      this.$emit('clickNode', e)
     },
-    clickPerson (e) {
-      let id = e.item.getModel().personId
-      if (id !== '') {
-        relation({
-          g_id: id,
-          flag: id !== this.$route.params.personId ? 1 : 2
-        }).then(res => {
-          this.G6Data = res.data
-          if (graph !== null) graph.destroy()
-          this.createGraph('container')
-          this.init()
-          if (this.onlyErr) {
-            this.showAbnormal()
+    justKeyNodes () {
+      if (this.showKeyNodes.length > 0) {
+        for (let i = 0; i < this.nodeLegends.length; i++) {
+          if (this.showKeyNodes.indexOf(this.nodeLegends[i].name) >= 0) {
+            this.nodeLegends[i].checked = false
           } else {
-            this.showAll()
+            this.nodeLegends[i].checked = true
           }
-        })
-      }
-    },
-    showAbnormal () {
-      for (let i = 0; i < this.nodeLegends.length; i++) {
-        if (this.nodeLegends[i].name === '重点' || this.nodeLegends[i].name === '本人') {
-          this.nodeLegends[i].checked = false
-        } else {
-          this.nodeLegends[i].checked = true
+          this.changeNodeLegendStatu(i)
         }
-        this.changeNodeLegendStatu(i)
+        this.nodeLegends = JSON.parse(JSON.stringify(this.nodeLegends))
       }
-      console.log(this.nodeLegends)
-      for (let i = 0; i < this.edgeLegends.length; i++) {
-        if (this.edgeLegends[i].name === '重点') {
-          this.edgeLegends[i].checked = false
-        } else {
-          this.edgeLegends[i].checked = true
-        }
-        this.changeEdgeLegendsStatu(i)
-      }
-      this.nodeLegends = JSON.parse(JSON.stringify(this.nodeLegends))
-      this.edgeLegends = JSON.parse(JSON.stringify(this.edgeLegends))
     },
     showAll () {
       for (let i = 0; i < this.nodeLegends.length; i++) {
@@ -736,44 +730,38 @@ export default {
           }
         })
       })
+    },
+    refreshPage () {
+      graph.destroy()
+      this.G6Data = {}
+      this.G6Data = JSON.parse(JSON.stringify(this.data))
+    },
+    deleteTooltip () {
+      let a = document.getElementsByClassName('g6-tooltip g6-node-tooltip')
+      if (a[0]) a[0].remove()
     }
   },
   created () {
 
   },
   mounted () {
-    let gIdd = this.$route.params.personId
-    relation({
-      g_id: gIdd,
-      flag: 2
-    }).then(res => {
-      this.G6Data = res.data
-      this.initLegends(this.G6Data)
-      this.createGraph('container')
-      this.init()
-      if (this.onlyErr) {
-        this.showAbnormal()
-      } else {
-        this.showAll()
-      }
-    })
   },
   beforeDestroy () {
-    if (graph !== null) {
-      graph.destroy()
-    }
+    simulation.stop()
+    graph.destroy()
   }
 }
 </script>
 
 <style lang="less">
-.networkMap {
+.relationGraph {
   user-select: none;
   position: relative;
   #container {
-    min-height: 650px;
+    min-height: 682px;
   }
   .nodeLegends {
+    z-index: 10;
     position: absolute;
     right: 20px;
     top: 20px;
@@ -818,6 +806,7 @@ export default {
   }
   .edgeLegends {
     position: absolute;
+    z-index: 10;
     left: 20px;
     top: 20px;
     .edgeLegend {
@@ -855,29 +844,50 @@ export default {
       }
     }
   }
-  .moveCenter {
+  .positionControl {
+    z-index: 10;
     position: absolute;
     left: 20px;
     bottom: 20px;
-    width: 30px;
-    height: 30px;
-    background: #fff;
     display: flex;
-    align-items: center;
-    border-radius: 50%;
-    box-shadow:0px 0px 5px 2px rgba(226,226,226,1);
-    cursor: pointer;
-    &:hover {
-      box-shadow:0px 0px 10px 5px rgb(226, 226, 226);
-    }
-    .icon {
-      width: 20px;
-      height: 20px;
-      margin: auto;
-      background: url('../assets/images/toCenter.png')
+    flex-direction: column;
+    .control {
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      border-radius: 50%;
+      box-shadow:0px 0px 5px 2px rgba(226,226,226,1);
+      cursor: pointer;
+      &:hover {
+        box-shadow:0px 0px 10px 5px rgb(226, 226, 226);
+      }
+      &:first-child{
+        margin-bottom: 3px;
+      }
+      .icon {
+        width: 20px;
+        height: 20px;
+        margin: auto;
+        &.refresh{
+          background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACHklEQVQ4T62UP2jTQRTH37sfMcGfiDgoRERwcBBKFdIhUJGM/sLdhSARpDgIXVwyKA5OopNYEDp0cegeIeTukpSIEDspqKgIgqMiqEhBJGqwyX0lhUpq80/aW9/j8773vu89pl1+vMs8Ggl0zh0horT3/jgzrwkhXoVh+DqTyXSGCRkIbDab+1qt1k0ApwCsMPM7Zm4BOA3gAjM/TCaTt1Op1Pq/4G3AWq12rNPpLAshbkkpHw9S4pyLABTb7bYsFAq/+3O2AEul0p54PN7sdrsqn8+vjepvtVo9472fV0pdGgp0zp3vdrvfcrnco0nMstbeY+ZVKWVlM39HLpfL5UNBEJS11rMDgdbaGaXUs0nUGWMyRHSWiOaJ6L4Q4r2UcvmvQmPMZWZeApDWWr8cB200GmG73X7CzFMAfgFI5XK5txvASqVyUgjxgogSAD7FYrHpKIq+joMaYw4T0VMiKmqtbS9/A+icu+i9P8HMVwAsMfNzpVR1HLAXr9fr+6Mo+j6wh8aYqhBiYdj8TVJgi8vW2lkAC0qpNDNjHMAYM8fMB5VSi0PHxlq7CGBda311FNA5N+29v6OUOtdffNsclkqlIJFIrBDRxyAIbmSz2c/9YOfcXu99kYhmhBBzUsqfQzdlMwBAOOeuA7jGzG8ArDJzCKB3dY4CuKu1fjDoByM3pac2DMMp7/0BAD8AfNBafxnVih2t3n8rHOfyoPgf7dboFcCf4SYAAAAASUVORK5CYII=);
+          &:hover{
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACL0lEQVQ4T62Tz0sUYRjHv8+Mrqbr6sxCHSICwQ4LZlHrtGJEx4I6JUFIh8BLlz20VDt7GQp8NxQCDx7q4B8QRIQgRJCemtl1sQiEjkVQUTuzpRnNru8TLSRrzv4Ifa/Pw+f5vs/3+xD2+NEe89AQmMhsHJTSTxBkvwQXidVX+zp7Xy9aVKknJBAYszjc45csgjzGwAIzvVWY1qUijxPjMgjPKl/1u4UHVP4XvAM4kvEObzLPkaQ7dlZbDFJipN3zACfXOvQLqxb5tT3bgDGLQxHfeyG57WJORIqN9jucdk8TMOEI/WpdoJEuXSJGyc72PW/FLCNdvM9QlnJCe/K3f1cuj6TW9sv28mNb6KOBwPjtb/F8tjffkjrTO0uQZ8CYAOEhs/LOEdrclkLD9K4R82yFKbGc1VaaQY+muLur3XsJwiCYfzJw0hHR1SrQSBdjRCgA1Mngjz6HhlZEz5dmUMNcP0Ds2wAlbaE9/dNfBQ6b7hUFfARM10E8K5mWc0KfbwasirGKEceKfg/coWG68yRpul7+WhmwzWUj445C8rQj9ARA3AxgmO44Mem20GbqxuaU6c6AqWwL7UbDYN/yhkiV95xJ/Vzt8J05HGPVGHAXwPggKx1mfir8qRZ8wuKuNt9LEjheDunjBYs26l7KVsFixfjl3QSQIuANiJeYqZvA/QAOScZULht9FPSDxpcyxmp8oDSoSvRtQvmhKOp7ZzL8udEqdnV6/6+wmc0B9d8IKtwVA0TZ0gAAAABJRU5ErkJggg==);
+          }
+        }
+        &.moveCenter{
+          background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACZ0lEQVQ4T62UT2gTQRTGvzdJSZQuqEeFFhQPglR7UXtQWIoeupkZBIngRRCPSntRVJSCUCrowYieFHrzEFQyk6QgWBbqodJLiwiCiKKil4IKK+jSZJ9sSco2/ZNU3Nt87+1v3pv55hH+80ed8IwxF4QQLKV80C5/Q6AxxhFCDDLzMDOzEOIeEb3O5XIf1gOvCSyXy3ujKLpORCeYeR7A9gbgB4ABAB9TqdSZXC73thW8CmiM6SeiKWaeCMPwcj6fr1trx+MKtdbXisViKpvN3gFwlpkHtdZzSegKoLW2h5lnhBCnpJQzzcQksKkZY84BGE+n04c8z/vU1FuBTwDMKaXGkrtaa28CYKXUaFI3xtwAcFxrfWwV0Bizk4jmHcfpcV33T/JH3/e747Xrur9a9GwQBF+IyJNSzsax5QqttSMA9iulzrezRkv1jwC8V0rdWgIWi8UtmUxmhIhOMnNcwfRSgOinlLJARJwEMDOVy+XYRtsaetyuA+BZGIZ34+DWKIqGYyCAgJlfbgZIREcBdDNzSQhRWG7ZGHOViPb8Q8sPmfmN1rqw4gxLpdJhIqp2dXXtGhoaClsvZWFhoZ7P538n9cnJyczi4uJXAH1a628rgPHCGDNNRM83YZu4q4NKqdNr+rBarfbWarVZIcQVKeXERsa21h5h5qdENKCU+rwmsFFlPwCfiCYcx7nkum4t+VJ8308HQXC7o6fX3KVSqeyr1+uPiagXwCtm3tG4+e/MfADAi3Q6PeZ53ru2wyGZUKlUdjNzXzy+GsBCFEVTWutgPfN3NGCttRcb0+Z+u1fUEbAdJBn/C9fFNE4GngWTAAAAAElFTkSuQmCC);
+          &:hover{
+            background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAACjUlEQVQ4T62US2gTYRDH579JjdXWZjcHQaEVrQdFqqWlmyoWoejFk6AIXgTxaGk9WLPbiouYbKyCxsdJoTcvPvDiQbAoFc2DSouIghTrA8VLdlNaqX3kG9locLevpOB3+/4z32+Y+WYG9J8PyuG1RKxTkIjTMeVWKf9lgXu6uXrWl2uXiDsZxMy4LhhvhuLBj0uBFwWqveNbSeR7ifkACCNMLDsAEGwmaiXQGKSKY6mL1e/ngxcAmyN2ox88QIT+1Giwm+4hr2qWSSikrNMR9qn11hUQjs8x2ofi8rAb6gE2nbVqKyROCqLDGTOULDp6gH9FVbdPgIUpSVLLq6j8uejrAap69j4Iw6mYEnVHVfXsBWLitBk679Xtc8S8P20qbQuAjd0/NwR80yM/AnLtJwO/3A+3G1zl3N8ZmHTrmwxevX7G/irBdzAZrcn8qXMxBc3uAokdKTN0slRruO1hLXuHCaNpU4kXgK2nuVJU2l1gPsTAJIgHHQOzlEubwQQR2BuAoWq5TkAEC36ENiKuJsJDaUq+hiaD1/hn7M4CkGgCoBcrAjLtBaiKCY/mVsmJfynrlgbmLStOWbdvM9HbdExOeGoY1sZVpvzj7KS8cfQGpud/Ss045ZNXMeXW6zs4EKqyv83kAw3DfWu/e4DORdWsQYCelN82lgaiXamYcnTRPtzdY9cJITJMUiRtyv3LNnZPNgxBD2YFWl9fUr4sCnREZ/R84GdE3F8ZUM48NzDnnpR9Bvunpq3LZY1eMUq4d2Ibi9m7YKojUIqZlUJ9AIuYdzLwlNkfzZjrPpRcDm6H5khuswRucNaXowtCoiIfHHjZh4mlmr+sBRvW7Q4hmDNx5WapKSoLWAritv8GHrEvkoqlHR4AAAAASUVORK5CYII=);
+          }
+        }
+      }
     }
   }
+
   .zoomControl {
+    z-index: 10;
     position: absolute;
     right: 20px;
     bottom: 20px;

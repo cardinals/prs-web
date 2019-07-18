@@ -9,6 +9,9 @@ import headerCom from '@/components/common/header'
 import footerCom from '@/components/common/footer'
 import goTop from '@/components/common/goTop'
 import upsideDownRoll from '@/components/common/upsideDownRoll'
+import dateCheck from '@/components/common/dateCheck'
+import relationGraph from '@/components/common/relationGraph'
+import anchorPoint from '@/components/common/anchorPoint'
 
 export default {
   install: function (vue) {
@@ -16,5 +19,8 @@ export default {
     vue.component('footerCom', footerCom)
     vue.component('goTop', goTop)
     vue.component('upsideDownRoll', upsideDownRoll)
+    vue.component('dateCheck', dateCheck)
+    vue.component('relation', relationGraph)
+    vue.component('anchorPoint', anchorPoint)
   }
 }
