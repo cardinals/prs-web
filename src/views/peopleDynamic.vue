@@ -70,7 +70,7 @@
         </div>
         <div class="page" v-if="allData.resultNum > 8">
           <el-pagination
-            layout="prev, pager, next"
+            layout="total, prev, pager, next, jumper"
             :page-size="8"
             :total="allData.resultNum"
             @current-change="currentChange">

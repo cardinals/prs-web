@@ -2,7 +2,7 @@
  * @Author: wupeiwen javapeiwen2010@gmail.com
  * @Date: 2018-08-14 09:28:41
  * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2019-07-04 14:13:34
+ * @Last Modified time: 2019-07-16 14:35:54
  */
 
 import axios from 'axios'
@@ -20,6 +20,9 @@ axios.defaults.withCredentials = true
 // 请求超时时间
 axios.defaults.timeout = 20000
 
+// 登录类型 normal、sso
+const loginType = process.env.VUE_APP_loginType
+
 // 请求拦截器
 axios.interceptors.request.use(
   config => {
@@ -27,9 +30,14 @@ axios.interceptors.request.use(
     if ((config.url === '/SearchCase/SearchResults') || (config.url === '/SearchCase/PersonTrajectory')) {
       store.dispatch({ type: 'app/changeLoadingStatus', amount: true })
     }
-    // // 在http请求的header都加上token
-    // const token = store.state.app.token || window.localStorage.getItem('token')
-    // config.headers.token = token
+    // 如果登陆类型为sso, 在http请求的header加上token
+    if (loginType === 'sso') {
+      let token = ''
+      if (location.search.split('token=')[1]) {
+        token = decodeURIComponent(location.search.split('token=')[1].split('/')[0])
+      }
+      config.headers.token = token
+    }
     return config
   },
   error => {
@@ -45,9 +53,20 @@ axios.interceptors.response.use(
       store.dispatch({ type: 'app/changeLoadingStatus', amount: false })
     }
     // 未登录状态跳转登录页
-    // if (response.data.code === 10) {
-    //   Message({ type: 'info', message: '10 未登录！', duration: 5000 })
-    // }
+    if (response.data.code === 10) {
+      Message({ type: 'info', message: '未登录状态, 请先登录！', duration: 1500 })
+      if (loginType === 'sso') {
+        // 如果登陆类型为sso, 跳转响应中的登录页面地址
+        setTimeout(() => {
+          location.href = response.data.data
+        }, 2000)
+      } else {
+        // 如果登陆类型为normal, 跳转系统登录模块
+        setTimeout(() => {
+          location.href = `${location.origin}/#/login`
+        }, 2000)
+      }
+    }
     return Promise.resolve(response)
   },
   error => {

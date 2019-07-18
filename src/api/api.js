@@ -2,7 +2,7 @@
  * @Author: wupeiwen javapeiwen2010@gmail.com
  * @Date: 2018-09-18 10:19:23
  * @Last Modified by: wupeiwen javapeiwen2010@gmail.com
- * @Last Modified time: 2019-06-13 16:34:18
+ * @Last Modified time: 2019-07-16 09:06:16
  */
 //  引入httpUtil
 import { get, post } from '@/utils/httpUtil'
@@ -29,3 +29,13 @@ export const relation = (params) => get(`${baseUrl}/PersonRelationships`, params
 export const queryLogs = (params) => post(`${baseUrl}/QueryLogs`, params)
 // 人物轨迹
 export const personTrajectory = (params) => post(`${baseUrl}/PersonTrajectory`, params)
+// 随机验证码
+export const imgCheck = () => get(`${baseUrl}/UserInfo/imgCheck`)
+// 用户注册
+export const register = (params) => post(`${baseUrl}/UserInfo/register`, params)
+// 用户登陆
+export const login = (params) => post(`${baseUrl}/UserInfo/login`, params)
+// 用户登出
+export const logout = () => get(`${baseUrl}/UserInfo/logout`)
+// 登录状态检测
+export const loginStatus = () => get(`${baseUrl}/UserInfo/loginStatus`)

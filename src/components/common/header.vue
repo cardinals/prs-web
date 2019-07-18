@@ -39,10 +39,10 @@
           <i class="el-icon-search"></i>
         </div>
       </div>
-      <!-- <div class="menu_c">
+      <div class="menu_c">
         <div class="icon"></div>
-        <div class="menu clearfix" v-if="ifLogin">
-          <el-dropdown @command="goLogin" trigger="click">
+        <div class="menu clearfix">
+          <el-dropdown @command="dropdownClick" trigger="click">
             <span class="el-dropdown-link">
               <el-tooltip effect="light" placement="bottom-end">
               <div slot="content">{{userName}}</div>
@@ -51,19 +51,18 @@
               <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command='ifLogin'>{{'注销'}}</el-dropdown-item>
+              <el-dropdown-item command='logout'>{{'登出'}}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <div v-if="!ifLogin" class="menu2">登录</div>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
-import { tipsCN, tipsEN } from '@/api/api.js'
+import { mapMutations } from 'vuex'
+import { tipsCN, tipsEN, logout } from '@/api/api.js'
 import { Message } from 'element-ui'
 export default {
   data () {
@@ -83,13 +82,10 @@ export default {
       }],
       placeholder: '请输入人名、身份证号(最少2位)、电话号码(最少3位)',
       // 登录用户名
-      userName: localStorage.getItem('tattusername')
+      userName: localStorage.getItem('prs_web_username')
     }
   },
   computed: {
-    ...mapState('header', {
-      ifLogin: state => state.ifLogin
-    }),
     searchType: {
       get: function () {
         return this.$store.state.header.searchType
@@ -154,6 +150,34 @@ export default {
         })
       } else {
         this.$router.replace('/searchList/' + this.searchType + '/' + this.searchVal)
+      }
+    },
+    // 用户登出
+    async logout () {
+      // 登录类型 normal、sso
+      const loginType = process.env.VUE_APP_loginType
+      let res = await logout()
+      if (res.code === 1) {
+        Message({ message: res.message, type: 'info', duration: 1500 })
+        if (loginType === 'sso') {
+          // 如果登陆类型为sso, 跳转响应中的登出页面地址
+          setTimeout(() => {
+            location.href = res.data
+          }, 2000)
+        } else {
+          // 如果登陆类型为normal, 跳转系统登录模块
+          setTimeout(() => {
+            location.href = `${location.origin}/#/login`
+          }, 2000)
+        }
+      } else {
+        Message({ message: res.message, type: 'error' })
+      }
+    },
+    // 下拉点击
+    dropdownClick (command) {
+      if (command === 'logout') {
+        this.logout()
       }
     }
   },

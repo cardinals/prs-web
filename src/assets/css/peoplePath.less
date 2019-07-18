@@ -109,6 +109,46 @@
       position: relative;
       flex: 1;
       margin-bottom: 5px;
+      .nodata {
+        z-index: 1;
+        position: absolute;
+        left: calc(50% - 70px);
+        top: calc(50% - 20px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .content {
+          width: 140px;
+          line-height: 32px;
+          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #F5DCDC;
+          border: 1px #F5BBBC solid;
+          border-radius: 4px; 
+          .icon {
+            width: 16px;
+            height: 16px;
+            background: url('../images/peoplePath/pathNoData.png');
+          }
+          span {
+            color: #F56C6D;
+            font-size: 14px;
+            margin-left: 10px;
+          }
+        }
+        .arrow {
+          position: relative;
+          width: 10px;
+          height: 10px;
+          background: #F5DCDC;
+          transform: rotate(45deg);
+          border-right: 1px #F5BBBC solid;
+          border-bottom: 1px #F5BBBC solid;
+          margin-top: -5px;
+        }
+      }
       .legends{
         z-index: 1;
         position: absolute;
@@ -128,14 +168,16 @@
           background: rgba(117,190,67,0.8);
         }
         .abnormal {
-          width: 8px;
-          height: 8px;
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
           background: rgba(244,153,48,0.8);
         }
         .transboundary {
-          border: 5px transparent solid;
-          border-top:8px rgba(255,31,31,0.8) solid;
-          margin-top: 5px;
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          background: rgba(255,31,31,0.8);
         }
         span {
           margin: 0 5px;
@@ -265,6 +307,9 @@
           }
         }
         &.fullscreenContainer {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           .mapboxgl-ctrl-icon {
             background-image: url('../images/peoplePath/icon_fullScreen.png');
             background-position: center;
@@ -281,6 +326,13 @@
             &:hover {
               background-color: rgb(241, 241, 241);
               background-image: url('../images/peoplePath/icon_fullScreen_blue.png');
+            }
+            &.mapboxgl-ctrl-shrink {
+              margin: auto;
+              background-image: url('../images/peoplePath/icon_shrink.png');
+              &:hover {
+                background-image: url('../images/peoplePath/icon_shrink_hover.png');
+              }
             }
           }
         }
