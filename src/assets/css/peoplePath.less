@@ -306,6 +306,9 @@
           }
         }
         &.fullscreenContainer {
+          display: flex;
+          justify-content: center;
+          align-items: center;
           .mapboxgl-ctrl-icon {
             background-image: url('../images/peoplePath/icon_fullScreen.png');
             background-position: center;
@@ -322,6 +325,13 @@
             &:hover {
               background-color: rgb(241, 241, 241);
               background-image: url('../images/peoplePath/icon_fullScreen_blue.png');
+            }
+            &.mapboxgl-ctrl-shrink {
+              margin: auto;
+              background-image: url('../images/peoplePath/icon_shrink.png');
+              &:hover {
+                background-image: url('../images/peoplePath/icon_shrink_hover.png');
+              }
             }
           }
         }
