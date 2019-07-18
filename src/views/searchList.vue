@@ -59,9 +59,7 @@
         <div class="others">
           <div class="label">排序:</div>
           <div class="sort active">
-            <span @click="sortChange">按相关度</span>
-            <i class="el-icon-download" v-if="sortFlag === 'desc'"></i>
-            <i class="el-icon-upload2" v-if="sortFlag === 'asc'"></i>
+            <span>按相关度 <i class="el-icon-download"></i></span>
           </div>
           <div class="num" v-if='listData !== null'>共找到 <span style="color:#2770EE">{{listData.resultNum}}</span> {{resultNumUnit}}</div>
         </div>
@@ -407,17 +405,6 @@ export default {
     currentChange (val) {
       apiParams['pagenumber'] = val
       this.currentPage = val
-      this.searchListInit()
-    },
-    // 按相关度排序方式的变化
-    sortChange () {
-      this.currentPage = 1
-      if (this.sortFlag === 'desc') {
-        this.sortFlag = 'asc'
-      } else if (this.sortFlag === 'asc') {
-        this.sortFlag = 'desc'
-      }
-      apiParams.order = this.sortFlag
       this.searchListInit()
     },
     // 搜索结果列表初始化
