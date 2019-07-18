@@ -64,7 +64,7 @@
         <div class="page" v-if="allTableNum > 5">
           <el-pagination
             small
-            layout="prev, pager, next"
+            layout="total, prev, pager, next, jumper"
             :page-size="pageSize"
             :total="allTableNum"
             :current-page="currentPage"
