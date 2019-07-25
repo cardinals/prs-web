@@ -1,6 +1,5 @@
 <template>
-  <div class="home">
-    <div class="home_c">
+    <div class="home">
       <!-- logo -->
       <div class="logo"></div>
       <!-- 搜索 -->
@@ -69,7 +68,6 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
