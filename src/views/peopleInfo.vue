@@ -409,14 +409,25 @@ export default {
       this.peopleInfo = res.data
     },
     // 设置锚点组件的位置
-    setAnchorPoint (val) {
+    setAnchorPoint () {
       let a = document.getElementsByClassName('anchor_c')[0]
-      a.style.left = (1200 + (val - 1200) / 2 - 60) + 'px'
+      let pageContent = document.getElementsByClassName('body')[0]
+      let style = window.getComputedStyle(pageContent, null)
+      if (parseInt(style.marginLeft) < 165) {
+        pageContent.style.marginRight = '165px'
+      } else {
+        pageContent.style.marginRight = null
+      }
+      a.style.left = (1200 + parseInt(style.marginLeft) - 60) + 'px'
     }
   },
   mounted () {
     this.getPeopleInfo()
     this.setAnchorPoint(document.body.clientWidth)
+    let _this = this
+    window.onresize = function () {
+      _this.setAnchorPoint()
+    }
   }
 }
 </script>

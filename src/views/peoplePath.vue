@@ -208,7 +208,11 @@ export default {
     // 时间选择器组件返回当前时间
     dateReturn (date) {
       this.nowDate = date
-      this.init()
+      apiParams.g_id = this.$route.params.personId
+      apiParams.timestart = this.nowDate[0] === '1919-01-01' ? 'all' : this.nowDate[0]
+      apiParams.timeend = this.nowDate[1]
+      apiParams.flag = this.onlyAbnormal ? '1' : '0'
+      this.getData()
     },
     // 头部消息提示点击查看操作
     onlyDanger () {

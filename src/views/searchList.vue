@@ -157,6 +157,7 @@ export default {
       sortFlag: 'desc', // 按相关度倒序
       currentPage: 1, // 当前页码
       renderList: [], // 实际渲染列表
+      pageChange: false, // 是否改变页码
 
       // 接口请求参数
       apiParams: {
@@ -398,10 +399,19 @@ export default {
     currentChange (val) {
       this.apiParams['pagenumber'] = val
       this.currentPage = val
+      this.pageChange = true
     },
     // 搜索结果列表初始化
     async searchListInit () {
-      this.apiParams['pagenumber'] = this.currentPage
+      console.log(this.pageChange)
+      if (this.pageChange) {
+        this.apiParams['pagenumber'] = this.currentPage
+        this.pageChange = false
+      } else {
+        this.apiParams['pagenumber'] = 1
+        this.currentPage = 1
+      }
+
       let res = await getListData(this.apiParams)
       this.treeData = res.data.result_tree || {}
       this.listData = res.data.result_list || null
