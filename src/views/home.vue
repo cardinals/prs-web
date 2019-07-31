@@ -210,15 +210,6 @@ export default {
   mounted () {
     // 请求最新动态的数据
     this.latestNewsInit()
-
-    // 适应屏幕高度，让首页整体的内容区域居中
-    this.$nextTick(() => {
-      let a = document.getElementsByClassName('home')[0].style
-      a.paddingTop = document.body.clientHeight - 861 + 'px'
-      window.onresize = function () {
-        a.paddingTop = document.body.clientHeight - 861 + 'px'
-      }
-    })
   }
 }
 </script>
