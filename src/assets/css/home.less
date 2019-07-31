@@ -1,30 +1,38 @@
 @import './common.less';
+.homePage {
+  position: absolute !important;
+  top: 0;
+  bottom: 0;
+  width: 100% !important;
+}
 .home{
-  min-height: 100%;
+  padding: 10% 0;
+  height: 100%;
   width: 100%;
   padding-top: 210px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
     .logo{
-      width: 100%;
-      height: 80px;
-      background: url('../images/home/pic_logo.png') center bottom 22px no-repeat;
+      width: 250px;
+      height: 45px;
+      background: url('../images/home/pic_logo.png') center center no-repeat;
+      background-size: cover;
     }
     .search_c{
-      width: 1080px;
-      height: 115px;
-      margin: auto;
+      width: 880px;
       border-radius:4px;
       box-shadow:6px 6px 14px 2px rgba(92,92,92,0.13);
       .types{
         width: 100%;
-        margin: auto;
-        height: 42px;
-        margin-top: 44px;
+        height: 30px;
         .span{
           display: inline-block;
           color: gray;
           text-align: center;
-          font-size: 20px;
-          line-height: 42px;
+          font-size: 16px;
+          line-height: 30px;
           margin-right: 16px;
           width: 137px;
           &:hover{
@@ -42,82 +50,80 @@
       .search_btn{
         float: right;
         width:160px;
-        height:75px;
+        height:53px;
         background:#2770EE;
         border-radius:0px 4px 4px 0px;
         cursor: pointer;
         text-align: center;
-        line-height: 75px;
-        font-size:28px;
+        line-height: 52px;
+        font-size:20px;
         color:rgba(227,230,241,1);
         &:hover{
           background: #3b7cfb;
         }
         .icon{
-          line-height: 65px;
+          line-height: 52px;
           font-size: 20px;
-          font-weight: 600;
+          font-weight: 400;
           color:white;
         }
       }
     }
     .latestNews {
-      width: 1590px;
-      margin: auto;
-      margin-top: 87px;
+      width: 1200px;
       align-items: center;
       .title {
-        width: 174px;
-        height: 64px;
+        width: 150px;
+        height: 60px;
         background: url(../images/home/pic_news.png);
+        background-size: 100%;
+        margin-bottom: 20px;
       }
       .carousel {
         justify-content: center;
         align-items: center;
         .moveClickBtn {
-          width: 74px;
-          height: 74px;
+          width: 56px;
+          height: 56px;
           opacity:0.5;
           border-radius: 4px; 
           cursor: pointer;
           &.left {
             background: url('../images/home/btn_left.png');
-            margin-right: 99px;
+            background-size: 100%;
+            margin-right: 30px;
           }
           &.right {
             background: url('../images/home/btn_right.png');
-            margin-left: 99px;
+            background-size: 100%;
+            margin-left: 30px;
           }
           &:hover {
             opacity: 0.8;
           }
         }
         .peopleInfoCardContainer {
-          max-width: 1280px;
-          height: 330px;
+          max-width: 1025px;
+          height: 250px;
           overflow: hidden;
           .moveContainer {
             transition: transform 1s;
             .peopleInfoCard {  
               flex: 0 0 auto;
-              width: 225px;
-              height: 317px;
+              width: 185px;
+              height: 250px;
               background:rgba(255,255,255,1);
               border-radius:4px;
-              margin-left: 31px;
-              margin-top: 7px;
-              &:nth-child(1) {
-                margin-left: 15px;
-              }
+              margin-right: 25px;
               .content {
-                width:225px;
-                height:262px;
+                width: 185px;
+                height: 200px;
                 background:linear-gradient(0deg,rgba(244,244,244,1) 0%,rgba(255,255,255,-0.01) 44%);
                 justify-content: center;
                 align-items: center;
                 .photo {
-                  width: 100px;
-                  height: 139px;
+                  width: 85px;
+                  height: 115px;
                   background:rgba(241,241,241,1);
                   cursor: pointer;
                   // border: 1px #000 solid;
@@ -125,18 +131,21 @@
                     width: 100%;
                     height: 100%;
                     background: url('../images/searchList/icon_man_default.png') ;
+                    background-size: 90%;
                     background-position: center;
                   }
                   .women {
                     width: 100%;
                     height: 100%;
                     background: url('../images/searchList/icon_woman_default.png') ;
+                    background-size: 90%;
                     background-position: center;
                   }
                   .unknown {
                     width: 100%;
                     height: 100%;
                     background: url('../images/searchList/icon_head_unknown.png') ;
+                    background-size: 90%;
                     background-position: center;
                   }
                   &:hover {
@@ -144,11 +153,11 @@
                   }
                 }
                 .name {
-                  font-size:26px;
+                  font-size:20px;
                   font-family: MicrosoftYaHei;
                   font-weight: bold;
                   color: rgba(57,57,57,1);
-                  margin-top: 18px;
+                  margin-top: 16px;
                   text-align: center;
                   cursor: pointer;
                   &:hover {
@@ -157,37 +166,40 @@
                   &::after{
                     content: '';
                     display: inline-block;
-                    width: 22px;
-                    height: 22px;
+                    width: 20px;
+                    height: 20px;
                     vertical-align: -2px;
                     margin-left: 10px;
                   }
                   &.man::after {
-                    background: url('../images/home/icon_man.png')
+                    background: url('../images/home/icon_man.png');
+                    background-size: 100%;
                   }
                   &.women::after {
-                    background: url('../images/home/icon_woman.png')
+                    background: url('../images/home/icon_woman.png');
+                    background-size: 100%;
                   }
                   &.unknown::after {
                     background:url('../images/searchList/icon_gender_unknown.png');
+                    background-size: 100%;
                   }
                 }
                 .type {
-                  font-size: 16px;
+                  font-size: 14px;
                   color:rgba(185,184,184,1);
-                  margin-top: 11px;
+                  margin-top: 10px;
                 }
               }
               .cardFooter {
-                line-height: 55px;
+                line-height: 50px;
                 text-align: center;
+                font-size: 12px;
                 color: #393939;
                 letter-spacing: 0;
                 span {
                   color: #FA8E9A;
                   &:nth-child(2) {
                     color: #FFAD0F;
-                    margin-left: 5px;
                     cursor: pointer;
                     &:hover {
                       color: rgba(255, 171, 15, 0.5);
@@ -197,10 +209,11 @@
                 &::after {
                   content: '';
                   display: inline-block;;
-                  width: 21px;
-                  height: 21px;
+                  width: 14px;
+                  height: 14px;
                   background: url('../images/home/icon_early_warning.png');
-                  margin-left: 15px;
+                  background-size: 100%;
+                  margin-left: 10px;
                 }
               }
             }
@@ -222,16 +235,17 @@
     }
   .inline-input{
     float: left;
-    height: 73px;
+    height: 52px;
     width: calc(100% - 160px);
     border-radius:4px 0px 0px 4px;
-    border:1px solid rgba(231,229,229,1);
   }
 
-  .el-input__inner{
-    font-size:18px;
-    height: 73px;
-    border:0;
-    border-radius:4px 0px 0px 4px;
+  .el-autocomplete{
+    .el-input__inner{
+        font-size:16px;
+        height: 52px;
+        border:0;
+        border-radius:4px 0px 0px 4px;
+      }
   }
 }
