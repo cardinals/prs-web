@@ -423,11 +423,16 @@ export default {
   },
   mounted () {
     this.getPeopleInfo()
-    this.setAnchorPoint(document.body.clientWidth)
+    this.setAnchorPoint()
     let _this = this
     window.onresize = function () {
       _this.setAnchorPoint()
     }
+  },
+  destroyed () {
+    window.onresize = null
+    // 恢复前面锚点早晨的页面偏移
+    document.getElementsByClassName('body')[0].style.marginRight = null
   }
 }
 </script>

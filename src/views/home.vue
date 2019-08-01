@@ -56,7 +56,7 @@
                 </div>
                 <!-- 卡片脚部 -->
                 <!-- upsideDownRoll 为自定义的组件，里面的内容放置在组件的默认插槽中 -->
-                <upsideDownRoll :height="55" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length" :id="item.personId+''">
+                <upsideDownRoll :height="50" :lineNum="Object.getOwnPropertyNames(abnormalFilter(item.abnormal)).length" :id="item.personId+''">
                   <div class="cardFooter" v-for="(value, key) in abnormalFilter(item.abnormal)" :key="key">
                     近三月共有<span> {{ value }} </span>项<span @click="goAbnormalPage(key,item.personId); log(item)"> {{ key|keyTranslation }}</span>
                   </div>
@@ -111,12 +111,12 @@ export default {
     moveLeft () {
       this.firstCardIndex--
       document.getElementById('moveContainer').transform = 'translateX(256px)'
-      document.getElementById('moveContainer').style.transform = 'translateX(-' + (256 * this.firstCardIndex) + 'px)'
+      document.getElementById('moveContainer').style.transform = 'translateX(-' + (210 * this.firstCardIndex) + 'px)'
     },
     // 右按钮
     moveRight () {
       this.firstCardIndex++
-      document.getElementById('moveContainer').style.transform = 'translateX(-' + (256 * this.firstCardIndex) + 'px)'
+      document.getElementById('moveContainer').style.transform = 'translateX(-' + (210 * this.firstCardIndex) + 'px)'
     },
     // 改变vuex中的搜索类型和搜索内容的值
     ...mapMutations({
@@ -210,15 +210,6 @@ export default {
   mounted () {
     // 请求最新动态的数据
     this.latestNewsInit()
-
-    // 适应屏幕高度，让首页整体的内容区域居中
-    this.$nextTick(() => {
-      let a = document.getElementsByClassName('home')[0].style
-      a.paddingTop = document.body.clientHeight - 861 + 'px'
-      window.onresize = function () {
-        a.paddingTop = document.body.clientHeight - 861 + 'px'
-      }
-    })
   }
 }
 </script>

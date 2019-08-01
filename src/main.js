@@ -13,7 +13,6 @@ Vue.config.productionTip = false
 Vue.use(ElementUI)
 Vue.use(common)
 
-// 设置rem
 let ww = document.documentElement.offsetWidth
 ww = ww >= 1366 ? ww : 1366
 document.documentElement.style.fontSize = (ww / 1920) * 100 + 'px'
