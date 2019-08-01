@@ -20,17 +20,6 @@ window.onresize = () => {
 }
 Vue.use(ElementUI)
 Vue.use(common)
-
-let ww = document.documentElement.offsetWidth
-ww = ww >= 1366 ? ww : 1366
-document.documentElement.style.fontSize = (ww / 1920) * 100 + 'px'
-// rem随屏幕变化适配
-window.onresize = () => {
-  let ww = document.documentElement.offsetWidth
-  ww = ww >= 1366 ? ww : 1366
-  document.documentElement.style.fontSize = (ww / 1920) * 100 + 'px'
-}
-
 new Vue({
   router,
   store,
