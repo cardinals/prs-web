@@ -364,12 +364,12 @@
           </el-table-column>
           <el-table-column
             prop="archivesOrg"
-            label="档案从放单位"
+            label="档案存放单位"
           >
           </el-table-column>
           <el-table-column
             prop="archivesLocation"
-            label="档案从放地">
+            label="档案存放地">
           </el-table-column>
         </el-table>
       </div>

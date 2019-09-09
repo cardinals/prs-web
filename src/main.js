@@ -9,10 +9,6 @@ import 'vue-mapboxgl-components'
 import 'vue-mapboxgl-components/lib/vue-mapboxgl-components.css'
 
 Vue.config.productionTip = false
-
-Vue.use(ElementUI)
-Vue.use(common)
-
 let ww = document.documentElement.offsetWidth
 ww = ww >= 1366 ? ww : 1366
 document.documentElement.style.fontSize = (ww / 1920) * 100 + 'px'
@@ -22,7 +18,8 @@ window.onresize = () => {
   ww = ww >= 1366 ? ww : 1366
   document.documentElement.style.fontSize = (ww / 1920) * 100 + 'px'
 }
-
+Vue.use(ElementUI)
+Vue.use(common)
 new Vue({
   router,
   store,
