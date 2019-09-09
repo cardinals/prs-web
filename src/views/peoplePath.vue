@@ -127,7 +127,7 @@ export default {
       },
       osmConfig: { // 地图瓦片地址及样式
         // <!-- osm地址 -->
-        osmUrl: 'http://192.168.22.88:8700',
+        osmUrl: process.env.VUE_APP_OSMURL,
         // <!-- 地图样式 -->
         backgroundStyle: 'prs-web'
       },
